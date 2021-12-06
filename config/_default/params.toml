@@ -7,7 +7,7 @@ introDescription = "Wrangler of imaginary computers."
 # showShare = false # Uncomment to not show share buttons on each post. Also available in each post's front matter.
 
 # Google analytics Id
-ga_analytics = "UA-183355934-1"
+# ga_analytics = "UA-183355934-1"
 
 # Baidu analytics Id
 # baidu_analytics = "XXXXXXXX"
