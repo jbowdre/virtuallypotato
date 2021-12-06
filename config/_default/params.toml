@@ -68,7 +68,7 @@ languageMenuName = "🌐"
 titleSeparator = "-"
 
 # Enable or disable comments globally. Default to true.
-comments = false
+comments = true
 
 # Maximum number of recent posts.
 # numberOfRecentPosts = 8
