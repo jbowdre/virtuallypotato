@@ -13,7 +13,7 @@ title: VMware Home Lab on Intel NUC 9
 
 I picked up an Intel NUC 9 Extreme kit a few months back (thanks, VMware!) and have been slowly tinkering with turning it into an extremely capable self-contained home lab environment. I'm pretty happy with where things sit right now so figured it was about time to start documenting and sharing what I've done. 
 
-![Screenshot 2020-12-23 at 12.30.07.png](/assets/images/posts-2020/SIDah-Lag.png)
+![Screenshot 2020-12-23 at 12.30.07.png](/images/posts-2020/SIDah-Lag.png)
 
 ### Hardware
 *(Caution: here be affiliate links)*
@@ -41,24 +41,24 @@ The NUC connects to my home network through its onboard gigabit Ethernet interfa
 I used the Chromebook Recovery Utility to write the ESXi installer ISO to *another* USB drive (how-to [here](burn-an-iso-to-usb-with-the-chromebook-recovery-utility)), inserted that bootable drive to a port on the front of the NUC, and booted the NUC from the drive. Installing ESXi 7.0u1 was as easy as it could possibly be. All hardware was automatically detected and the appropriate drivers loaded. Once the host booted up, I used the DCUI to configure a static IP address (`192.168.1.11`). I then shut down the NUC, disconnected the keyboard and monitor, and moved it into the cabinet where it will live out its headless existence.
 
 I was then able to point my web browser to `https://192.168.1.11/ui/` to log in to the host and get down to business. First stop: networking. For now, I only need a single standard switch (`vSwitch0`) with two portgroups: one for the host's vmkernel interface, and the other for the VMs (including the nested ESXi appliances) that are going to run directly on this physical host. The one "gotcha" when working with a nested environment is that you'll need to edit the virtual switch's security settings to "Allow promiscuous mode" and "Allow forged transmits" (for reasons described [here](https://williamlam.com/2013/11/why-is-promiscuous-mode-forged.html)). 
-![ink (2).png](/assets/images/posts-2020/w0HeFSi7Q.png)
+![ink (2).png](/images/posts-2020/w0HeFSi7Q.png)
 
 I created a single datastore to span the entirety of that 1TB NVMe drive. The nested ESXi hosts will use VMDKs stored here to provide storage to the nested VMs.
-![Screenshot 2020-12-28 at 12.24.57.png](/assets/images/posts-2020/XDe98S4Fx.png)
+![Screenshot 2020-12-28 at 12.24.57.png](/images/posts-2020/XDe98S4Fx.png)
 
 #### Domain Controller
 I created a new Windows VM with 2 vCPUs, 4GB of RAM, and a 90GB virtual hard drive, and I booted it off a [Server 2019 evaluation ISO](https://www.microsoft.com/en-US/evalcenter/evaluate-windows-server-2019?filetype=ISO). I gave it a name, a static IP address, and proceeded to install and configure the Active Directory Domain Services and DNS Server roles. I created static A and PTR records for the vCenter Server Appliance I'd be deploying next (`vcsa.`) and the physical host (`nuchost.`). I configured ESXi to use this new server for DNS resolutions, and confirmed that I could resolve the VCSA's name from the host.
 
-![Screenshot 2020-12-30 at 13.10.58.png](/assets/images/posts-2020/4o5bqRiTJ.png)
+![Screenshot 2020-12-30 at 13.10.58.png](/images/posts-2020/4o5bqRiTJ.png)
 
 Before moving on, I installed the Chrome browser on this new Windows VM and also set up remote access via [Chrome Remote Desktop](https://remotedesktop.google.com/access/). This will let me remotely access and manage my lab environment without having to punch holes in the router firewall (or worry about securing said holes). And it's got "chrome" in the name so it will work just fine from my Chromebooks!
 
 #### vCenter
 I attached the vCSA installation ISO to the Windows VM and performed the vCenter deployment from there. (See, I told you that Chrome Remote Desktop would come in handy!)
-![Screenshot 2020-12-30 at 14.51.09.png](/assets/images/posts-2020/OOP_lstyM.png)
+![Screenshot 2020-12-30 at 14.51.09.png](/images/posts-2020/OOP_lstyM.png)
 
 After the vCenter was deployed and the basic configuration completed, I created a new cluster to contain the physical host. There's likely only ever going to be the one physical host but I like being able to logically group hosts in this way, particularly when working with PowerCLI. I then added the host to the vCenter by its shiny new FQDN.
-![Screenshot 2021-01-05 10.39.54.png](/assets/images/posts-2020/Wu3ZIIVTs.png)
+![Screenshot 2021-01-05 10.39.54.png](/images/posts-2020/Wu3ZIIVTs.png)
 
 I've now got a fully-functioning VMware lab, complete with a physical hypervisor to run the workloads, a vCenter server to manage the workloads, and a Windows DNS server to tell the workloads how to talk to each other. Since the goal is to ultimately simulate a (small) production environment, let's set up some additional networking before we add anything else.
 
@@ -86,7 +86,7 @@ Of course, not everything that I'm going to deploy in the lab will need to be ac
 #### vSwitch1
 I'll start by adding a second vSwitch to the physical host. It doesn't need a physical adapter assigned since this switch will be for internal traffic. I create two port groups: one tagged for the VLAN 1610 Management traffic, which will be useful for attaching VMs on the physical host to the internal network; and the second will use VLAN 4095 to pass all VLAN traffic to the nested ESXi hosts. And again, this vSwitch needs to have its security policy set to allow Promiscuous Mode and Forged Transmits. I also set the vSwitch to support an MTU of 9000 so I can use Jumbo Frames on the vMotion and vSAN networks. 
 
-![Screenshot 2021-01-05 16.37.57.png](/assets/images/posts-2020/7aNJa2Hlm.png)
+![Screenshot 2021-01-05 16.37.57.png](/images/posts-2020/7aNJa2Hlm.png)
 
 #### VyOS
 Wouldn't it be great if the VMs that are going to be deployed on those `1610`, `1620`, and `1630` VLANs could still have their traffic routed out of the internal networks? But doing routing requires a router (or so my network friends tell me)... so I deployed a VM running the open-source VyOS router platform. I used [William Lam's instructions for installing VyOS](https://williamlam.com/2020/02/how-to-automate-the-creation-multiple-routable-vlans-on-single-l2-network-using-vyos.html), making sure to attach the first network interface to the Home-Network portgroup and the second to the Isolated portgroup (VLAN 4095). I then set to work [configuring the router](https://docs.vyos.io/en/latest/quick-start.html).
@@ -190,24 +190,24 @@ Alright, it's time to start building up the nested environment. To start, I grab
 
 Deploying the virtual appliances is just like any other "Deploy OVF Template" action. I placed the VMs on the `physical-cluster` compute resource, and selected to thin provision the VMDKs on the local datastore. I chose the "Isolated" VM network which uses VLAN 4095 to make all the internal VLANs available on a single portgroup.
 
-![Screenshot 2021-01-07 10.54.50.png](/assets/images/posts-2020/zOJp-jqVb.png)
+![Screenshot 2021-01-07 10.54.50.png](/images/posts-2020/zOJp-jqVb.png)
 
 And I set the networking properties accordingly:
 
-![Screenshot 2021-01-07 11.09.36.png](/assets/images/posts-2020/PZ6FzmJcx.png)
+![Screenshot 2021-01-07 11.09.36.png](/images/posts-2020/PZ6FzmJcx.png)
 
 These virtual appliances come with 3 hard drives. The first will be used as the boot device, the second for vSAN caching, and the third for vSAN capacity. I doubled the size of the second and third drives, to 8GB and 16GB respectively:
 
-![Screenshot 2021-01-07 13.01.19.png](/assets/images/posts-2020/nkdH7Jfxw.png)
+![Screenshot 2021-01-07 13.01.19.png](/images/posts-2020/nkdH7Jfxw.png)
 
 After booting the new host VMs, I created a new cluster in vCenter and then added the nested hosts:
-![Screenshot 2021-01-07 13.28.03.png](/assets/images/posts-2020/z8fvzu4Km.png)
+![Screenshot 2021-01-07 13.28.03.png](/images/posts-2020/z8fvzu4Km.png)
 
 Next, I created a new Distributed Virtual Switch to break out the VLAN trunk on the nested host "physical" adapters into the individual VLANs I created on the VyOS router. Again, each port group will need to allow Promiscuous Mode and Forged Transmits, and I set the dvSwitch MTU size to 9000 (to support Jumbo Frames on the vSAN and vMotion portgroups).
-![Screenshot 2021-01-08 10.04.24.png](/assets/images/posts-2020/arA7gurqh.png)
+![Screenshot 2021-01-08 10.04.24.png](/images/posts-2020/arA7gurqh.png)
 
 I migrated the physical NICs and `vmk0` to the new dvSwitch, and then created new vmkernel interfaces for vMotion and vSAN traffic on each of the nested hosts:
-![Screenshot 2021-01-19 10.03.27.png](/assets/images/posts-2020/6-auEYd-W.png)
+![Screenshot 2021-01-19 10.03.27.png](/images/posts-2020/6-auEYd-W.png)
 
 I then ssh'd into the hosts and used `vmkping` to make sure they could talk to each other over these interfaces. I changed the vMotion interface to use the vMotion TCP/IP stack so needed to append the `-S vmotion` flag to the command:
 
@@ -234,10 +234,10 @@ round-trip min/avg/max = 0.202/0.252/0.312 ms
 ```
 
 Okay, time to throw some vSAN on these hosts. Select the cluster object, go to the configuration tab, scroll down to vSAN, and click "Turn on vSAN". This will be a single site cluster, and I don't need to enable any additional services. When prompted, I claim the 8GB drives for the cache tier and the 16GB drives for capacity.
-![Screenshot 2021-01-23 17.35.34.png](/assets/images/posts-2020/mw-rsq_1a.png)
+![Screenshot 2021-01-23 17.35.34.png](/images/posts-2020/mw-rsq_1a.png)
 
 It'll take a few minutes for vSAN to get configured on the cluster.
-![Screenshot 2021-01-23 17.41.13.png](/assets/images/posts-2020/mye0LdtNj.png)
+![Screenshot 2021-01-23 17.41.13.png](/images/posts-2020/mye0LdtNj.png)
 
 Huzzah! Next stop:
 
@@ -253,7 +253,7 @@ Anyhoo, each of these VMs will need to be resolvable in DNS so I started by crea
 |`vra.lab.bowdre.net`|`192.168.1.42`|
 
 I then attached the installer ISO to my Windows VM and ran through the installation from there. 
-![Screenshot 2021-02-05 16.28.41.png](/assets/images/posts-2020/42n3aMim5.png)
+![Screenshot 2021-02-05 16.28.41.png](/images/posts-2020/42n3aMim5.png)
 
 Similar to the vCenter deployment process, this one prompts you for all the information it needs up front and then takes care of everything from there. That's great news because this is a pretty long deployment; it took probably two hours from clicking the final "Okay, do it" button to being able to log in to my shiny new vRealize Automation environment.
 

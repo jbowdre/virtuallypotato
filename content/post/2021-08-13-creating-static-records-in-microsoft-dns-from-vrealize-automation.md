@@ -228,13 +228,13 @@ resources:
         - tag: 'net:${input.network}'
 ```
 I save the template, and then also hit the "Version" button to publish a new version to the catalog:
-![Releasing new version](/assets/images/posts-2021/08/20210803_new_template_version.png)
+![Releasing new version](/images/posts-2021/08/20210803_new_template_version.png)
 
 #### Service Broker Custom Form
 I switch over to the Service Broker UI to update the custom form - but first I stop off at **Content & Policies > Content Sources**, select my Content Source, and hit the **Save & Import** button to force a sync of the cloud templates. I can then move on to the **Content & Policies > Content** section, click the 3-dot menu next to my template name, and select the option to **Customize Form**.
 
 I'll just drag the new Schema Element called `Create static DNS record` from the Request Inputs panel and on to the form canvas. I'll drop it right below the `Join to AD domain` field:
-![Adding the field to the form](/assets/images/posts-2021/08/20210803_updating_custom_form.png)
+![Adding the field to the form](/images/posts-2021/08/20210803_updating_custom_form.png)
 
 And then I'll hit the **Save** button so that my efforts are preserved.
 
@@ -246,10 +246,10 @@ I will be adding the DNS action on to my existing "VM Post-Provisioning" workflo
 
 #### Configuration Element
 But first, I'm going to go to the **Assets > Configurations** section of the Orchestrator UI and create a new Configuration Element to store variables related to the SSH host and DNS configuration.
-![Create a new configuration](/assets/images/posts-2020/Go3D-gemP.png)
+![Create a new configuration](/images/posts-2020/Go3D-gemP.png)
 
 I'll call it `dnsConfig` and put it in my `CustomProvisioning` folder.
-![Giving it a name](/assets/images/posts-2020/fJswso9KH.png)
+![Giving it a name](/images/posts-2020/fJswso9KH.png)
 
 And then I create the following variables:
 
@@ -264,17 +264,17 @@ And then I create the following variables:
 `sshHost` is my new `win02` server that I'm going to connect to via SSH, and `sshUser` and `sshPass` should explain themselves. The `dnsServer` array will tell the script which DNS servers to try to create the record on; this will just be a single server in my lab, but I'm going to construct the script to support multiple servers in case one isn't reachable. And `supported domains` will be used to restrict where I'll be creating records; again, that's just a single domain in my lab, but I'm building this solution to account for the possibility where a VM might need to be deployed on a domain where I can't create a static record in this way so I want it to fail elegantly.
 
 Here's what the new configuration element looks like:
-![Variables defined](/assets/images/posts-2020/a5gtUrQbc.png)
+![Variables defined](/images/posts-2020/a5gtUrQbc.png)
 
 #### Workflow to create records
 I'll need to tell my workflow about the variables held in the `dnsConfig` Configuration Element I just created. I do that by opening the "VM Post-Provisioning" workflow in the vRO UI, clicking the **Edit** button, and then switching to the **Variables** tab. I create a variable for each member of `dnsConfig`, and enable the toggle to *Bind to configuration* so that I can select the corresponding item. It's important to make sure that the variable type exactly matches what's in the configuration element so that you'll be able to pick it!
-![Linking variable to config element](/assets/images/posts-2021/08/20210809_creating_bound_variable.png)
+![Linking variable to config element](/images/posts-2021/08/20210809_creating_bound_variable.png)
 
 I repeat that for each of the remaining variables until all the members of `dnsConfig` are represented in the workflow:
-![Variables added](/assets/images/posts-2021/08/20210809_variables_added.png)
+![Variables added](/images/posts-2021/08/20210809_variables_added.png)
 
 Now we're ready for the good part: inserting a new scriptable task into the workflow schema. I'll called it `Create DNS Record` and place it directly after the `Set Notes` task. For inputs, the task will take in `inputProperties (Properties)` as well as everything from that `dnsConfig` configuration element:
-![Task inputs](/assets/images/posts-2021/08/20210809_task_inputs.png)
+![Task inputs](/images/posts-2021/08/20210809_task_inputs.png)
 
 And here's the JavaScript for the task:
 ```js
@@ -325,16 +325,16 @@ Now I can just save the workflow, and I'm done! - with this part. Of course, bei
 
 #### Workflow to delete records
 I haven't previously created any workflows that fire on deployment removal, so I'll create a new one and call  it `VM Deprovisioning`:
-![New workflow](/assets/images/posts-2021/08/20210811_new_workflow.png)
+![New workflow](/images/posts-2021/08/20210811_new_workflow.png)
 
 This workflow only needs a single input (`inputProperties (Properties)`) so it can receive information about the deployment from vRA:
-![Workflow input](/assets/images/posts-2021/08/20210811_inputproperties.png)
+![Workflow input](/images/posts-2021/08/20210811_inputproperties.png)
 
 I'll also need to bind in the variables from the `dnsConfig` element as before:
-![Workflow variables](/assets/images/posts-2021/08/20210812_deprovision_variables.png)
+![Workflow variables](/images/posts-2021/08/20210812_deprovision_variables.png)
 
 The schema will include a single scriptable task:
-![Delete DNS Record task](/assets/images/posts-2021/08/20210812_delete_dns_record_task.png)
+![Delete DNS Record task](/images/posts-2021/08/20210812_delete_dns_record_task.png)
 
 And it's going to be *pretty damn similar* to the other one:
 
@@ -383,14 +383,14 @@ if (staticDns == "true" && supportedDomains.indexOf(dnsDomain) >= 0) {
 ```
 
 Since this is a new workflow, I'll also need to head back to **Cloud Assembly > Extensibility > Subscriptions** and add a new subscription to call it when a deployment gets deleted. I'll call it "VM Deprovisioning", assign it to the "Compute Post Removal" Event Topic, and link it to my new "VM Deprovisioning" workflow. I *could* use the Condition option to filter this only for deployments which had a static DNS record created, but I'll later want to use this same workflow for other cleanup tasks so I'll just save it as is for now.
-![VM Deprovisioning subscription](/assets/images/posts-2021/08/20210812_deprovisioning_subscription.png)
+![VM Deprovisioning subscription](/images/posts-2021/08/20210812_deprovisioning_subscription.png)
 
 ### Testing
 Now I can (finally) fire off a quick deployment to see if all this mess actually works:
-![Test deploy request](/assets/images/posts-2021/08/20210812_test_deploy_request.png)
+![Test deploy request](/images/posts-2021/08/20210812_test_deploy_request.png)
 
 Once the deployment completes, I go back into vRO, find the most recent item in the **Workflow Runs** view, and click over to the **Logs** tab to see how I did:
-![Workflow success!](/assets/images/posts-2021/08/20210813_workflow_success.png)
+![Workflow success!](/images/posts-2021/08/20210813_workflow_success.png)
 
 And I can run a quick query to make sure that name actually resolves:
 ```shell
@@ -401,10 +401,10 @@ And I can run a quick query to make sure that name actually resolves:
 It works!
 
 Now to test the cleanup. For that, I'll head back to Service Broker, navigate to the **Deployments** tab, find my deployment, click the little three-dot menu button, and select the **Delete** option:
-![Deleting the deployment](/assets/images/posts-2021/08/20210813_delete_deployment.png)
+![Deleting the deployment](/images/posts-2021/08/20210813_delete_deployment.png)
 
 Again, I'll check the **Workflow Runs** in vRO to see that the deprovisioning task completed successfully:
-![VM Deprovisioning workflow](/assets/images/posts-2021/08/20210813_workflow_deletion.png)
+![VM Deprovisioning workflow](/images/posts-2021/08/20210813_workflow_deletion.png)
 
 And I can `dig` a little more to make sure the name doesn't resolve anymore:
 ```shell

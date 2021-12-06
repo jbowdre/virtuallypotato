@@ -17,17 +17,17 @@ Normally that tool is used to creating bootable media to [reinstall Chrome OS on
 1. Install the [Chromebook Recovery Utility](https://chrome.google.com/webstore/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm).
 2. Download the ISO you intend to use.
 3. Rename the file to append `.bin` on the end, after the `.iso` bit:
-![Screenshot 2020-12-23 at 15.42.40.png](/assets/images/posts-2020/uoTjgtbN1.png)
+![Screenshot 2020-12-23 at 15.42.40.png](/images/posts-2020/uoTjgtbN1.png)
 4. Plug in the USB drive you're going to sacrifice for this effort - remember that ALL data on the drive will be erased.
 5. Open the recovery utility, click on the gear icon at the top right, and select the *Use local image* option:
-![Screenshot 2020-12-23 at 15.44.04.png](/assets/images/posts-2020/vdTpW9t7Q.png)
+![Screenshot 2020-12-23 at 15.44.04.png](/images/posts-2020/vdTpW9t7Q.png)
 6. Browse to and select the `*.iso.bin` file.
 7. Choose the USB drive, and click *Continue*.
-![Screenshot 2020-12-23 at 15.45.59.png](/assets/images/posts-2020/p_Ieqsw4p.png)
+![Screenshot 2020-12-23 at 15.45.59.png](/images/posts-2020/p_Ieqsw4p.png)
 8. Click *Create now* to start the writing!
-![Screenshot 2020-12-23 at 15.53.03.png](/assets/images/posts-2020/lhw5EEqSD.png)
+![Screenshot 2020-12-23 at 15.53.03.png](/images/posts-2020/lhw5EEqSD.png)
 9. All done! It probably won't work great for actually recovering your Chromebook but will do wonders for installing ESXi (or whatever) on another computer!
-![Screenshot 2020-12-23 at 15.53.32.png](/assets/images/posts-2020/-lp1-DGiM.png)
+![Screenshot 2020-12-23 at 15.53.32.png](/images/posts-2020/-lp1-DGiM.png)
 
 You can also use the CRU to make a bootable USB from a `.zip` archive containing a single `.img` file, such as those commonly used to distribute [Raspberry Pi images](https://www.raspberrypi.org/documentation/installation/installing-images/chromeos.md).
 

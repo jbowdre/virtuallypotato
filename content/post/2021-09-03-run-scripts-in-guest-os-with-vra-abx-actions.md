@@ -247,25 +247,25 @@ resources:
 ```
 
 With the template sorted, I need to assign it a new version and release it to the catalog so that the changes will be visible to Service Broker:
-![Releasing a new version of a Cloud Assembly template](/assets/images/posts-2021/08/20210831_cloud_assembly_new_version.png)
+![Releasing a new version of a Cloud Assembly template](/images/posts-2021/08/20210831_cloud_assembly_new_version.png)
 
 #### Service Broker custom form
 I now need to also make some updates to the custom form configuration in Service Broker so that the new fields will appear on the request form. First things first, though: after switching to the Service Broker UI, I go to **Content & Policies > Content Sources**, open the linked content source, and click the **Save & Import** button to force Service Broker to pull in the latest versions from Cloud Assembly.
 
 I can then go to **Content**, click the three-dot menu next to my `WindowsDemo` item, and select the **Customize Form** option. I drag-and-drop the `System drive size` from the *Schema Elements* section onto the canvas, placing it directly below the existing `Resource Size` field.
-![Placing the system drive size field on the canvas](/assets/images/posts-2021/08/20210831_system_drive_size_placement.png)
+![Placing the system drive size field on the canvas](/images/posts-2021/08/20210831_system_drive_size_placement.png)
 
 With the field selected, I use the **Properties** section to edit the label with a unit so that users will better understand what they're requesting.
-![System drive size label](/assets/images/posts-2021/08/20210831_system_drive_size_label.png)
+![System drive size label](/images/posts-2021/08/20210831_system_drive_size_label.png)
 
 On the **Values** tab, I change the *Step* option to `5` so that we won't wind up with users requesting a disk size of `62.357 GB` or anything crazy like that.
-![System drive size step](/assets/images/posts-2021/08/20210831_system_drive_size_step.png)
+![System drive size step](/images/posts-2021/08/20210831_system_drive_size_step.png)
 
 I'll drag-and-drop the `Administrators` field to the canvas, and put it right below the VM description:
-![Administrators field placement](/assets/images/posts-2021/08/20210831_administrators_placement.png)
+![Administrators field placement](/images/posts-2021/08/20210831_administrators_placement.png)
 
 I only want this field to be visible if the VM is going to be joined to the AD domain, so I'll set the *Visibility* accordingly:
-![Administrators field visibility](/assets/images/posts-2021/08/20210831_administrators_visibility.png)
+![Administrators field visibility](/images/posts-2021/08/20210831_administrators_visibility.png)
 
 That should be everything I need to add to the custom form so I'll be sure to hit that big **Save** button before moving on.
 
@@ -279,21 +279,21 @@ From the vRA Cloud Assembly interface, I'll navigate to **Extensibility > Librar
 - `templatePassWinDomain`: for logging into VMs with the designated domain credentials.
 
 I'll make sure to enable the *Encrypt the action constant value* toggle for each so they'll be protected.
-![Creating an action constant](/assets/images/posts-2021/09/20210901_create_action_constant.png)
+![Creating an action constant](/images/posts-2021/09/20210901_create_action_constant.png)
 
-![Created action constants](/assets/images/posts-2021/09/20210901_action_constants.png)
+![Created action constants](/images/posts-2021/09/20210901_action_constants.png)
 
 Once all those constants are created I can move on to the meat of this little project:
 
 #### ABX Action
 I'll click back to **Extensibility > Library > Actions** and then **+ New Action**. I give the new action a clever title and description:
-![Create a new action](/assets/images/posts-2021/09/20210901_create_action.png)]
+![Create a new action](/images/posts-2021/09/20210901_create_action.png)]
 
 I then hit the language dropdown near the top left and select to use `powershell` so that I can use those sweet, sweet PowerCLI cmdlets.
-![Language selection](/assets/images/posts-2021/09/20210901_action_select_language.png)
+![Language selection](/images/posts-2021/09/20210901_action_select_language.png)
 
 And I'll pop over to the right side to map the Action Constants I created earlier so that I can reference them in the script I'm about to write:
-![Mapping constants in action](/assets/images/posts-2021/09/20210901_map_constants_to_action.png)
+![Mapping constants in action](/images/posts-2021/09/20210901_map_constants_to_action.png)
 
 Now for The Script:
 ```powershell
@@ -468,27 +468,27 @@ It wouldn't be hard to customize the script to perform different actions (or eve
 
 #### Event subscription
 Before I can test the new action, I'll need to first add an extensibility subscription so that the ABX action will get called during the deployment. So I head to **Extensibility > Subscriptions** and click the **New Subscription** button.
-![Extensibility subscriptions](/assets/images/posts-2021/09/20210903_extensibility_subscriptions.png)
+![Extensibility subscriptions](/images/posts-2021/09/20210903_extensibility_subscriptions.png)
 
 I'll be using this to call my new `configureGuest` action - so I'll name the subscription `Configure Guest`. I tie it to the `Compute Post Provision` event, and bind my action:
-![Creating the new subscription](/assets/images/posts-2021/09/20210903_new_subscription_1.png)
+![Creating the new subscription](/images/posts-2021/09/20210903_new_subscription_1.png)
 
 I do have another subsciption on that event already, [`VM Post-Provisioning`](adding-vm-notes-and-custom-attributes-with-vra8#extensibility-subscription) which is used to modify the VM object with notes and custom attributes. I'd like to make sure that my work inside the guest happens after that other subscription is completed, so I'll enable blocking and give it a priority of `2`:
-![Adding blocking to Configure Guest](/assets/images/posts-2021/09/20210903_new_subscription_2.png)
+![Adding blocking to Configure Guest](/images/posts-2021/09/20210903_new_subscription_2.png)
 
 After hitting the **Save** button, I go back to that other `VM Post-Provisioning` subscription, set it to enable blocking, and give it a priority of `1`:
-![Blocking VM Post-Provisioning](/assets/images/posts-2021/09/20210903_old_subscription_blocking.png)
+![Blocking VM Post-Provisioning](/images/posts-2021/09/20210903_old_subscription_blocking.png)
 
 This will ensure that the new subscription fires after the older one completes, and that should avoid any conflicts between the two. 
 
 ### Testing
 Alright, now let's see if it worked. I head into Service Broker to submit the deployment request:
-![Submitting the test deployment](/assets/images/posts-2021/09/20210903_request.png)
+![Submitting the test deployment](/images/posts-2021/09/20210903_request.png)
 
 Note that I've set the disk size to 65GB (up from the default of 60), and I'm adding `lab\testy` as a local admin on the deployed system.
 
 Once the deployment finishes, I can switch back to Cloud Assembly and check **Extensibility > Activity > Action Runs** and then click on the `configureGuest` run to see how it did.
-![Successful action run](/assets/images/posts-2021/09/20210903_action_run_success.png)
+![Successful action run](/images/posts-2021/09/20210903_action_run_success.png)
 
 It worked!
 
@@ -546,10 +546,10 @@ TaskPath                                       TaskName                         
 ```
 
 So it *claims* to have successfully updated the VM tools, added `lab\testy` to the local `Administrators` group, extended the `C:` volume to fill the 65GB virtual disk, added firewall rules to permit remote access, and created a scheduled task to apply updates. I can open a console session to the VM to spot-check the results.
-![Verifying local admins](/assets/images/posts-2021/09/20210903_verify_local_admins.png)
+![Verifying local admins](/images/posts-2021/09/20210903_verify_local_admins.png)
 Yep, `testy` is an admin now!
 
-![Verify disk size](/assets/images/posts-2021/09/20210903_verify_disk_size.png)
+![Verify disk size](/images/posts-2021/09/20210903_verify_disk_size.png)
 And `C:` fills the disk!
 
 ### Wrap-up

@@ -18,7 +18,7 @@ In this post, I'll describe how to get certain details from the Service Broker r
 
 ### New inputs
 I'll start this by adding a few new inputs to the cloud template in Cloud Assembly.
-![New inputs in Cloud Assembly](/assets/images/posts-2020/F3Wkd3VT.png)
+![New inputs in Cloud Assembly](/images/posts-2020/F3Wkd3VT.png)
 
 I'm using a basic regex on the `poc_email` field to make sure that the user's input is *probably* a valid email address in the format `[some string]@[some string].[some string]`. 
 
@@ -47,7 +47,7 @@ inputs:
 ```
 
 I'll also need to add these to the `resources` section of the template so that they will get passed along with the deployment properties.
-![New resource properties](/assets/images/posts-2020/N7YllJkxS.png)
+![New resource properties](/images/posts-2020/N7YllJkxS.png)
 
 I'm actually going to combine the `poc_name` and `poc_email` fields into a single `poc` string. 
 
@@ -64,21 +64,21 @@ resources:
 ```
 
 I'll save this as a new version so that the changes will be available in the Service Broker front-end.
-![New template version](/assets/images/posts-2020/Z2aKLsLou.png)
+![New template version](/images/posts-2020/Z2aKLsLou.png)
 
 ### Service Broker custom form
 I can then go to Service Broker and drag the new fields onto the Custom Form canvas. (If the new fields don't show up, hit up the Content Sources section of Service Broker, select the content source, and click the "Save and Import" button to sync the changes.) While I'm at it, I set the Description field to display as a text area (encouraging more detailed input), and I also set all the fields on the form to be required.
-![Service Broker form](/assets/images/posts-2020/unhgNySSzz.png)
+![Service Broker form](/images/posts-2020/unhgNySSzz.png)
 
 ### vRO workflow
 Okay, so I've got the information I want to pass on to vCenter. Now I need to whip up a new workflow in vRO that will actually do that (after [telling vRO how to connect to the vCenter](vra8-custom-provisioning-part-two#interlude-connecting-vro-to-vcenter), of course). I'll want to call this after the VM has been provisioned, so I'll cleverly call the workflow "VM Post-Provisioning".
-![image.png](/assets/images/posts-2020/X9JhgWx8x.png)
+![image.png](/images/posts-2020/X9JhgWx8x.png)
 
 The workflow will have a single input from vRA, `inputProperties` of type `Properties`. 
-![image.png](/assets/images/posts-2020/zHrp6GPcP.png)
+![image.png](/images/posts-2020/zHrp6GPcP.png)
 
 The first thing this workflow needs to do is parse `inputProperties (Properties)` to get the name of the VM, and it will then use that information to query vCenter and grab the corresponding VM object. So I'll add a scriptable task item to the workflow canvas and call it `Get VM Object`. It will take `inputProperties (Properties)` as its sole input, and output a new variable called `vm` of type `VC:VirtualMachine`.
-![image.png](/assets/images/posts-2020/5ATk99aPW.png)
+![image.png](/images/posts-2020/5ATk99aPW.png)
 
 The script for this task is fairly straightforward:
 ```js
@@ -94,7 +94,7 @@ vm = vms[0]
 ```
 
 I'll add another scriptable task item to the workflow to actually apply the notes to the VM - I'll call it `Set Notes`, and it will take both `vm (VC:VirtualMachine)` and `inputProperties (Properties)` as its inputs.
-![image.png](/assets/images/posts-2020/w24V6YVOR.png)
+![image.png](/images/posts-2020/w24V6YVOR.png)
 
 The first part of the script creates a new VM config spec, inserts the description into the spec, and then reconfigures the selected VM with the new spec.
 
@@ -119,17 +119,17 @@ System.getModule("com.vmware.library.vc.customattribute").setOrCreateCustomField
 
 ### Extensibility subscription
 Now I need to return to Cloud Assembly and create a new extensibility subscription that will call this new workflow at the appropriate time. I'll call it "VM Post-Provisioning" and attach it to the "Compute Post Provision" topic.
-![image.png](/assets/images/posts-2020/PmhVOWJsUn.png)
+![image.png](/images/posts-2020/PmhVOWJsUn.png)
 
 And then I'll link it to my new workflow:
-![image.png](/assets/images/posts-2020/cEbWSOg00.png)
+![image.png](/images/posts-2020/cEbWSOg00.png)
 
 ### Testing
 And then back to Service Broker to request a VM and see if it works:
 
-![image.png](/assets/images/posts-2020/Lq9DBCK_Y.png)
+![image.png](/images/posts-2020/Lq9DBCK_Y.png)
 
 It worked!
-![image.png](/assets/images/posts-2020/-Fuvz-GmF.png)
+![image.png](/images/posts-2020/-Fuvz-GmF.png)
 
 In the future, I'll be exploring more features that I can add on to this "VM Post-Provisioning" workflow like creating static DNS records as needed.

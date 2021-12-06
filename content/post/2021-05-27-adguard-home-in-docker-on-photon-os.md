@@ -21,9 +21,9 @@ https://packages.vmware.com/photon/4.0/GA/ova/photon-hw13-uefi-4.0-1526e30ba0.ov
 ```
 
 Then I went into vCenter, hit the **Deploy OVF Template** option, and pasted in the URL:
-![Deploying the OVA straight from the internet](/assets/images/posts-2020/Es90-kFW9.png)
+![Deploying the OVA straight from the internet](/images/posts-2020/Es90-kFW9.png)
 This lets me skip the kind of tedious "download file from internet and then upload file to vCenter" dance, and I can then proceed to click through the rest of the deployment options.
-![Ready to deploy](/assets/images/posts-2020/rCpaTbPX5.png)
+![Ready to deploy](/images/posts-2020/rCpaTbPX5.png)
 
 Once the VM is created, I power it on and hop into the web console. The default root username is `changeme`, and I'll of course be forced to change that the first time I log in.
 
@@ -57,10 +57,10 @@ IPv6AcceptRA=no
 I set the required permissions on my new network configuration file with `chmod 644 /etc/systemd/network/10-static-en.network` and then restarted `networkd` with `systemctl restart systemd-networkd`. 
 
 I then ran `networkctl` a couple of times until the `eth0` interface went fully green, and did an `ip a` to confirm that the address had been applied.
-![Verifying networking](/assets/images/posts-2020/qOw7Ysj3O.png)
+![Verifying networking](/images/posts-2020/qOw7Ysj3O.png)
 
 One last little bit of housekeeping is to change the hostname with `hostnamectl set-hostname adguard` and then reboot for good measure. I can then log in via SSH to continue the setup.
-![SSH login](/assets/images/posts-2020/NOyfgjjUy.png)
+![SSH login](/images/posts-2020/NOyfgjjUy.png)
 
 Now that I'm in, I run `tdnf update` to make sure the VM is fully up to date.
 
@@ -147,10 +147,10 @@ Creating adguard ... done
 
 ### Post-deploy configuration
 Next, I point a web browser to `http://adguard.lab.bowdre.net:3000` to perform the initial (minimal) setup:
-![Initial config screen](/assets/images/posts-2020/UHvtv1DrT.png)
+![Initial config screen](/images/posts-2020/UHvtv1DrT.png)
 
 Once that's done, I can log in to the dashboard at `http://adguard.lab.bowdre.net/login.html`:
-![Login page](/assets/images/posts-2020/34xD8tbli.png)
+![Login page](/images/posts-2020/34xD8tbli.png)
 
 AdGuard Home ships with pretty sensible defaults so there's not really a huge need to actually do a lot of configuration. Any changes that I *do* do will be saved in `~/adguard/confdir/AdGuardHome.yaml` so they will be preserved across container changes.
 
@@ -161,15 +161,15 @@ Normally, you'd tell your Wifi router what DNS server you want to use, and it wo
 I already have Google Wifi set up to use my Windows DC (at `192.168.1.5`) for DNS. That lets me easily access systems on my internal `lab.bowdre.net` domain without having to manually configure DNS, and the DC forwards resolution requests it can't handle on to the upstream (internet) DNS servers. 
 
 To easily insert my AdGuard Home instance into the flow, I pop in to my Windows DC and configure the AdGuard Home address (`192.168.1.2`) as the primary DNS forwarder. The DC will continue to handle internal resolutions, and anything it can't handle will now get passed up the chain to AdGuard Home. And this also gives me a bit of a failsafe, in that queries will fail back to the previously-configured upstream DNS if AdGuard Home doesn't respond within a few seconds.
-![Setting AdGuard Home as a forwarder](/assets/images/posts-2020/bw09OXG7f.png)
+![Setting AdGuard Home as a forwarder](/images/posts-2020/bw09OXG7f.png)
 
 It's working!
-![Requests!](/assets/images/posts-2020/HRRpFOKuN.png)
+![Requests!](/images/posts-2020/HRRpFOKuN.png)
 
 
 ### Caveat
 Chaining my DNS configurations in this way (router -> DC -> AdGuard Home -> internet) does have a bit of a limitation, in that all queries will appear to come from the Windows server:
-![Only client](/assets/images/posts-2020/OtPGufxlP.png)
+![Only client](/images/posts-2020/OtPGufxlP.png)
 I won't be able to do any per-client filtering as a result, but honestly I'm okay with that as I already use the "Pause Internet" option in Google Wifi to block outbound traffic from certain devices anyway. And using the Windows DNS as an intermediary makes it significantly quicker and easier to switch things up if I run into problems later; changing the forwarder here takes effect instantly rather than having to manually update all of my clients or wait for DHCP to distribute the change.
 
 I have worked around this in the past by [bypassing Google Wifi's DHCP](https://www.mbreviews.com/pi-hole-google-wifi-raspberry-pi/) but I think it was actually more trouble than it was worth to me.
@@ -177,6 +177,6 @@ I have worked around this in the past by [bypassing Google Wifi's DHCP](https://
 
 ### One last thing...
 I'm putting a lot of responsibility on both of these VMs, my Windows DC and my new AdGuard Home instance. If they aren't up, I won't have internet access, and that would be a shame. I already have my ESXi host configured to automatically start up when power is (re)applied, so I also adjust the VM Startup/Shutdown Configuration so that AdGuard Home will automatically boot after ESXi is loaded, followed closely by the Windows DC (and the rest of my virtualized infrastructure):
-![Auto Start-up Options](/assets/images/posts-2020/clE6OVmjp.png)
+![Auto Start-up Options](/images/posts-2020/clE6OVmjp.png)
 
 So there you have it. Simple DNS-based ad-blocking running on a minimal container-optimized VM that *should* be more stable than the add-on tacked on to my Home Assistant instance. Enjoy!

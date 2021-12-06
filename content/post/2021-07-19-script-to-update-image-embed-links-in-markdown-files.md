@@ -57,7 +57,7 @@ And the image embeds in the local copy of my posts now all look like this:
 
 ```markdown
 
-![Clever image title](/assets/images/posts-2020/lhTnVwCO3.png)
+![Clever image title](/images/posts-2020/lhTnVwCO3.png)
 
 ```
 

@@ -16,7 +16,7 @@ title: Auto-connect to ProtonVPN on untrusted WiFi with Tasker [Update!]
 
 I recently shared how I use [Tasker and Home Assistant to keep my phone from charging past 80%](safeguard-your-androids-battery-with-tasker-home-assistant). Today, I'm going to share the setup I use to automatically connect my phone to a VPN on networks I *don't* control.
 
-![Tasker + OpenVPN](/assets/images/posts-2020/Ki7jo65t3.png)
+![Tasker + OpenVPN](/images/posts-2020/Ki7jo65t3.png)
 
 ### Background
 Android has an option to [set a VPN as Always-On](https://support.google.com/android/answer/9089766#always-on_VPN) so for maximum security I could just use that. I'm not *overly* concerned (yet?) with my internet traffic being intercepted upstream of my ISP, though, and often need to connect to other devices on my home network without passing through a VPN (or introducing split-tunnel complexity). But I do want to be sure that my traffic is protected whenever I'm connected to a WiFi network controlled by someone else.
@@ -45,7 +45,7 @@ You can find instructions for configuring the OpenVPN client to work with Proton
   - **Country configs** connect to a random VPN node in your target country
   - **Standard server configs** let you choose the specific VPN node to use
   - **Free server configs** connect you to one of the VPN nodes available in the free tier
-![Client config download page](/assets/images/posts-2020/vdIG0jHmk.png)
+![Client config download page](/images/posts-2020/vdIG0jHmk.png)
 
 Feel free to download more than one if you'd like to have different profiles available within the OpenVPN app.
 
@@ -56,7 +56,7 @@ ProtonVPN automatically generates a set of user credentials to use with a third-
 ### Configuring OpenVPN for Android
 Now what you've got the config file(s) and your client credentials, it's time to actually configure that client.
 
-![OpenVPN connection list](/assets/images/posts-2020/9WdA6HRch.png)
+![OpenVPN connection list](/images/posts-2020/9WdA6HRch.png)
 
 1. Launch the OpenVPN for Android app and tap the little 'downvote-in-a-box' "Import" icon.
 2. Browse to wherever you saved the `.ovpn` config files and select the one you'd like to use.
@@ -69,7 +69,7 @@ Success!
 
 I don't like to have a bunch of persistent notification icons hanging around (and Android already shows a persistent status icon when a VPN connection is active). If you're like me, long-press the OpenVPN notification and tap the gear icon. Then tap on the **Connection statistics** category and activate the **Minimized** slider. The notification will still appear, but it will collapse to the bottom of your notification stack and you won't get bugged by the icon. 
 
-![Notification settings](/assets/images/posts-2020/WWuHwVvrk.png)
+![Notification settings](/images/posts-2020/WWuHwVvrk.png)
 
 ### Tasker profiles
 Open up Tasker and get ready to automate! We're going to wind up with at least two new Tasker profiles so (depending on how many you already have) you might want to create a new project by long-pressing the Home icon at the bottom-left of the screen and selecting the **Add** option. I chose to group all my VPN-related profiles in a project named (oh-so-creatively) "VPN". Totally your call though.
@@ -146,7 +146,7 @@ A1: Variable Clear [ Name:%TRUSTED_WIFI Pattern Matching:Off Local Variables Onl
 #### OpenVPN Connect app configuration
 After installing and launching the official [OpenVPN Connect app](https://play.google.com/store/apps/details?id=net.openvpn.openvpn), tap the "+" button at the bottom right to create a new profile. Swipe over to the "File" tab and import the `*.ovpn` file you downloaded from ProtonVPN. Paste in the username, tick the "Save password" box, and paste in the password as well. I also chose to rename the profile to something a little bit more memorable - you'll need this name later. From there, hit the "Add" button and then go ahead and tap on your profile to test the connection.
 
-![Creating a profile in OpenVPN Connect](/assets/images/posts-2020/KjGOX8Yiv.png)
+![Creating a profile in OpenVPN Connect](/images/posts-2020/KjGOX8Yiv.png)
 
 #### Tasker profiles
 Go ahead and create the [Trusted Wifi profile](#trusted-wifi) as described above. 

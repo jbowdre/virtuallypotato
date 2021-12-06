@@ -21,23 +21,23 @@ Picking up after [Part Two](vra8-custom-provisioning-part-two), I now have a pre
 Remember how I [used the built-in vSphere plugin](vra8-custom-provisioning-part-two#interlude-connecting-vro-to-vcenter) to let vRO query my vCenter(s) for VMs with a specific name? And how that required first configuring the vCenter endpoint(s) in vRO? I'm going to take a very similar approach here.
 
 So as before, I'll first need to run the preinstalled "Add an Active Directory server" workflow:
-![Add an Active Directory server workflow](/assets/images/posts-2020/uUDJXtWKz.png)
+![Add an Active Directory server workflow](/images/posts-2020/uUDJXtWKz.png)
 
 I fill out the Connection tab like so:
-![Connection tab](/assets/images/posts-2020/U6oMWDal2.png)
+![Connection tab](/images/posts-2020/U6oMWDal2.png)
 *I don't have SSL enabled on my homelab AD server so I left that unchecked.*
 
 On the Authentication tab, I tick the box to use a shared session and specify the service account I'll use to connect to AD. It would be great for later steps if this account has the appropriate privileges to create/delete computer accounts at least within designated OUs.
-![Authentication tab](/assets/images/posts-2020/7MfV-1uiO.png)
+![Authentication tab](/images/posts-2020/7MfV-1uiO.png)
 
 If you've got multiple AD servers, you can use the options on the Alternative Hosts tab to specify those, saving you from having to create a new configuration for each. I've just got the one AD server in my lab, though, so at this point I just hit Run.
 
 Once it completes successfully, I can visit the Inventory section of the vRO interface to confirm that the new Active Directory endpoint shows up:
-![New AD endpoint](/assets/images/posts-2020/vlnle_ekN.png)
+![New AD endpoint](/images/posts-2020/vlnle_ekN.png)
 
 #### checkForAdConflict Action
 Since I try to keep things modular, I'm going to write a new vRO action within the `net.bowdre.utility` module called `checkForAdConflict` which can be called from the `Generate unique hostname` workflow. It will take in `computerName (String)` as an input and return a boolean `True` if a conflict is found or `False` if the name is available. 
-![Action: checkForAdConflict](/assets/images/posts-2020/JT7pbzM-5.png)
+![Action: checkForAdConflict](/images/posts-2020/JT7pbzM-5.png)
 
 It's basically going to loop through the Active Directory hosts defined in vRO and search each for a matching computer name. Here's the full code:
 
@@ -62,7 +62,7 @@ for each (var adHost in adHosts) {
 
 #### Adding it to the workflow
 Now I can pop back over to my massive `Generate unique hostname` workflow and drop in a new scriptable task between the `check for VM name conflicts` and `return nextVmName` tasks. It will bring in `candidateVmName (String)` as well as `conflict (Boolean)` as inputs, return `conflict (Boolean)` as an output, and `errMsg (String)` will be used for exception handling. If `errMsg (String)` is thrown, the flow will follow the dashed red line back to the `conflict resolution` action.
-![Action: check for AD conflict](/assets/images/posts-2020/iB1bjdC8C.png)
+![Action: check for AD conflict](/images/posts-2020/iB1bjdC8C.png)
 
 I'm using this as a scriptable task so that I can do a little bit of processing before I call the action I created earlier - namely, if `conflict (Boolean)` was already set, the task should skip any further processing. That does mean that I'll need to call the action by both its module and name using `System.getModule("net.bowdre.utility").checkForAdConflict(candidateVmName)`. So here's the full script:
 
@@ -177,15 +177,15 @@ checkDnsConflicts.zip  handler.ps1  Modules
 
 #### checkForDnsConflict action (Deprecated)
 And now I can go into vRO, create a new action called `checkForDnsConflict` inside my `net.bowdre.utilities` module. This time, I change the Language to `PowerCLI 12 (PowerShell 7.0)` and switch the Type to `Zip` to reveal the Import button.
-![Preparing to import the zip](/assets/images/posts-2020/sjCtvoZA0.png)
+![Preparing to import the zip](/images/posts-2020/sjCtvoZA0.png)
 
 Clicking that button lets me browse to the file I need to import. I can also set up the two input variables that the script requires, `hostname (String)` and `domain (String)`.
-![Package imported and variables defined](/assets/images/posts-2020/xPvBx3oVX.png)
+![Package imported and variables defined](/images/posts-2020/xPvBx3oVX.png)
 
 #### Adding it to the workflow
 Just like with the `check for AD conflict` action, I'll add this onto the workflow as a scriptable task, this time between that action and the `return nextVmName` one. This will take `candidateVmName (String)`, `conflict (Boolean)`, and `requestProperties (Properties)` as inputs, and will return `conflict (Boolean)` as its sole output. The task will use `errMsg (String)` as its exception binding, which will divert flow via the dashed red line back to the `conflict resolution` task.
 
-![Task: check for DNS conflict](/assets/images/posts-2020/uSunGKJfH.png)
+![Task: check for DNS conflict](/images/posts-2020/uSunGKJfH.png)
 
 _[Update] The below script has been altered to drop the unneeded call to my homemade `checkForDnsConflict` action and instead use the built-in `System.resolveHostName()`. Thanks @powertim!_
 
@@ -211,15 +211,15 @@ if (conflict) {
 
 ### Testing
 Once that's all in place, I kick off another deployment to make sure that everything works correctly. After it completes, I can navigate to the **Extensibility > Workflow runs** section of the vRA interface to review the details:
-![Workflow run success](/assets/images/posts-2020/GZKQbELfM.png)
+![Workflow run success](/images/posts-2020/GZKQbELfM.png)
 
 It worked! 
 
 But what if there *had* been conflicts? It's important to make sure that works too. I know that if I run that deployment again, the VM will get named `DRE-DTST-XXX008` and then `DRE-DTST-XXX009`. So I'm going to force conflicts by creating an AD object for one and a DNS record for the other.
-![Making conflicts](/assets/images/posts-2020/6HBIUf6KE.png)
+![Making conflicts](/images/posts-2020/6HBIUf6KE.png)
 
 And I'll kick off another deployment and see what happens.
-![Workflow success even with conflicts](/assets/images/posts-2020/K6vcxpDj8.png)
+![Workflow success even with conflicts](/images/posts-2020/K6vcxpDj8.png)
 
 The workflow saw that the last VM was created as `-007` so it first grabbed `-008`. It saw that `-008` already existed in AD so incremented up to try `-009`. The workflow then found that a record for `-009` was present in DNS so bumped it up to `-010`. That name finally passed through the checks and so the VM was deployed with the name `DRE-DTST-XXX010`. Success!
 

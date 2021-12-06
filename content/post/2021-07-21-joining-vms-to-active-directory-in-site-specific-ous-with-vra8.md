@@ -26,25 +26,25 @@ I didn't find a lot of documentation on how make this work, though, so here's ho
 ### Adding the AD integration
 First things first: connecting vRA to AD. I do this by opening the Cloud Assembly interface, navigating to **Infrastructure > Connections > Integrations**, and clicking the **Add Integration** button. I'm then prompted to choose the integration type so I select the **Active Directory** one, and then I fill in the required information: a name (`Lab AD` seems appropriate), my domain controller as the LDAP host (`ldap://win01.lab.bowdre.net:389`), credentials for an account with sufficient privileges to create and delete computer objects (`lab\vra`), and finally the base DN to be used for the LDAP connection (`DC=lab,DC=bowdre,DC=net`).
 
-![Creating the new AD integration](/assets/images/posts-2021/07/20210721-adding-ad-integration.png)
+![Creating the new AD integration](/images/posts-2021/07/20210721-adding-ad-integration.png)
 
 Clicking the **Validate** button quickly confirms that I've entered the information correctly, and then I can click **Add** to save my work.
 
 I'll then need to associate the integration with a project by opening the new integration, navigating to the **Projects** tab, and clicking **Add Project**. Now I select the project name from the dropdown, enter a valid relative OU (`OU=LAB`), and enable the options to let me override the relative OU and optionally skip AD actions from the cloud template.
 
-![Project options for the AD integration](/assets/images/posts-2021/07/20210721-adding-project-to-integration.png)
+![Project options for the AD integration](/images/posts-2021/07/20210721-adding-project-to-integration.png)
 
 
 ### Customization specs
 As mentioned above, I'll leverage the customization specs in vCenter to handle the actual joining of a computer to the domain. I maintain two specs for Windows deployments (one to join the domain and one to stay on the workgroup), and I can let the vRA cloud template decide which should be applied to a given deployment.
 
 First, the workgroup spec, appropriately called `vra-win-workgroup`:
-![Workgroup spec](/assets/images/posts-2020/AzAna5Dda.png)
+![Workgroup spec](/images/posts-2020/AzAna5Dda.png)
 
 It's about as basic as can be, including using DHCP for the network configuration (which doesn't really matter since the VM will eventually get a [static IP assigned from {php}IPAM](integrating-phpipam-with-vrealize-automation-8)). 
 
 `vra-win-domain` is basically the same, with one difference:
-![Domain spec](/assets/images/posts-2020/0ZYcORuiU.png)
+![Domain spec](/images/posts-2020/0ZYcORuiU.png)
  
 Now to reference these specs from a cloud template...
 
@@ -196,34 +196,34 @@ resources:
 ```
 
 The last thing I need to do before leaving the Cloud Assembly interface is smash that **Version** button at the bottom of the cloud template editor so that the changes will be visible to Service Broker:
-![New version](/assets/images/posts-2020/gOTzVawJE.png)
+![New version](/images/posts-2020/gOTzVawJE.png)
 
 ### Service Broker custom form updates
 ... and the *first* thing to do after entering the Service Broker UI is to navigate to **Content Sources**, click on my Lab content source, and then click **Save & Import** to bring in the new version. I can then go to **Content**, click the little three-dot menu icon next to my `WindowsDemo` cloud template, and pick the **Customize form** option.
 
 This bit will be pretty quick. I just need to look for the new `Join to AD domain` element on the left:
-![New element on left](/assets/images/posts-2020/Zz0D9wjYr.png)
+![New element on left](/images/posts-2020/Zz0D9wjYr.png)
 
 And drag-and-drop it onto the canvas in the middle. I'll stick it directly after the `Network` field:
-![New element on the canvas](/assets/images/posts-2020/HHiShFlnT.png)
+![New element on the canvas](/images/posts-2020/HHiShFlnT.png)
 
 I don't need to do anything else here since I'm not trying to do any fancy logic or anything, so I'll just hit **Save** and move on to...
 
 ### Testing
 Now to submit the request through Service Broker to see if this actually works:
-![Submitting the request](/assets/images/posts-2021/07/20210721-test-deploy-request.png)
+![Submitting the request](/images/posts-2021/07/20210721-test-deploy-request.png)
 
 After a few minutes, I can go into Cloud Assembly and navigate to **Extensibility > Activity > Actions Runs** and look at the **Integration Runs** to see if the `ad_machine` action has completed yet. 
-![Successful ad_machine action](/assets/images/posts-2021/07/20210721-successful-ad_machine.png)
+![Successful ad_machine action](/images/posts-2021/07/20210721-successful-ad_machine.png)
 
 Looking good! And once the deployment completes, I can look at the VM in vCenter to see that it has registered a fully-qualified DNS name since it was automatically joined to the domain:
-![Domain-joined VM](/assets/images/posts-2021/07/20210721-vm-joined.png)
+![Domain-joined VM](/images/posts-2021/07/20210721-vm-joined.png)
 
 I can also repeat the test for a VM deployed to the `DRE` site just to confirm that it gets correctly placed in that site's OU:
-![Another domain-joined VM](/assets/images/posts-2021/07/20210721-vm-joined-2.png)
+![Another domain-joined VM](/images/posts-2021/07/20210721-vm-joined-2.png)
 
 And I'll fire off another deployment with the `adJoin` box *unchecked* to test that I can also skip the AD configuration completely:
-![VM not joined to the domain](/assets/images/posts-2021/07/20210721-vm-not-joined.png) 
+![VM not joined to the domain](/images/posts-2021/07/20210721-vm-not-joined.png) 
 
 ### Conclusion
 Confession time: I had actually started writing this posts weeks ago. At that point, my efforts to bend the built-in AD integration to my will had been fairly unsuccessful, so I was instead working on a custom vRO workflow to accomplish the same basic thing. I circled back to try the AD integration again after upgrading the vRA environment to the latest 8.4.2 release, and found that it actually works quite well now. So I happily scrapped my ~50 lines of messy vRO JavaScript in favor of *just three lines* of YAML in the cloud template. 

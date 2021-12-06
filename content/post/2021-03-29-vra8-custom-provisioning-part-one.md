@@ -27,35 +27,35 @@ Looking back, that's kind of a lot. I can see why I've been working on this for 
 
 ### vSphere setup
 In production, I'll want to be able to deploy to different computer clusters spanning multiple vCenters. That's a bit difficult to do on a single physical server, but I still wanted to be able to simulate that sort of dynamic resource selection. So for development and testing in my lab, I'll be using two sites - `BOW` and `DRE`. I ditched the complicated "just because I can" vSAN I'd built previously and instead spun up two single-host nested clusters, one for each of my sites:
-![vCenter showing the BOW and DRE clusters](/assets/images/posts-2020/KUCwEgEhN.png)
+![vCenter showing the BOW and DRE clusters](/images/posts-2020/KUCwEgEhN.png)
 
 Those hosts have one virtual NIC each on a standard switch connected to my home network, and a second NIC each connected to the ["isolated" internal lab network](vmware-home-lab-on-intel-nuc-9#networking) with all the VLANs for the guests to run on:
-![dvSwitch showing attached hosts and dvPortGroups](/assets/images/posts-2020/y8vZEnWqR.png)
+![dvSwitch showing attached hosts and dvPortGroups](/images/posts-2020/y8vZEnWqR.png)
 
 ### vRA setup
 On the vRA side of things, I logged in to the Cloud Assembly portion and went to the Infrastructure tab. I first created a Project named `LAB`, added the vCenter as a Cloud Account, and then created a Cloud Zone for the vCenter as well. On the Compute tab of the Cloud Zone properties, I manually added both the `BOW` and `DRE` clusters.
-![BOW and DRE Clusters added to Cloud Zone](/assets/images/posts-2020/sCQKUH07e.png)
+![BOW and DRE Clusters added to Cloud Zone](/images/posts-2020/sCQKUH07e.png)
 
 I also created a Network Profile and added each of the nested dvPortGroups I had created for this purpose.
-![Network Profile with added vSphere networks](/assets/images/posts-2020/LST4LisFl.png)
+![Network Profile with added vSphere networks](/images/posts-2020/LST4LisFl.png)
 
 Each network also gets associated with the related IP Range which was [imported from {php}IPAM](integrating-phpipam-with-vrealize-automation-8).
-![IP Range bound to a network](/assets/images/posts-2020/AZsVThaRO.png)
+![IP Range bound to a network](/images/posts-2020/AZsVThaRO.png)
 
 Since each of my hosts only has 100GB of datastore and my Windows template specifies a 60GB VMDK, I went ahead and created a Storage Profile so that deployments would default to being Thin Provisioned.
-![Thin-provision storage profile](/assets/images/posts-2020/3vQER.png)
+![Thin-provision storage profile](/images/posts-2020/3vQER.png)
 
 I created a few Flavor Mappings ranging from `micro` (1vCPU|1GB RAM) to `giant` (8vCPU|16GB) but for this resource-constrained lab I'll stick mostly to the `micro`, `tiny` (1vCPU|2GB), and `small` (2vCPU|2GB) sizes.
-![T-shirt size Flavor Mappings](/assets/images/posts-2020/lodJlc8Hp.png)
+![T-shirt size Flavor Mappings](/images/posts-2020/lodJlc8Hp.png)
 
 And I created an Image Mapping named `ws2019` which points to a Windows Server 2019 Core template I have stored in my lab's Content Library (cleverly-named "LABrary" for my own amusement). 
-![Windows Server Image Mapping](/assets/images/posts-2020/6k06ySON7.png)
+![Windows Server Image Mapping](/images/posts-2020/6k06ySON7.png)
 
 And with that, my vRA infrastructure is ready for testing a *very* basic deployment.
 
 ### My First Cloud Template
 Now it's time to leave the Infrastructure tab and visit the Design one, where I'll create a new Cloud Template (what previous versions of vRA called "Blueprints"). I start by dragging one each of the **vSphere > Machine** and **vSphere > Network** entities onto the workspace. I then pop over to the Code tab on the right to throw together some simple YAML statements:
-![My first Cloud Template!](/assets/images/posts-2020/RtMljqM9x.png)
+![My first Cloud Template!](/images/posts-2020/RtMljqM9x.png)
 
 VMware's got a [pretty great document](https://docs.vmware.com/en/vRealize-Automation/8.3/Using-and-Managing-Cloud-Assembly/GUID-6BA1DA96-5C20-44BF-9C81-F8132B9B4872.html#list-of-input-properties-2) describing the syntax for these input properties, plus a lot of it is kind of self-explanatory. Let's step through this real quick:
 ```yaml
@@ -152,40 +152,40 @@ resources:
 ```
 
 Cool! But does it work? Hitting the **Test** button at the bottom right is a great way to validate a template before actually running a deployment. That will confirm that the template syntax, infrastructure, and IPAM configuration is all set up correctly to support this particular deployment.
-![Test inputs](/assets/images/posts-2020/lNmduGWr1.png)
-![Test results](/assets/images/posts-2020/BA2BWCd6K.png)
+![Test inputs](/images/posts-2020/lNmduGWr1.png)
+![Test results](/images/posts-2020/BA2BWCd6K.png)
 
 Looks good! I like to click on the **Provisioning Diagram** link to see a bit more detail about where components were placed and why. That's also an immensely helpful troubleshooting option if the test *isn't* successful.
-![Provisioning diagram](/assets/images/posts-2020/PIeW8xA2j.png)
+![Provisioning diagram](/images/posts-2020/PIeW8xA2j.png)
 
 And finally, I can hit that **Deploy** button to actually spin up this VM.
-![Deploy this sucker](/assets/images/posts-2020/XmtEm51h2.png)
+![Deploy this sucker](/images/posts-2020/XmtEm51h2.png)
 
 Each deployment has to have a *unique* deployment name. I got tired of trying to keep up with what names I had already used so kind of settled on a [DATE]_[TIME] format for my test deployments. I'll automatic this tedious step away in the future.
 
 I then confirm that the (automatically-selected default) inputs are correct and kick it off.
-![Deployment inputs](/assets/images/posts-2020/HC6vQMeVT.png)
+![Deployment inputs](/images/posts-2020/HC6vQMeVT.png)
 
 The deployment will take a few minutes. I like to click over to the **History** tab to see a bit more detail as things progress.
-![Deployment history](/assets/images/posts-2020/uklHiv46Y.png)
+![Deployment history](/images/posts-2020/uklHiv46Y.png)
 
 It doesn't take too long for activity to show up on the vSphere side of things:
-![vSphere is cloning the source template](/assets/images/posts-2020/4dNwfNNDY.png)
+![vSphere is cloning the source template](/images/posts-2020/4dNwfNNDY.png)
 
 And there's the completed VM - notice the statically-applied IP address courtesy of {php}IPAM!
-![Completed test VM](/assets/images/posts-2020/3-UIo1Ykn.png)
+![Completed test VM](/images/posts-2020/3-UIo1Ykn.png)
 
 And I can pop over to the IPAM interface to confirm that the IP has been marked as reserved as well:
-![Newly-created IPAM reservation](/assets/images/posts-2020/mAfdPLKnp.png)
+![Newly-created IPAM reservation](/images/posts-2020/mAfdPLKnp.png)
 
 Fantastic! But one of my objectives from earlier was to let the user control where a VM gets provisioned. Fortunately it's pretty easy to implement thanks to vRA 8's use of tags.
 
 ### Using tags for resource placement
 Just about every entity within vRA 8 can have tags applied to it, and you can leverage those tags in some pretty creative and useful ways. For now, I'll start by applying tags to my compute resources; I'll use `comp:bow` for the "BOW Cluster" and `comp:dre` for the "DRE Cluster". 
-![Compute tags](/assets/images/posts-2020/oz1IAp-i0.png)
+![Compute tags](/images/posts-2020/oz1IAp-i0.png)
 
 I'll also use the `net:bow` and `net:dre` tags to logically divide up the networks between my sites:
-![Network tags](/assets/images/posts-2020/ngSWbVI4Y.png)
+![Network tags](/images/posts-2020/ngSWbVI4Y.png)
 
 I can now add an input to the Cloud Template so the user can pick which site they need to deploy to:
 
@@ -226,16 +226,16 @@ resources:
 ```
 
 So the VM will now only be deployed to the compute resource and networks which are tagged to match the selected Site identifier. I ran another test to make sure I didn't break anything:
-![Testing against the DRE site](/assets/images/posts-2020/Q-2ZQg_ji.png)
+![Testing against the DRE site](/images/posts-2020/Q-2ZQg_ji.png)
 
 It came back successful, so I clicked through to see the provisioning diagram. On the network tab, I see that only the last two networks (`d1650-Servers-4` and `d1660-Servers-5`) were considered since the first three didn't match the required `net:dre` tag:
-![Network provisioning diagram](/assets/images/posts-2020/XVD9QVU-S.png)
+![Network provisioning diagram](/images/posts-2020/XVD9QVU-S.png)
 
 And it's a similar story on the compute tab:
-![Compute provisioning diagram](/assets/images/posts-2020/URW7vc1ih.png)
+![Compute provisioning diagram](/images/posts-2020/URW7vc1ih.png)
 
 As a final test for this change, I kicked off one deployment to each site to make sure things worked as expected.
-![vSphere showing one VM at each site](/assets/images/posts-2020/VZaK4btzl.png)
+![vSphere showing one VM at each site](/images/posts-2020/VZaK4btzl.png)
 
 Nice!
 

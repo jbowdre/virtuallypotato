@@ -14,7 +14,7 @@ It's a good idea to take a snapshot of your virtual appliances before applying a
 
 *(Yes, that's a lesson I learned the hard way - and warnings about that are tragically hard to come by from what I've seen. So I'm sharing my notes so that you can avoid making the same mistake.)*
 
-![Screenshot 2021-01-30 16.09.02.png](/assets/images/posts-2020/XTaU9VDy8.png)
+![Screenshot 2021-01-30 16.09.02.png](/images/posts-2020/XTaU9VDy8.png)
 
 Take these steps when you need to snapshot linked vCenters to avoid breaking replication:
 

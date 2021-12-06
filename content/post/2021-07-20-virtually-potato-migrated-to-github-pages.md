@@ -14,7 +14,7 @@ title: Virtually Potato migrated to GitHub Pages!
 
 After a bit less than a year of hosting my little technical blog with [Hashnode](https://hashnode.com), I spent a few days [migrating the content](script-to-update-image-embed-links-in-markdown-files) over to a new format hosted with [GitHub Pages](https://pages.github.com/). 
 
-![Party!](/assets/images/posts-2021/07/20210720-party.gif)
+![Party!](/images/posts-2021/07/20210720-party.gif)
 
 ### So long, Hashnode
 Hashnode served me well for the most part, but it was never really a great fit for me. Hashnode's focus is on developer content, and I'm not really a developer; I'm a sysadmin who occasionally develops solutions to solve my needs, but the code is never the end goal for me. As a result, I didn't spend much time in the (large and extremely active) community associated with Hashnode. It's a perfectly adequate blogging platform apart from the community, but it's really built to prop up that community aspect and I found that to be a bit limiting - particularly once Hashnode stopped letting you create tags to be used within your blog and instead only allowed you to choose from [the tags](https://hashnode.com/tags) already popular in the community. There are hundreds of tags for different coding languages, but not any that would cover the infrastructure virtualization or other technical projects that I tend to write about.
@@ -67,7 +67,7 @@ LiveReload address: http://0.0.0.0:35729
 ```
 
 And there it is!
-![Jekyll running locally on my Chromebook](/assets/images/posts-2021/07/20210720-jekyll.png)
+![Jekyll running locally on my Chromebook](/images/posts-2021/07/20210720-jekyll.png)
 
 ### `git push` time
 Alright that's enough rambling for now. I'm very happy with this new setup, particularly with the automatically-generated Table of Contents to help folks navigate some of my longer posts. (I can't believe I was having to piece those together manually in this blog's previous iteration!)

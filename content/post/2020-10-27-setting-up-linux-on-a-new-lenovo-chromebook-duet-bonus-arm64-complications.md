@@ -15,7 +15,7 @@ title: Setting up Linux on a new Lenovo Chromebook Duet (bonus arm64 complicatio
 
 I've [written in the past](3d-modeling-and-printing-on-chrome-os) about the Linux setup I've been using on my Pixel Slate. My Slate's keyboard stopped working over the weekend, though, and there don't seem to be any replacements (either Google or Brydge) to be found. And then I saw that [Walmart had the 64GB Lenovo Chromebook Duet temporarily marked down](https://twitter.com/johndotbowdre/status/1320733614426988544) to a mere $200 - just slightly more than the Slate's *keyboard* originally cost. So I jumped on that deal, and the little Chromeblet showed up today.
 
-![PXL_20201027_154908725.PORTRAIT.jpg](/assets/images/posts-2020/kULHPeDuc.jpeg)
+![PXL_20201027_154908725.PORTRAIT.jpg](/images/posts-2020/kULHPeDuc.jpeg)
 
 I'll be putting the Duet through the paces in the coming days to see if/how it can replace my now-tablet-only Slate, but first things first: I need Linux. And this may be a little bit different than the setup on the Slate since the Duet's Mediatek processor uses the aarch64/arm64 architecture instead of amd64. 
 
@@ -23,16 +23,16 @@ So journey with me as I get this little guy set up!
 
 ### Installing Linux 
 This part is dead simple. Just head into **Settings > Linux (Beta)** and hit the **Turn on** button:
-![Screenshot 2020-10-27 at 15.59.12.png](/assets/images/posts-2020/oLso9Wyzj.png)
+![Screenshot 2020-10-27 at 15.59.12.png](/images/posts-2020/oLso9Wyzj.png)
 
 Click **Next**, review the options for username and initial disk size (which can be easily increased later so there's no real need to change it right now), and then select **Install**:
-![Screenshot 2020-10-27 at 16.01.19.png](/assets/images/posts-2020/ACUKsohq6.png)
+![Screenshot 2020-10-27 at 16.01.19.png](/images/posts-2020/ACUKsohq6.png)
 
 It takes just a few minutes to download and initialize the `termina` VM and then create the default `penguin` container:
-![Screenshot 2020-10-27 at 16.04.07.png](/assets/images/posts-2020/2LTaCEdWH.png)
+![Screenshot 2020-10-27 at 16.04.07.png](/images/posts-2020/2LTaCEdWH.png)
 
 You're ready to roll once the Terminal opens and gives you a prompt:
-![Screenshot 2020-10-27 at 16.05.23.png](/assets/images/posts-2020/0-h1flLZs.png)
+![Screenshot 2020-10-27 at 16.05.23.png](/images/posts-2020/0-h1flLZs.png)
 
 Your first action should be to go ahead and install any patches:
 ```shell
@@ -56,7 +56,7 @@ Review it if you'd like, and then execute it:
 sh install.sh
 ```
 When asked if you'd like to change your default shell to `zsh` now, **say no**. This is because it will prompt for your password, but you probably don't have a password set on your brand-new Linux (Beta) account and that just makes things complicated. We'll clear this up later, but for now just check out that slick new prompt:
-![Screenshot 2020-10-27 at 16.30.01.png](/assets/images/posts-2020/8q-WT0AyC.png)
+![Screenshot 2020-10-27 at 16.30.01.png](/images/posts-2020/8q-WT0AyC.png)
 
 Oh My Zsh is pretty handy because you can easily enable [additional plugins](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins) to make your prompt behave exactly the way you want it to. Let's spruce it up even more with the [powerlevel10k theme](https://github.com/romkatv/powerlevel10k)!
 ```shell
@@ -71,11 +71,11 @@ We'll need to launch another instance of `zsh` for the theme change to take effe
 sudo chsh -s /bin/zsh [username]
 ```
 Now close out the terminal and open it again, and you should be met by the powerlevel10k configurator which will walk you through getting things set up:
-![Screenshot 2020-10-27 at 16.47.02.png](/assets/images/posts-2020/K1ScSuWcg.png)
+![Screenshot 2020-10-27 at 16.47.02.png](/images/posts-2020/K1ScSuWcg.png)
 
 This theme is crazy-configurable, but fortunately the configurator wizard does a great job of helping you choose the options that work best for you.
 I pick the Classic prompt style, Unicode character set, Dark prompt color, 24-hour time, Angled separators, Sharp prompt heads, Flat prompt tails, 2-line prompt height, Dotted prompt connection, Right prompt frame, Sparse prompt spacing, Fluent prompt flow, Enabled transient prompt, Verbose instant prompt, and (finally) Yes to apply the changes. 
-![New P10k prompt](/assets/images/posts-2021/08/20210804_p10k_prompt.png)
+![New P10k prompt](/images/posts-2021/08/20210804_p10k_prompt.png)
 Looking good! 
 
 ### Visual Studio Code
@@ -85,15 +85,15 @@ curl -L https://aka.ms/linux-arm64-deb > code_arm64.deb
 sudo apt install ./code_arm64.deb
 ```
 VS Code should automatically appear in the Chromebook's Launcher, or you can use it to open a file directly with `code [filename]`:
-![Screenshot 2020-10-27 at 17.01.30.png](/assets/images/posts-2020/XtmaR9Z0J.png)
+![Screenshot 2020-10-27 at 17.01.30.png](/images/posts-2020/XtmaR9Z0J.png)
 Nice!
 
 ### Android platform tools (adb and fastboot)
 I sometimes don't want to wait for my Pixel to get updated naturally, so I love using `adb sideload` to manually update my phones. Here's what it takes to set that up. Installing adb is as simple as `sudo apt install adb`. To use it, enable the USB Debugging Developer Option on your phone, and then connect the phone to the Chromebook. You'll get a prompt to connect the phone to Linux:
-![Screenshot 2020-10-27 at 18.02.17.png](/assets/images/posts-2020/MkGu29HKl.png)
+![Screenshot 2020-10-27 at 18.02.17.png](/images/posts-2020/MkGu29HKl.png)
 
 Once you connect the phone to Linux, check the phone to approve the debugging connection. You can then issue `adb devices` to verify the phone is connected:
-![Screenshot 2020-10-27 at 18.06.49.png](/assets/images/posts-2020/a0uqHkJiC.png)
+![Screenshot 2020-10-27 at 18.06.49.png](/images/posts-2020/a0uqHkJiC.png)
 
 *I've since realized that the platform-tools (adb/fastboot) available in the repos are much older than what are required for flashing a factory image or sideloading an OTA image to a modern Pixel phone. This'll do fine for installing APKs either to your Chromebook or your phone, but I had to pull out my trusty Pixelbook to flash GrapheneOS to my Pixel 4a.*
 
@@ -110,11 +110,11 @@ sudo chmod +x /opt/microsoft/powershell/7/pwsh
 sudo ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 ```
 You can then just run `pwsh`:
-![Screenshot 2020-10-27 at 17.28.44.png](/assets/images/posts-2020/QRP4iyLnu.png)
+![Screenshot 2020-10-27 at 17.28.44.png](/images/posts-2020/QRP4iyLnu.png)
 That was the hard part. To install PowerCLI into your new Powershell environment, just run `Install-Module -Name VMware.PowerCLI` at the `PS >` prompt, and accept the warning about installing a module from an untrusted repository. 
 
 I'm planning to use PowerCLI against my homelab without trusted SSL certificates so (note to self) I need to run `Set-PowerCLIConfiguration -InvalidCertificateAction Ignore` before I try to connect.
-![Screenshot 2020-10-27 at 17.34.39.png](/assets/images/posts-2020/YaFNJJG_c.png)
+![Screenshot 2020-10-27 at 17.34.39.png](/images/posts-2020/YaFNJJG_c.png)
 
 Woot!
 
@@ -146,12 +146,12 @@ And finally update the package cache and install `docker` and its friends:
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io
 ```
-![Screenshot 2020-10-27 at 18.48.34.png](/assets/images/posts-2020/k2uiYi5e8.png)
+![Screenshot 2020-10-27 at 18.48.34.png](/images/posts-2020/k2uiYi5e8.png)
 Xzibit would be proud!
 
 ### 3D printing utilities
 Just like last time, I'll want to be sure I can do light 3D part design and slicing on this Chromebook. Once again, I can install FreeCAD with `sudo apt install freecad`, and this time I didn't have to implement any workarounds for graphical issues:
-![Screenshot 2020-10-27 at 19.16.31.png](/assets/images/posts-2020/q1inyuUOb.png)
+![Screenshot 2020-10-27 at 19.16.31.png](/images/posts-2020/q1inyuUOb.png)
 
 Unfortunately, though, I haven't found a slicer application compiled with support for aarch64/arm64. There's a *much* older version of Cura available in the default Debian repos but it crashes upon launch. Neither Cura nor PrusaSlicer (or the Slic3r upstream) offer arm64 releases. 
 
@@ -173,7 +173,7 @@ conda install -c conda-forge notebook
 
 You can then launch the notebook with `jupyter notebook` and it will automatically open up in a Chrome OS browser tab:
 
-![Screenshot 2020-11-03 at 14.34.09.png](/assets/images/posts-2020/U5E556eXf.png)
+![Screenshot 2020-11-03 at 14.34.09.png](/images/posts-2020/U5E556eXf.png)
 
 Cool! Now I just need to learn what I'm doing with Jupyter - but at least I don't have an excuse about "my laptop won't run it".
 

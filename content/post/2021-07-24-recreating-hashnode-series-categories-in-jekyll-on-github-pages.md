@@ -16,7 +16,7 @@ I quickly realized that if I were hosting this pretty much anywhere *other* than
 
 ### Reviewing the theme-provided option
 The Jekyll theme I'm using ([Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes)) comes with [built-in support](https://mmistakes.github.io/mm-github-pages-starter/categories/) for a [category archive page](series), which (like the [tags page](tags)) displays all the categorized posts on a single page. Links at the top will let you jump to an appropriate anchor to start viewing the selected category, but it's not really an elegant way to display a single category.
-![Posts by category](/assets/images/posts-2021/07/20210724-posts-by-category.png)
+![Posts by category](/images/posts-2021/07/20210724-posts-by-category.png)
 
 It's a start, though, so I took a few minutes to check out how it's being generated. The category archive page lives at [`_pages/category-archive.md`](https://raw.githubusercontent.com/mmistakes/mm-github-pages-starter/master/_pages/category-archive.md):
 ```markdown
@@ -152,7 +152,7 @@ header:
 You can see that this page is referencing the series layout I just created, and it's going to live at `http://localhost/series/vra8` - precisely where this series was on Hashnode. I've tagged it with the category I want to feature on this page, and specified that the posts will be sorted in reverse order so that anyone reading through the series will start at the beginning (I hear it's a very good place to start). I also added a teaser image which will be displayed when I link to the series from elsewhere. And I included a quick little italicized blurb to tell readers what the series is about.
 
 Check it out [here](series/vra8):
-![vRA8 series](/assets/images/posts-2021/07/20210724-vra8-series.png)
+![vRA8 series](/images/posts-2021/07/20210724-vra8-series.png)
 
 The other series pages will be basically the same, just without the reverse sort directive. Here's `_pages/series-tips.md`:
 ```markdown
@@ -194,7 +194,7 @@ author_profile: true
 
 ### Fixing category links in posts
 The bottom of each post has a section which lists the tags and categories to which it belongs. Right now, those are still pointing to the category archive page (`/series/#vra8`) instead of the series feature pages I created (`/series/vra8`). 
-![Old category link](/assets/images/posts-2021/07/20210724-old-category-link.png)
+![Old category link](/images/posts-2021/07/20210724-old-category-link.png)
 
 That *works* but I'd rather it reference the fancy new pages I created. Tracking down where to make that change was a bit of a journey. 
 
@@ -259,7 +259,7 @@ To sell the series illusion even further, I can pop into [`_data/ui-text.yml`](h
   date_label                 : "Updated:"
   comments_label             : "Leave a comment"
 ```
-![Updated series link](/assets/images/posts-2021/07/20210724-new-series-link.png)
+![Updated series link](/images/posts-2021/07/20210724-new-series-link.png)
 
 Much better!
 
@@ -282,6 +282,6 @@ main:
 ```
 
 ### All done!
-![Slick series navigation!](/assets/images/posts-2021/07/20210724-series-navigation.png)
+![Slick series navigation!](/images/posts-2021/07/20210724-series-navigation.png)
 
 I set out to recreate the series setup that I had over at Hashnode, and I think I've accomplished that. More importantly, I've learned quite a bit more about how Jekyll works, and I'm already plotting further tweaks. For now, though, I think this is ready for a `git push`!

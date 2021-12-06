@@ -101,34 +101,34 @@ Now would also be a good time to go ahead and enable cron jobs so that phpIPAM w
 Okay, let's now move on to the phpIPAM web-based UI to continue the setup. After logging in at `https://ipam.lab.bowdre.net/`, I clicked on the red **Administration** menu at the right side and selected **phpIPAM Settings**. Under the **Site Settings** section, I enabled the *Prettify links* option, and under the **Feature Settings** section I toggled on the *API* component. I then hit *Save* at the bottom of the page to apply the changes.
 
 Next, I went to the **Users** item on the left-hand menu to create a new user account which will be used by vRA. I named it `vra`, set a password for the account, and made it a member of the `Operators` group, but didn't grant any special module access.
-![Screenshot 2021-02-20 14.18.47.png](/assets/images/posts-2020/DiqyOlf5S.png)
-![Screenshot 2021-02-20 14.20.49.png](/assets/images/posts-2020/QoxVKC11t.png)
+![Screenshot 2021-02-20 14.18.47.png](/images/posts-2020/DiqyOlf5S.png)
+![Screenshot 2021-02-20 14.20.49.png](/images/posts-2020/QoxVKC11t.png)
 
 The last step in configuring API access is to create an API key. This is done by clicking the **API** item on that left side menu and then selecting *Create API key*. I gave it the app ID `vra`, granted Read/Write permissions, and set the *App Security* option to "SSL with User token". 
-![Screenshot 2021-02-20 14.23.50.png](/assets/images/posts-2020/-aPGJhSvz.png)
+![Screenshot 2021-02-20 14.23.50.png](/images/posts-2020/-aPGJhSvz.png)
 
 Once we get things going, our API calls will authenticate with the username and password to get a token and bind that to the app ID.
 
 ### Step 2: Configuring phpIPAM subnets
 Our fancy new IPAM solution is ready to go - except for the whole bit about managing IPs. We need to tell it about the network segments we'd like it to manage. phpIPAM uses "Sections" to group subnets together, so we start by creating a new Section at **Administration > IP related management > Sections**. I named my new section `Lab`, and pretty much left all the default options. Be sure that the `Operators` group has read/write access to this section and the subnets we're going to create inside it!
-![Screenshot 2021-02-20 14.33.39.png](/assets/images/posts-2020/6yo39lXI7.png)
+![Screenshot 2021-02-20 14.33.39.png](/images/posts-2020/6yo39lXI7.png)
 
 We should also go ahead and create a Nameserver set so that phpIPAM will be able to tell its clients (vRA) what server(s) to use for DNS. Do this at **Administration > IP related management > Nameservers**. I created a new entry called `Lab` and pointed it at my internal DNS server, `192.168.1.5`. 
-![Screenshot 2021-02-20 14.40.57.png](/assets/images/posts-2020/pDsEh18bx.png)
+![Screenshot 2021-02-20 14.40.57.png](/images/posts-2020/pDsEh18bx.png)
 
 Okay, we're finally ready to start entering our subnets at **Administration > IP related management > Subnets**. For each one, I entered the Subnet in CIDR format, gave it a useful description, and associated it with my `Lab` section. I expanded the *VLAN* dropdown and used the *Add new VLAN* option to enter the corresponding VLAN information, and also selected the Nameserver I had just created.
-![Screenshot 2021-02-20 14.44.20.png](/assets/images/posts-2020/-PHf9oUyM.png)
+![Screenshot 2021-02-20 14.44.20.png](/images/posts-2020/-PHf9oUyM.png)
 I also enabled the options *Mark as pool*, *Check hosts status*, *Discover new hosts*, and *Resolve DNS names*.
-![Screenshot 2021-02-20 15.03.13.png](/assets/images/posts-2020/SR7oD0jsG.png)
+![Screenshot 2021-02-20 15.03.13.png](/images/posts-2020/SR7oD0jsG.png)
 
 I then used the *Scan subnets for new hosts* button to run a discovery scan against the new subnet. 
-![Screenshot 2021-02-20 15.06.41.png](/assets/images/posts-2020/4WQ8HWJ2N.png)
+![Screenshot 2021-02-20 15.06.41.png](/images/posts-2020/4WQ8HWJ2N.png)
 
 The scan only found a single host, `172.16.20.1`, which is the subnet's gateway address hosted by the Vyos router. I used the pencil icon to edit the IP and mark it as the gateway:
-![Screenshot 2021-02-20 15.08.43.png](/assets/images/posts-2020/2otDJvqRP.png)
+![Screenshot 2021-02-20 15.08.43.png](/images/posts-2020/2otDJvqRP.png)
 
 phpIPAM now knows the network address, mask, gateway, VLAN, and DNS configuration for this subnet - all things that will be useful for clients seeking an address. I then repeated these steps for the remaining subnets.
-![Screenshot 2021-02-20 15.13.38.png](/assets/images/posts-2020/09RIXJc12.png)
+![Screenshot 2021-02-20 15.13.38.png](/images/posts-2020/09RIXJc12.png)
 
 Now for the *real* fun!
 
@@ -352,10 +352,10 @@ try:
 You can view the full code [here](https://github.com/jbowdre/phpIPAM-for-vRA8/blob/main/src/main/python/validate_endpoint/source.py). 
 
 After completing each operation, run `mvn package -PcollectDependencies -Duser.id=${UID}` to build again, and then import the package to vRA again. This time, you'll see the new "API App ID" field on the form:
-![Screenshot 2021-02-21 16.30.33.png](/assets/images/posts-2020/bpx8iKUHF.png)
+![Screenshot 2021-02-21 16.30.33.png](/images/posts-2020/bpx8iKUHF.png)
 
 Confirm that everything worked correctly by hopping over to the **Extensibility** tab, selecting **Action Runs** on the left, and changing the **User Runs** filter to say *Integration Runs*. 
-![Screenshot 2021-02-21 19.18.43.png](/assets/images/posts-2020/e4PTJxfqH.png)
+![Screenshot 2021-02-21 19.18.43.png](/images/posts-2020/e4PTJxfqH.png)
 Select the newest `phpIPAM_ValidateEndpoint` action and make sure it has a happy green *Completed* status. You can also review the Inputs to make sure they look like what you expected:
 ```json
 {
@@ -504,7 +504,7 @@ vRA runs the `phpIPAM_GetIPRanges` action about every ten minutes so keep checki
 Note that it *did not* pick up my "Home Network" range since it wasn't set to be a pool.
 
 We can also navigate to **Infrastructure > Networks > IP Ranges** to view them in all their glory:
-![Screenshot 2021-02-21 17.49.12.png](/assets/images/posts-2020/7_QI-Ti8g.png)
+![Screenshot 2021-02-21 17.49.12.png](/images/posts-2020/7_QI-Ti8g.png)
 
 You can then follow [these instructions](https://docs.vmware.com/en/vRealize-Automation/8.3/Using-and-Managing-Cloud-Assembly/GUID-410899CA-1B02-4507-96AD-DFE622D2DD47.html) to associate the external IP ranges with networks available for vRA deployments. 
 
@@ -638,7 +638,7 @@ The full `allocate_ip` code is [here](https://github.com/jbowdre/phpIPAM-for-vRA
 [2021-02-22 01:31:41,790] [INFO] - Successfully reserved ['172.16.40.2'] for BOW-VLTST-XXX41.
 ```
 You can also check for a reserved address in phpIPAM:
-![Screenshot 2021-02-21 19.32.38.png](/assets/images/posts-2020/3BQnEd0bY.png)
+![Screenshot 2021-02-21 19.32.38.png](/images/posts-2020/3BQnEd0bY.png)
 
 Almost done!
 

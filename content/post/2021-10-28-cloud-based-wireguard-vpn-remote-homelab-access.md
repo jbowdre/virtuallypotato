@@ -46,10 +46,10 @@ I started by logging into my Google Cloud account at https://console.cloud.googl
 | Boot Disk Size | 10 GB |
 | Boot Disk Image | Ubuntu 20.04 LTS |
 
-![Instance creation](/assets/images/posts-2021/10/20211027_instance_creation.png)
+![Instance creation](/images/posts-2021/10/20211027_instance_creation.png)
 
 The other defaults are fine, but I'll holding off on clicking the friendly blue "Create" button at the bottom and instead click to expand the **Networking, Disks, Security, Management, Sole-Tenancy** sections to tweak a few more things.
-![Instance creation advanced settings](/assets/images/posts-2021/10/20211028_instance_advanced_settings.png)
+![Instance creation advanced settings](/images/posts-2021/10/20211028_instance_advanced_settings.png)
 
 ##### Network Configuration
 Expanding the **Networking** section of the request form lets me add a new `wireguard` network tag, which will make it easier to target the instance with a firewall rule later. I also want to enable the _IP Forwarding_ option so that the instance will be able to do router-like things. 
@@ -60,7 +60,7 @@ I can do that by clicking on the _Default_ network interface to expand the confi
 
 Anyway, after switching to the cheaper Standard tier I can click on the **External IP** dropdown and select the option to _Create IP Address_. I give it the same name as my instance to make it easy to keep up with.
 
-![Network configuration](/assets/images/posts-2021/10/20211027_network_settings.png)
+![Network configuration](/images/posts-2021/10/20211027_network_settings.png)
 
 ##### Security Configuration
 The **Security** section lets me go ahead and upload an SSH public key that I can then use for logging into the instance once it's running. Of course, that means I'll first need to generate a key pair for this purpose:
@@ -70,18 +70,18 @@ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_wireguard
 
 Okay, now that I've got my keys, I can click the **Add Item** button and paste in the contents of `~/.ssh/id_ed25519_wireguard.pub`.
 
-![Security configuration](/assets/images/posts-2021/10/20211027_security_settings.png)
+![Security configuration](/images/posts-2021/10/20211027_security_settings.png)
 
 And that's it for the pre-deploy configuration! Time to hit **Create** to kick it off. 
 
-![Do it!](/assets/images/posts-2021/10/20211027_creation_time.png)
+![Do it!](/images/posts-2021/10/20211027_creation_time.png)
 
 The instance creation will take a couple of minutes but I can go ahead and get the firewall sorted while I wait.
 
 #### Firewall 
 Google Cloud's default firewall configuration will let me reach my new server via SSH without needing to configure anything, but I'll need to add a new rule to allow the WireGuard traffic. I do this by going to **VPC > Firewall** and clicking the button at the top to **[Create Firewall Rule](https://console.cloud.google.com/networking/firewalls/add)**. I give it a name (`allow-wireguard-ingress`), select the rule target by specifying the `wireguard` network tag I had added to the instance, and set the source range to `0.0.0.0/0`. I'm going to use the default WireGuard port so select the _udp:_ checkbox and enter `51820`. 
 
-![Firewall rule creation](/assets/images/posts-2021/10/20211027_firewall.png)
+![Firewall rule creation](/images/posts-2021/10/20211027_firewall.png)
 
 I'll click **Create** and move on.
 
@@ -404,7 +404,7 @@ peer: {CB_PUBLIC_KEY}
 ```
 
 And I can even access my homelab when not at home!
-![Remote access to my homelab!](/assets/images/posts-2021/10/20211028_remote_homelab.png)
+![Remote access to my homelab!](/images/posts-2021/10/20211028_remote_homelab.png)
 
 #### Android Phone
 Being able to copy-and-paste the required public keys between the WireGuard app and the SSH session to the GCP instance made it relatively easy to set up the Chromebook, but things could be a bit trickier on a phone without that kind of access. So instead I will create the phone's configuration on the WireGuard server in the cloud, render that config file as a QR code, and simply scan that through the phone's WireGuard app to import the settings.
@@ -452,13 +452,13 @@ Back in the `clients/` directory, I can use `qrencode` to render the phone confi
 ```sh
 qrencode -t ansiutf8 < phone1.conf 
 ```
-![QR code config](/assets/images/posts-2021/10/20211028_qrcode_config.png)
+![QR code config](/images/posts-2021/10/20211028_qrcode_config.png)
 
 And then I just open the WireGuard app on my phone and use the **Scan from QR Code** option. After a successful scan, it'll prompt me to name the new tunnel, and then I should be able to connect right away.
-![Successful mobile connection](/assets/images/posts-2021/10/20211028_wireguard_mobile.png)
+![Successful mobile connection](/images/posts-2021/10/20211028_wireguard_mobile.png)
 
 I can even access my vSphere lab environment - not that it offers a great mobile experience...
-![vSphere mobile sucks](/assets/images/posts-2021/10/20211028_mobile_vsphere_sucks.jpg)
+![vSphere mobile sucks](/images/posts-2021/10/20211028_mobile_vsphere_sucks.jpg)
 
 Before moving on too much further, though, I'm going to clean up the keys and client config file that I generated on the GCP instance. It's not great hygiene to keep a private key stored on the same system it's used to access.
 
@@ -476,7 +476,7 @@ Two quick pre-requisites first:
 On to the Tasker config. The only changes will be in the [VPN on Strange Wifi](auto-connect-to-protonvpn-on-untrusted-wifi-with-tasker#vpn-on-strange-wifi) profile. I'll remove the OpenVPN-related actions from the Enter and Exit tasks and replace them with the built-in **Tasker > Tasker Function WireGuard Set Tunnel** action.
 
 For the Enter task, I'll set the tunnel status to `true` and specify the name of the tunnel as configured in the WireGuard app; the Exit task gets the status set to `false` to disable the tunnel. Both actions will be conditional upon the `%TRUSTED_WIFI` variable being unset.
-![Tasker setup](/assets/images/posts-2021/10/20211028_tasker_setup.png)
+![Tasker setup](/images/posts-2021/10/20211028_tasker_setup.png)
 
 ```
 Profile: VPN on Strange WiFi

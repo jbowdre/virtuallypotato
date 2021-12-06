@@ -23,7 +23,7 @@ The instructions worked well for me so I won't rehash them all here. When it cam
 All I need to do now is execute `sudo ./wsl-vpnkit` and leave that running in the background when I need to use WSL while connected to the corporate VPN. 
 
 
-![Annotation 2020-10-07 083947.png](/assets/images/posts-2020/MnmMuA0HC.png)
+![Annotation 2020-10-07 083947.png](/images/posts-2020/MnmMuA0HC.png)
 
 Whew! Okay, back to work.
 

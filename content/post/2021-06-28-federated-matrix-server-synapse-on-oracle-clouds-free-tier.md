@@ -20,21 +20,21 @@ As usual, it took quite a bit of fumbling about before I got everything working 
 
 ### Instance creation
 Getting a VM spun up on Oracle Cloud was a pretty simple process. I logged into my account, navigated to *Menu -> Compute -> Instances*, and clicked on the big blue **Create Instance** button.
-![Create Instance](/assets/images/posts-2020/8XAB60aqk.png)
+![Create Instance](/images/posts-2020/8XAB60aqk.png)
 
 I'll be hosting this for my `bowdre.net` domain, so I start by naming the instance accordingly: `matrix.bowdre.net`. Naming it isn't strictly necessary, but it does help with keeping track of things. The instance defaults to using an Oracle Linux image. I'd rather use an Ubuntu one for this, simply because I was able to find more documentation on getting Synapse going on Debian-based systems. So I hit the **Edit** button next to *Image and Shape*, select the **Change Image** option, pick **Canonical Ubuntu** from the list of available images, and finally click **Select Image** to confirm my choice.
-![Image Selection](/assets/images/posts-2020/OSbsiOw8E.png)
+![Image Selection](/images/posts-2020/OSbsiOw8E.png)
 
 This will be an Ubuntu 20.04 image running on a `VM.Standard.E2.1.Micro` instance, which gets a single AMD EPYC 7551 CPU with 2.0GHz base frequency and 1GB of RAM. It's not much, but it's free - and it should do just fine for this project.
 
 I can leave the rest of the options as their defaults, making sure that the instance will be allotted a public IPv4 address.
-![Other default selections](/assets/images/posts-2020/Ki0z1C3g.png)
+![Other default selections](/images/posts-2020/Ki0z1C3g.png)
 
 Scrolling down a bit to the *Add SSH Keys* section, I leave the default **Generate a key pair for me** option selected, and click the very-important **Save Private Key** button to download the private key to my computer so that I'll be able to connect to the instance via SSH.
-![Download Private Key](/assets/images/posts-2020/dZkZUIFum.png)
+![Download Private Key](/images/posts-2020/dZkZUIFum.png)
 
 Now I can finally click the blue **Create Instance** button at the bottom of the screen, and just wait a few minutes for it to start up. Once the status shows a big green "Running" square, I'm ready to connect! I'll copy the listed public IP and make a note of the default username (`ubuntu`). I can then plug the IP, username, and the private key I downloaded earlier into my SSH client (the [Secure Shell extension](https://chrome.google.com/webstore/detail/secure-shell/iodihamcpbpeioajjeobimgagajmlibd) for Google Chrome since I'm doing this from my Pixelbook), and log in to my new VM in The Cloud.
-![Logged in!](/assets/images/posts-2020/5PD1H7b1O.png)
+![Logged in!](/images/posts-2020/5PD1H7b1O.png)
 
 ### DNS setup
 According to [Oracle's docs](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingpublicIPs.htm), the public IP assigned to my instance is mine until I terminate the instance. It should even remain assigned if I stop or restart the instance, just as long as I don't delete the virtual NIC attached to it.  So I'll skip the [`ddclient`-based dynamic DNS configuration I've used in the past](bitwarden-password-manager-self-hosted-on-free-google-cloud-instance#configure-dynamic-dns) and instead go straight to my registrar's DNS management portal and create a new `A` record for `matrix.bowdre.net` with the instance's public IP. 
@@ -56,19 +56,19 @@ But first, I need to make sure that the traffic reaches the server to begin with
 Synapse listens on port `8008` for connections from messaging clients, and typically uses port `8448` for federation traffic from other Matrix servers. Rather than expose those ports directly, I'm going to put Synapse behind a reverse proxy on HTTPS port `443`. I'll also need to allow inbound traffic HTTP port `80` for ACME certificate challenges. I've got two firewalls to contend with: the Oracle Cloud one which blocks traffic from getting into my virtual cloud network, and the host firewall running inside the VM.
 
 I'll tackle the cloud firewall first. From the page showing my instance details, I click on the subnet listed under the *Primary VNIC* heading:
-![Click on subnet](/assets/images/posts-2020/lBjINolYq.png)
+![Click on subnet](/images/posts-2020/lBjINolYq.png)
 
 I then look in the *Security Lists* section and click on the Default Security List:
-![Click on default security list](/assets/images/posts-2020/nnQ7aQrpm.png)
+![Click on default security list](/images/posts-2020/nnQ7aQrpm.png)
 
 The *Ingress Rules* section lists the existing inbound firewall exceptions, which by default is basically just SSH. I click on **Add Ingress Rules** to create a new one.
-![Ingress rules](/assets/images/posts-2020/dMPHvLHkH.png)
+![Ingress rules](/images/posts-2020/dMPHvLHkH.png)
 
 I want this to apply to traffic from any source IP so I enter the CIDR `0.0.0.0/0`, and I enter the *Destination Port Range* as `80,443`. I also add a brief description and click **Add Ingress Rules**.
-![Adding an ingress rule](/assets/images/posts-2020/2fbKJc5Y6.png)
+![Adding an ingress rule](/images/posts-2020/2fbKJc5Y6.png)
 
 Success! My new ingress rules appear at the bottom of the list. 
-![New rules added](/assets/images/posts-2020/s5Y0rycng.png)
+![New rules added](/images/posts-2020/s5Y0rycng.png)
 
 That gets traffic from the internet and to my instance, but the OS is still going to drop the traffic at its own firewall. I'll need to work with `iptables` to change that. (You typically use `ufw` to manage firewalls more easily on Ubuntu, but it isn't included on this minimal image and seemed to butt heads with `iptables` when I tried adding it. I eventually decided it was better to just interact with `iptables` directly). I'll start by listing the existing rules on the `INPUT` chain:
 ```
@@ -247,10 +247,10 @@ Nmap done: 1 IP address (1 host up) scanned in 5.29 seconds
 ```
 
 Browsing to `https://matrix.bowdre.net` shows a blank page - but a valid and trusted certificate that I did absolutely nothing to configure!
-![Valid cert!](/assets/images/posts-2020/GHVqVOTAE.png)
+![Valid cert!](/images/posts-2020/GHVqVOTAE.png)
 
 The `.well-known` URL also returns the expected JSON:
-![.well-known](/assets/images/posts-2020/6IRPHhr6u.png)
+![.well-known](/images/posts-2020/6IRPHhr6u.png)
 
 And trying to hit anything else at `https://bowdre.net` brings me right back here. 
 
@@ -385,10 +385,10 @@ CONTAINER ID   IMAGE                  COMMAND       CREATED          STATUS     
 
 ### Testing
 And I can point my browser to `https://matrix.bowdre.net/_matrix/static/` and see the Matrix landing page:
-![Synapse is running!](/assets/images/posts-2020/-9apQIUci.png)
+![Synapse is running!](/images/posts-2020/-9apQIUci.png)
 
 Before I start trying to connect with a client, I'm going to plug the server address in to the [Matrix Federation Tester](https://federationtester.matrix.org/) to make sure that other servers will be able to talk to it without any problems:
-![Good to go](/assets/images/posts-2020/xqOt3SydX.png)
+![Good to go](/images/posts-2020/xqOt3SydX.png)
 
 And I can view the JSON report at the bottom of the page to confirm that it's correctly pulling my `.well-known` delegation:
 ```json
@@ -400,7 +400,7 @@ And I can view the JSON report at the bottom of the page to confirm that it's co
 ```
 
 Now I can fire up my [Matrix client of choice](https://element.io/get-started)), specify my homeserver using its full FQDN, and [register](https://app.element.io/#/register) a new user account:
-![image.png](/assets/images/posts-2020/2xe34VJym.png)
+![image.png](/images/posts-2020/2xe34VJym.png)
 
 (Once my account gets created, I go back to edit `/opt/matrix/synapse/data/homeserver.yaml` again and set `enable_registration: false`, then fire a `docker-compose restart` command to restart the Synapse container.)
 

@@ -11,7 +11,7 @@ tags:
 title: BitWarden password manager self-hosted on free Google Cloud instance
 ---
 
-![Bitwarden login](/assets/images/posts-2020/i0UKdXleC.png)
+![Bitwarden login](/images/posts-2020/i0UKdXleC.png)
 
 A friend mentioned the  [BitWarden](https://bitwarden.com/) password manager to me yesterday and I had to confess that I'd never heard of it. I started researching it and was impressed by what I found: it's free, [open-source](https://github.com/bitwarden), feature-packed, fully cross-platform (with Windows/Linux/MacOS desktop clients, Android/iOS mobile apps, and browser extensions for Chrome/Firefox/Opera/Safari/Edge/etc), and even offers a self-hosted option.
 

@@ -20,28 +20,28 @@ This post will add in some "front-end" operations, like creating a customized VM
 So far, I've been working either in the Cloud Assembly or Orchestrator UIs, both of which are really geared toward administrators. Now I'm going to be working with Service Broker which will provide the user-facing front-end. This is where "normal" users will be able to submit provisioning requests without having to worry about any of the underlying infrastructure or orchestration. 
 
 Before I can do anything with my Cloud Template in the Service Broker UI, though, I'll need to release it from Cloud Assembly. I do this by opening the template on the *Design* tab and clicking the *Version* button at the bottom of the screen. I'll label this as `1.0` and tick the checkbox to *Release this version to the catalog*. 
-![Releasing the Cloud Template to the Service Broker catalog](/assets/images/posts-2020/0-9BaWJqq.png)
+![Releasing the Cloud Template to the Service Broker catalog](/images/posts-2020/0-9BaWJqq.png)
 
 I can then go to the Service Broker UI and add a new Content Source for my Cloud Assembly templates.
-![Add a new Content Source](/assets/images/posts-2020/4X1dPG_Rq.png)
-![Adding a new Content Source](/assets/images/posts-2020/af-OEP5Tu.png)
+![Add a new Content Source](/images/posts-2020/4X1dPG_Rq.png)
+![Adding a new Content Source](/images/posts-2020/af-OEP5Tu.png)
 After hitting the *Create & Import* button, all released Cloud Templates in the selected Project will show up in the Service Broker *Content* section:
-![New content!](/assets/images/posts-2020/Hlnnd_8Ed.png)
+![New content!](/images/posts-2020/Hlnnd_8Ed.png)
 
 In order for users to deploy from this template, I also need to go to *Content Sharing*, select the Project, and share the content. This can be done either at the Project level or by selecting individual content items. 
-![Content sharing](/assets/images/posts-2020/iScnhmzVY.png)
+![Content sharing](/images/posts-2020/iScnhmzVY.png)
 
 That template now appears on the Service Broker *Catalog* tab:
-![Catalog items](/assets/images/posts-2020/09faF5-Fm.png)
+![Catalog items](/images/posts-2020/09faF5-Fm.png)
 
 That's cool and all, and  I could go ahead and request a deployment off of that catalog item right now - but I'm really interested in being able to customize the request form. I do that by clicking on the little three-dot menu icon next to the Content entry and selecting the *Customize form* option.
-![Customize form](/assets/images/posts-2020/ZPsS0oZuc.png)
+![Customize form](/images/posts-2020/ZPsS0oZuc.png)
 
 When you start out, the custom form kind of jumbles up the available fields. So I'm going to start by dragging-and-dropping the fields to resemble the order defined in the Cloud Template:
-![image.png](/assets/images/posts-2020/oLwUg1k6T.png)
+![image.png](/images/posts-2020/oLwUg1k6T.png)
 
 In addition to rearranging the request form fields, Custom Forms also provide significant control over how the form behaves. You can change how a field is displayed, define default values, make fields dependent upon other fields and more. For instance, all of my templates and resources belong to a single project so making the user select the project (from a set of 1) is kind of redundant. Every deployment has to be tied to a project so I can't just remove that field, but I can select the "Project" field on the canvas and change its *Visibility* to "No" to hide it. It will silently pass along the correct project ID in the background without cluttering up the form.
-![Hiding the Project field](/assets/images/posts-2020/4flvfGC54.png)
+![Hiding the Project field](/images/posts-2020/4flvfGC54.png)
 
 How about that Deployment Name field? In my tests, I'd been manually creating a string of numbers to uniquely identify the deployment, but I'm not going to ask my users to do that. Instead, I'll leverage another great capability of Custom Forms - tying a field value to a result of a custom vRO action!
 
@@ -49,10 +49,10 @@ How about that Deployment Name field? In my tests, I'd been manually creating a 
 *[Update] I've since come up with what I think is a better approach to handling this. Check it out [here](vra8-automatic-deployment-naming-another-take)!*
 
 That means it's time to dive back into the vRealize Orchestrator interface and whip up a new action for this purpose. I created a new action within my existing `net.bowdre.utility` module called `createDeploymentName`. 
-![createDeploymentName action](/assets/images/posts-2020/GMCWhns7u.png)
+![createDeploymentName action](/images/posts-2020/GMCWhns7u.png)
 
 A good deployment name *must* be globally unique, and it would be great if it could also convey some useful information like who requested the deployment, which template it is being deployed from, and the purpose of the server. The `siteCode (String)`, `envCode (String)`, `functionCode (String)`, and `appCode (String)` variables from the request form will do a great job of describing the server's purpose. I can also pass in some additional information from the Service Broker form like `catalogItemName (String)` to get the template name and `requestedByName (String)` to identify the user making the request. So I'll set all those as inputs to my action:
-![createDeploymentName inputs](/assets/images/posts-2020/bCKrtn05o.png)
+![createDeploymentName inputs](/images/posts-2020/bCKrtn05o.png)
 
 I also went ahead and specified that the action will return a String.
 
@@ -76,10 +76,10 @@ return deploymentName
 ```
 
 With that sorted, I can go back to the Service Broker interface to modify the custom form a bit more. I select the "Deployment Name" field and click over to the Values tab on the right. There, I set the *Value source* to "External source" and *Select action* to the new action I just created, `net.bowdre.utility/createDeploymentName`. (If the action doesn't appear in the search field, go to *Infrastructure > Integrations > Embedded-VRO* and click the "Start Data Collection" button to force vRA to update its inventory of vRO actions and workflows.) I then map all the action's inputs to properties available on the request form.
-![Linking the action](/assets/images/posts-2020/mpbPukEeB.png)
+![Linking the action](/images/posts-2020/mpbPukEeB.png)
 
 The last step before testing is to click that *Enable* button to activate the custom form, and then the *Save* button to save my work. So did it work? Let's head to the *Catalog* tab and open the request:
-![Screen recording 2021-05-10 17.01.37.gif](/assets/images/posts-2020/tybyj-5dG.gif)
+![Screen recording 2021-05-10 17.01.37.gif](/images/posts-2020/tybyj-5dG.gif)
 
 Cool! So it's dynamically generating the deployment name based on selections made on the form. Now that it works, I can go back to the custom form and set the "Deployment Name" field to be invisible just like the "Project" one.
 
@@ -116,15 +116,15 @@ I *could* just use those tags to let users pick the appropriate network, but I'v
 | d1650-Servers-4 | `net:dre`, `net:front`, `net:dre-front-172.16.50.0` |
 | d1660-Servers-5 | `net:dre`, `net:back`, `net:dre-back-172.16.60.0` |
 
-![Tagged networks](/assets/images/posts-2020/J_RG9JNPz.png)
+![Tagged networks](/images/posts-2020/J_RG9JNPz.png)
 
 So I can now use a single tag to positively identify a single network, as long as I know its site and either its purpose or its IP space. I'll reference these tags in a vRO action that will populate a dropdown in the request form with the available networks for the selected site. Unfortunately I couldn't come up with an easy way to dynamically pull the tags into vRO so I create another Configuration Element to store them:
-![networksPerSite configuration element](/assets/images/posts-2020/xfEultDM_.png)
+![networksPerSite configuration element](/images/posts-2020/xfEultDM_.png)
 
 This gets filed under the existing `CustomProvisioning` folder, and I name it `networksPerSite`. Each site gets a new variable of type `Array/string`. The name of the variable matches the site ID, and the contents are just the tags minus the `net:` prefix. 
 
 I created a new action named (appropriately) `getNetworksForSite`. This will accept `siteCode (String)` as its input from the Service Broker request form, and will return an array of strings containing the available networks.
-![getNetworksForSite action](/assets/images/posts-2020/IdrT-Un8H1.png)
+![getNetworksForSite action](/images/posts-2020/IdrT-Un8H1.png)
 
 ```js
 // JavaScript: getNetworksForSite
@@ -186,31 +186,31 @@ resources:
 Remember that the `networksPerSite` configuration element contains the portion of the tags *after* the `net:` prefix so that's why I include the prefix in the constraint tag here. I just didn't want it to appear in the selection dropdown.
 
 After making this change to the Cloud Template I use the "Create Version" button again to create a new version and tick the option to release it so that it can be picked up by Service Broker.
-![Another new version](/assets/images/posts-2020/REZ08yA2E.png)
+![Another new version](/images/posts-2020/REZ08yA2E.png)
 
 Back on the Service Broker UI, I hit my `LAB` Content Source again to Save & Import the new change, and then go to customize the form for `WindowsDemo` again. After dragging-and-dropping the new `Network` field onto the request form blueprint, I kind of repeat the steps I used for adjusting the Deployment Name field earlier. On the Appearance tab I set it to be a DropDown, and on the Values tab I set it to an external source, `net.bowdre.utility/getNetworksForSite`. This action only needs a single input so I map `Site` on the request form to the `siteCode` input.
-![Linking the Network field to the getNetworksForSite action](/assets/images/posts-2020/CDy518peA.png)
+![Linking the Network field to the getNetworksForSite action](/images/posts-2020/CDy518peA.png)
 
 Now I can just go back to the Catalog tab and request a new deployment to check out my--
-![Ew, an ugly error](/assets/images/posts-2020/zWFTuOYOG.png)
+![Ew, an ugly error](/images/posts-2020/zWFTuOYOG.png)
 
 Oh yeah. That vRO action gets called as soon as the request form loads - before selecting the required site code as an input. I could modify the action so that returns an empty string if the site hasn't been selected yet, but I'm kind of lazy so I'll instead just modify the custom form so that the Site field defaults to the `BOW` site. 
-![BOW is default](/assets/images/posts-2020/yb77nH2Fp.png)
+![BOW is default](/images/posts-2020/yb77nH2Fp.png)
 
 *Now* I can open up the request form and see how well it works:
-![Network selection in action](/assets/images/posts-2020/fh37T__nb.gif)
+![Network selection in action](/images/posts-2020/fh37T__nb.gif)
 
 Noice!
 
 ### Putting it all together now
 At this point, I'll actually kick off a deployment and see how everything works out.
-![The request](/assets/images/posts-2020/hFPeakMxn.png)
+![The request](/images/posts-2020/hFPeakMxn.png)
 
 After hitting Submit, I can see that this deployment has a much more friendly name than the previous ones:
-![Auto generated deployment name!](/assets/images/posts-2020/TQGyrUqIx.png)
+![Auto generated deployment name!](/images/posts-2020/TQGyrUqIx.png)
 
 And I can also confirm that the VM got named appropriately (based on the [naming standard I implemented earlier](vra8-custom-provisioning-part-two)), and it also got placed on the `172.16.60.0/24` network I selected.
-![Network placement - check!](/assets/images/posts-2020/1NJvDeA7r.png)
+![Network placement - check!](/images/posts-2020/1NJvDeA7r.png)
 
 Very slick. And I think that's a great stopping point for today.
 

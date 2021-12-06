@@ -16,7 +16,7 @@ I've been wanting to learn a bit more about [SaltStack Config](https://www.vmwar
 
 ### The Problem
 Unfortunately I ran into a problem immediately after the deployment completed:
-![403 error from SSC](/assets/images/posts-2021/11/20211105_ssc_403.png)
+![403 error from SSC](/images/posts-2021/11/20211105_ssc_403.png)
 
 Instead of being redirected to the vIDM authentication screen, I get a 403 Forbidden error.
 
@@ -58,7 +58,7 @@ I fumbled around for a bit and managed to get the required certs added to the sy
 
 So here's what I did to get things working in my homelab:
 1. Point a browser to my vRA instance, click on the certificate error to view the certificate details, and then export the _CA_ certificate to a local file. (For a self-signed cert issued by LCM, this will likely be called something like `Automatically generated one-off CA authority for vRA`.)
-![Exporting the self-signed CA cert](/assets/images/posts-2021/11/20211105_export_selfsigned_ca.png)
+![Exporting the self-signed CA cert](/images/posts-2021/11/20211105_export_selfsigned_ca.png)
 2. Open the file in a text editor, and copy the contents into a new file on the SSC appliance. I used `~/vra.crt`.
 3. Append the certificate to the end of the system `ca-bundle.crt`:
 ```sh
@@ -103,9 +103,9 @@ systemctl stop raas
 systemctl start raas
 ```
 7. And then try to visit the SSC URL again. This time, it redirects successfully to vIDM:
-![Successful vIDM redirect](/assets/images/posts-2021/11/20211105_vidm_login.png)
+![Successful vIDM redirect](/images/posts-2021/11/20211105_vidm_login.png)
 8. Log in and get salty:
-![Get salty!](/assets/images/posts-2021/11/20211105_get_salty.png)
+![Get salty!](/images/posts-2021/11/20211105_get_salty.png)
 
 The steps for doing this at work with an enterprise CA were pretty similar, with just slightly-different steps 1 and 2:
 1. Access the enterprise CA and download the CA chain, which came in `.p7b` format.
