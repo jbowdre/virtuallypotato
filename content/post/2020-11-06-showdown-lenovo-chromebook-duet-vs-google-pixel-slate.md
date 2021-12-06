@@ -13,7 +13,7 @@ Okay, okay, this isn't actually going to be a comparison review between the two 
 ![PXL_20201104_160532096.MP.jpg](/images/posts-2020/P-x5qEg_9.jpeg)
 
 ### Background
-Up until last week, I'd been using the Slate as my primary personal computing device for the previous 20 months or so, mainly in laptop mode (as opposed to tablet mode). I do a lot of casual web browsing, and I spend a significant portion of my free time helping other users on Google's product support forums as a part of the [Google Product Experts program](https://productexperts.withgoogle.com/what-it-is). I also work a lot with the  [Chrome OS Linux (Beta) environment](setting-up-linux-on-a-new-lenovo-chromebook-duet-bonus-arm64-complications), but I avoid Android apps as much as I can. And I also used the Slate for a bit of Stadia gaming when I wasn't near a Chromecast.
+Up until last week, I'd been using the Slate as my primary personal computing device for the previous 20 months or so, mainly in laptop mode (as opposed to tablet mode). I do a lot of casual web browsing, and I spend a significant portion of my free time helping other users on Google's product support forums as a part of the [Google Product Experts program](https://productexperts.withgoogle.com/what-it-is). I also work a lot with the  [Chrome OS Linux (Beta) environment](/setting-up-linux-on-a-new-lenovo-chromebook-duet-bonus-arm64-complications), but I avoid Android apps as much as I can. And I also used the Slate for a bit of Stadia gaming when I wasn't near a Chromecast.
 
 So the laptop experience is generally more important to me than the tablet one. I need to be able to work with a large number of browser tabs, but I don't typically need to do any heavy processing directly on the computer. 
 
@@ -51,7 +51,7 @@ And this little kickstand can go *low*, much lower than the Slate. This makes it
 ### Performance
 The Duet does struggle a bit here. It's basically got a [smartphone processor](https://www.notebookcheck.net/Mediatek-Helio-P60T-Processor-Benchmarks-and-Specs.470711.0.html) and half the RAM of the Slate. Switching between windows and tabs sometimes takes an extra moment or two to catch up (particularly if said tab has been silently suspended in the background). Similarly, working with Linux apps is just a bit slower than you'd like it to be. Still, I've spent a bit more than a week now with the Duet as my go-to computer and it's never really been slow enough to bother me. 
 
-That arm64 processor does make finding compatible Linux packages a little more difficult than it's been on amd64 architectures but a [little bit of digging](setting-up-linux-on-a-new-lenovo-chromebook-duet-bonus-arm64-complications) will get past that limitation in most cases. 
+That arm64 processor does make finding compatible Linux packages a little more difficult than it's been on amd64 architectures but a [little bit of digging](/setting-up-linux-on-a-new-lenovo-chromebook-duet-bonus-arm64-complications) will get past that limitation in most cases. 
 
 The upside of that smartphone processor is that the battery life is *insane*. After about seven hours of light usage today I'm sitting at 63% - with an estimated nine hours remaining. This thing keeps going and going, even while Stadia-ing for hours. Being able to play Far Cry 5 without being tethered to a wall is so nice.
 

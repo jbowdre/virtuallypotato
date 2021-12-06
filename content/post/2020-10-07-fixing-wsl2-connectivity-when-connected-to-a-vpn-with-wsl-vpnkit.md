@@ -12,7 +12,7 @@ title: Fixing WSL2 connectivity when connected to a VPN with wsl-vpnkit
 toc: false
 ---
 
-I was pretty excited to get [WSL2 and Docker working on my Windows 10 1909](docker-on-windows-10-with-wsl2) laptop a few weeks ago, but I quickly encountered a problem: WSL2 had no network connectivity when connected to my work VPN. 
+I was pretty excited to get [WSL2 and Docker working on my Windows 10 1909](/docker-on-windows-10-with-wsl2) laptop a few weeks ago, but I quickly encountered a problem: WSL2 had no network connectivity when connected to my work VPN. 
 
 Well, that's not *entirely* true; Docker worked just fine, but nothing else could talk to anything outside of the WSL environment. I found a few open issues for this problem in the [WSL2 Github](https://github.com/microsoft/WSL/issues?q=is%3Aissue+is%3Aopen+VPN) with suggested workarounds including modifying Windows registry entries, adjusting the metrics assigned to various virtual network interfaces within Windows, and manually setting DNS servers in `/etc/resolv.conf`. None of these worked for me.
 

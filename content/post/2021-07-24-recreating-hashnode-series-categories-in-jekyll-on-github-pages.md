@@ -10,12 +10,12 @@ tags:
 title: Recreating Hashnode Series (Categories) in Jekyll on GitHub Pages
 ---
 
-I recently [migrated this site](virtually-potato-migrated-to-github-pages) from Hashnode to GitHub Pages, and I'm really getting into the flexibility and control that managing the content through Jekyll provides. So, naturally, after finalizing the move I got to work recreating Hashnode's "Series" feature, which lets you group posts together and highlight them as a collection. One of the things I liked about the Series setup was that I could control the order of the collected posts: my posts about [building out the vRA environment in my homelab](series/vra8) are probably best consumed in chronological order (oldest to newest) since the newer posts build upon the groundwork laid by the older ones, while posts about my [other one-off projects](series/projects) could really be enjoyed in any order.
+I recently [migrated this site](/virtually-potato-migrated-to-github-pages) from Hashnode to GitHub Pages, and I'm really getting into the flexibility and control that managing the content through Jekyll provides. So, naturally, after finalizing the move I got to work recreating Hashnode's "Series" feature, which lets you group posts together and highlight them as a collection. One of the things I liked about the Series setup was that I could control the order of the collected posts: my posts about [building out the vRA environment in my homelab](/series/vra8) are probably best consumed in chronological order (oldest to newest) since the newer posts build upon the groundwork laid by the older ones, while posts about my [other one-off projects](/series/projects) could really be enjoyed in any order.
 
 I quickly realized that if I were hosting this pretty much anywhere *other* than GitHub Pages I could simply leverage the [`jekyll-archives`](https://github.com/jekyll/jekyll-archives) plugin to manage this for me - but, alas, that's not one of the [plugins supported by the platform](https://pages.github.com/versions/). I needed to come up with my own solution, and being still quite new to Jekyll (and this whole website design thing in general) it took me a bit of fumbling to get it right. 
 
 ### Reviewing the theme-provided option
-The Jekyll theme I'm using ([Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes)) comes with [built-in support](https://mmistakes.github.io/mm-github-pages-starter/categories/) for a [category archive page](series), which (like the [tags page](tags)) displays all the categorized posts on a single page. Links at the top will let you jump to an appropriate anchor to start viewing the selected category, but it's not really an elegant way to display a single category.
+The Jekyll theme I'm using ([Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes)) comes with [built-in support](https://mmistakes.github.io/mm-github-pages-starter/categories/) for a [category archive page](/series), which (like the [tags page](/tags)) displays all the categorized posts on a single page. Links at the top will let you jump to an appropriate anchor to start viewing the selected category, but it's not really an elegant way to display a single category.
 ![Posts by category](/images/posts-2021/07/20210724-posts-by-category.png)
 
 It's a start, though, so I took a few minutes to check out how it's being generated. The category archive page lives at [`_pages/category-archive.md`](https://raw.githubusercontent.com/mmistakes/mm-github-pages-starter/master/_pages/category-archive.md):
@@ -151,7 +151,7 @@ header:
 
 You can see that this page is referencing the series layout I just created, and it's going to live at `http://localhost/series/vra8` - precisely where this series was on Hashnode. I've tagged it with the category I want to feature on this page, and specified that the posts will be sorted in reverse order so that anyone reading through the series will start at the beginning (I hear it's a very good place to start). I also added a teaser image which will be displayed when I link to the series from elsewhere. And I included a quick little italicized blurb to tell readers what the series is about.
 
-Check it out [here](series/vra8):
+Check it out [here](/series/vra8):
 ![vRA8 series](/images/posts-2021/07/20210724-vra8-series.png)
 
 The other series pages will be basically the same, just without the reverse sort directive. Here's `_pages/series-tips.md`:

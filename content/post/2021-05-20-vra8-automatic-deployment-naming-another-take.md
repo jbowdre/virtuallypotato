@@ -13,7 +13,7 @@ title: vRA8 Automatic Deployment Naming - Another Take
 toc: false
 ---
 
-A [few days ago](vra8-custom-provisioning-part-four#automatic-deployment-naming), I shared how I combined a Service Broker Custom Form with a vRO action to automatically generate a unique and descriptive deployment name based on user inputs. That approach works *fine* but while testing some other components I realized that calling that action each time a user makes a selection isn't necessarily ideal. After a bit of experimentation, I settled on what I believe to be a better solution.
+A [few days ago](/vra8-custom-provisioning-part-four#automatic-deployment-naming), I shared how I combined a Service Broker Custom Form with a vRO action to automatically generate a unique and descriptive deployment name based on user inputs. That approach works *fine* but while testing some other components I realized that calling that action each time a user makes a selection isn't necessarily ideal. After a bit of experimentation, I settled on what I believe to be a better solution.
 
 Instead of setting the "Deployment Name" field to use an External Source (vRO), I'm going to configure it to use a Computed Value. This is a bit less flexible, but all the magic happens right there in the form without having to make an expensive vRO call.
 ![Computed Value option](/images/posts-2020/Ivv0ia8oX.png)

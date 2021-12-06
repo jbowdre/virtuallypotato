@@ -14,7 +14,7 @@ title: Auto-connect to ProtonVPN on untrusted WiFi with Tasker [Update!]
 
 *[Update 2021-03-12] This solution recently stopped working for me. While looking for a fix, I found that OpenVPN had published [some notes](https://openvpn.net/faq/how-do-i-use-tasker-with-openvpn-connect-for-android/) on controlling the [official OpenVPN Connect app](https://play.google.com/store/apps/details?id=net.openvpn.openvpn) from Tasker. Jump to the [Update](#update) below to learn how I adapted my setup with this new knowledge.*
 
-I recently shared how I use [Tasker and Home Assistant to keep my phone from charging past 80%](safeguard-your-androids-battery-with-tasker-home-assistant). Today, I'm going to share the setup I use to automatically connect my phone to a VPN on networks I *don't* control.
+I recently shared how I use [Tasker and Home Assistant to keep my phone from charging past 80%](/safeguard-your-androids-battery-with-tasker-home-assistant). Today, I'm going to share the setup I use to automatically connect my phone to a VPN on networks I *don't* control.
 
 ![Tasker + OpenVPN](/images/posts-2020/Ki7jo65t3.png)
 

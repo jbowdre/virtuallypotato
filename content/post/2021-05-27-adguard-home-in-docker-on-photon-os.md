@@ -41,7 +41,7 @@ Gateway=192.168.1.1
 DNS=192.168.1.5
 ```
 
-By the way, that `192.168.1.5` address is my Windows DC/DNS server that I use for [my homelab environment](vmware-home-lab-on-intel-nuc-9#basic-infrastructure). That's the DNS server that's configured on my Google Wifi router, and it will continue to handle resolution for local addresses.
+By the way, that `192.168.1.5` address is my Windows DC/DNS server that I use for [my homelab environment](/vmware-home-lab-on-intel-nuc-9#basic-infrastructure). That's the DNS server that's configured on my Google Wifi router, and it will continue to handle resolution for local addresses.
 
 I also disabled DHCP by setting `DHCP=no` in `/etc/systemd/network/99-dhcp-en.network`:
 

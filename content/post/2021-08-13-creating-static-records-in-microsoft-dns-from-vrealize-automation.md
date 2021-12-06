@@ -84,7 +84,7 @@ Cool! Now I just need to do that same thing, but from vRealize Orchestrator. Fir
 
 ### Template changes
 #### Cloud Template
-Similar to the template changes I made for [optionally joining deployed servers to the Active Directory domain](joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template), I'll just be adding a simple boolean checkbox to the `inputs` section of the template in Cloud Assembly:
+Similar to the template changes I made for [optionally joining deployed servers to the Active Directory domain](/joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template), I'll just be adding a simple boolean checkbox to the `inputs` section of the template in Cloud Assembly:
 ```yaml
 formatVersion: 1
 inputs:
@@ -242,7 +242,7 @@ That should take care of the front-end changes. Now for the back-end stuff: I ne
 
 
 ### The vRO solution
-I will be adding the DNS action on to my existing "VM Post-Provisioning" workflow (described [here](adding-vm-notes-and-custom-attributes-with-vra8), which gets triggered after the VM has been successfully deployed. 
+I will be adding the DNS action on to my existing "VM Post-Provisioning" workflow (described [here](/adding-vm-notes-and-custom-attributes-with-vra8), which gets triggered after the VM has been successfully deployed. 
 
 #### Configuration Element
 But first, I'm going to go to the **Assets > Configurations** section of the Orchestrator UI and create a new Configuration Element to store variables related to the SSH host and DNS configuration.

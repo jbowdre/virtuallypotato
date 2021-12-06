@@ -9,7 +9,7 @@ title: Using PowerShell and a Scheduled Task to apply Windows Updates
 toc: false
 ---
 
-In the same vein as [my script to automagically resize a Linux LVM volume to use up free space on a disk](automatic-unattended-expansion-of-linux-root-lvm-volume-to-fill-disk), I wanted a way to automatically apply Windows updates for servers deployed by [my vRealize Automation environment](series/vra8). I'm only really concerned with Windows Server 2019, which includes the [built-in Windows Update Provider PowerShell module](https://4sysops.com/archives/scan-download-and-install-windows-updates-with-powershell/). So this could be as simple as `Install-WUUpdates -Updates (Start-WUScan)` to scan for and install any available updates.
+In the same vein as [my script to automagically resize a Linux LVM volume to use up free space on a disk](/automatic-unattended-expansion-of-linux-root-lvm-volume-to-fill-disk), I wanted a way to automatically apply Windows updates for servers deployed by [my vRealize Automation environment](/series/vra8). I'm only really concerned with Windows Server 2019, which includes the [built-in Windows Update Provider PowerShell module](https://4sysops.com/archives/scan-download-and-install-windows-updates-with-powershell/). So this could be as simple as `Install-WUUpdates -Updates (Start-WUScan)` to scan for and install any available updates.
 
 Unfortunately, I found that this approach can take a long time to run and often exceeded the timeout limits imposed upon my ABX script, causing the PowerShell session to end and terminating the update process. I really needed a way to do this without requiring a persistent session. 
 

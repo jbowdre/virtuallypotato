@@ -9,7 +9,7 @@ title: Automatic unattended expansion of Linux root LVM volume to fill disk
 toc: false
 ---
 
-While working on my [vRealize Automation 8 project](series/vra8), I wanted to let users specify how large a VM's system drive should be and have vRA apply that without any further user intervention. For instance, if the template has a 60GB C: drive and the user specifies that they want it to be 80GB, vRA will embiggen the new VM's VMDK to 80GB and then expand the guest file system to fill up the new free space.
+While working on my [vRealize Automation 8 project](/series/vra8), I wanted to let users specify how large a VM's system drive should be and have vRA apply that without any further user intervention. For instance, if the template has a 60GB C: drive and the user specifies that they want it to be 80GB, vRA will embiggen the new VM's VMDK to 80GB and then expand the guest file system to fill up the new free space.
 
 I'll get into the details of how that's implemented from the vRA side #soon, but first I needed to come up with simple scripts to extend the guest file system to fill the disk.
 

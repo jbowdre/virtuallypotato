@@ -14,11 +14,11 @@ tags:
 title: 'vRA8 Custom Provisioning: Part Three'
 ---
 
-Picking up after [Part Two](vra8-custom-provisioning-part-two), I now have a pretty handy vRealize Orchestrator workflow to generate unique hostnames according to a defined naming standard. It even checks against the vSphere inventory to validate the uniqueness. Now I'm going to take it a step (or two, rather) further and extend those checks against Active Directory and DNS.
+Picking up after [Part Two](/vra8-custom-provisioning-part-two), I now have a pretty handy vRealize Orchestrator workflow to generate unique hostnames according to a defined naming standard. It even checks against the vSphere inventory to validate the uniqueness. Now I'm going to take it a step (or two, rather) further and extend those checks against Active Directory and DNS.
 
 ### Active Directory
 #### Adding an AD endpoint
-Remember how I [used the built-in vSphere plugin](vra8-custom-provisioning-part-two#interlude-connecting-vro-to-vcenter) to let vRO query my vCenter(s) for VMs with a specific name? And how that required first configuring the vCenter endpoint(s) in vRO? I'm going to take a very similar approach here.
+Remember how I [used the built-in vSphere plugin](/vra8-custom-provisioning-part-two#interlude-connecting-vro-to-vcenter) to let vRO query my vCenter(s) for VMs with a specific name? And how that required first configuring the vCenter endpoint(s) in vRO? I'm going to take a very similar approach here.
 
 So as before, I'll first need to run the preinstalled "Add an Active Directory server" workflow:
 ![Add an Active Directory server workflow](/images/posts-2020/uUDJXtWKz.png)

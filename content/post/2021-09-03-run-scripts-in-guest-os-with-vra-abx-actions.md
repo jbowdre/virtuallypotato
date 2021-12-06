@@ -11,7 +11,7 @@ tags:
 - powershell
 title: Run scripts in guest OS with vRA ABX Actions
 ---
-Thus far in my [vRealize Automation project](series/vra8), I've primarily been handing the payload over to vRealize Orchestrator to do the heavy lifting on the back end. This approach works really well for complex multi-part workflows (like when [generating unique hostnames](vra8-custom-provisioning-part-two#the-vro-workflow)), but it may be overkill for more linear tasks (such as just running some simple commands inside of a deployed guest OS). In this post, I'll explore how I use [vRA Action Based eXtensibility (ABX)](https://blogs.vmware.com/management/2020/09/vra-abx-flow.html) to do just that.
+Thus far in my [vRealize Automation project](/series/vra8), I've primarily been handing the payload over to vRealize Orchestrator to do the heavy lifting on the back end. This approach works really well for complex multi-part workflows (like when [generating unique hostnames](/vra8-custom-provisioning-part-two#the-vro-workflow)), but it may be overkill for more linear tasks (such as just running some simple commands inside of a deployed guest OS). In this post, I'll explore how I use [vRA Action Based eXtensibility (ABX)](https://blogs.vmware.com/management/2020/09/vra-abx-flow.html) to do just that.
 
 ### The Goal
 My ABX action is going to use PowerCLI to perform a few steps inside a deployed guest OS (Windows-only for this demonstration):
@@ -67,9 +67,9 @@ resources:
 In the Resources section of the cloud template, I'm going to add a few properties that will tell the ABX script how to connect to the appropriate vCenter and then the VM. 
 - `vCenter`: The vCenter server where the VM will be deployed, and thus the server which PowerCLI will authenticate against. In this case, I've only got one vCenter, but a larger environment might have multiples. Defining this in the cloud template makes it easy to select automagically if needed. (For instance, if I had a `bow-vcsa` and a `dre-vcsa` for my different sites, I could do something like `vCenter: '${input.site}-vcsa.lab.bowdre.net'` here.)
 - `vCenterUser`: The username with rights to the VM in vCenter. Again, this doesn't have to be a static assignment.
-- `templateUser`: This is the account that will be used by `Invoke-VmScript` to log in to the guest OS. My template will use the default `Administrator` account for non-domain systems, but the `lab\vra` service account on domain-joined systems (using the `adJoin` input I [set up earlier](joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template)).
+- `templateUser`: This is the account that will be used by `Invoke-VmScript` to log in to the guest OS. My template will use the default `Administrator` account for non-domain systems, but the `lab\vra` service account on domain-joined systems (using the `adJoin` input I [set up earlier](/joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template)).
 
-I'll also include the `adminsList` input from earlier so that can get passed to ABX as well. And I'm going to add in an `adJoin` property (mapped to the [existing `input.adJoin`](joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template)) so that I'll have that to work with later.
+I'll also include the `adminsList` input from earlier so that can get passed to ABX as well. And I'm going to add in an `adJoin` property (mapped to the [existing `input.adJoin`](/joining-vms-to-active-directory-in-site-specific-ous-with-vra8#cloud-template)) so that I'll have that to work with later.
 
 ```yaml
 [...]
@@ -473,7 +473,7 @@ Before I can test the new action, I'll need to first add an extensibility subscr
 I'll be using this to call my new `configureGuest` action - so I'll name the subscription `Configure Guest`. I tie it to the `Compute Post Provision` event, and bind my action:
 ![Creating the new subscription](/images/posts-2021/09/20210903_new_subscription_1.png)
 
-I do have another subsciption on that event already, [`VM Post-Provisioning`](adding-vm-notes-and-custom-attributes-with-vra8#extensibility-subscription) which is used to modify the VM object with notes and custom attributes. I'd like to make sure that my work inside the guest happens after that other subscription is completed, so I'll enable blocking and give it a priority of `2`:
+I do have another subsciption on that event already, [`VM Post-Provisioning`](/adding-vm-notes-and-custom-attributes-with-vra8#extensibility-subscription) which is used to modify the VM object with notes and custom attributes. I'd like to make sure that my work inside the guest happens after that other subscription is completed, so I'll enable blocking and give it a priority of `2`:
 ![Adding blocking to Configure Guest](/images/posts-2021/09/20210903_new_subscription_2.png)
 
 After hitting the **Save** button, I go back to that other `VM Post-Provisioning` subscription, set it to enable blocking, and give it a priority of `1`:

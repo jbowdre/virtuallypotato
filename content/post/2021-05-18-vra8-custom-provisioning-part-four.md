@@ -12,7 +12,7 @@ tags:
 title: 'vRA8 Custom Provisioning: Part Four'
 ---
 
-My [last post in this series](vra8-custom-provisioning-part-three) marked the completion of the vRealize Orchestrator workflow that I use for pre-provisioning tasks, namely generating a unique *sequential* hostname which complies with a defined naming standard and doesn't conflict with any existing records in vSphere, Active Directory, or DNS. That takes care of many of the "back-end" tasks for a simple deployment. 
+My [last post in this series](/vra8-custom-provisioning-part-three) marked the completion of the vRealize Orchestrator workflow that I use for pre-provisioning tasks, namely generating a unique *sequential* hostname which complies with a defined naming standard and doesn't conflict with any existing records in vSphere, Active Directory, or DNS. That takes care of many of the "back-end" tasks for a simple deployment. 
 
 This post will add in some "front-end" operations, like creating a customized VM request form in Service Broker and dynamically populating a drop-down with a list of networks available at the user-selected deployment site. I'll also take care of some housekeeping items like automatically generating a unique deployment name. 
 
@@ -46,7 +46,7 @@ In addition to rearranging the request form fields, Custom Forms also provide si
 How about that Deployment Name field? In my tests, I'd been manually creating a string of numbers to uniquely identify the deployment, but I'm not going to ask my users to do that. Instead, I'll leverage another great capability of Custom Forms - tying a field value to a result of a custom vRO action!
 
 ### Automatic deployment naming
-*[Update] I've since come up with what I think is a better approach to handling this. Check it out [here](vra8-automatic-deployment-naming-another-take)!*
+*[Update] I've since come up with what I think is a better approach to handling this. Check it out [here](/vra8-automatic-deployment-naming-another-take)!*
 
 That means it's time to dive back into the vRealize Orchestrator interface and whip up a new action for this purpose. I created a new action within my existing `net.bowdre.utility` module called `createDeploymentName`. 
 ![createDeploymentName action](/images/posts-2020/GMCWhns7u.png)
@@ -84,7 +84,7 @@ The last step before testing is to click that *Enable* button to activate the cu
 Cool! So it's dynamically generating the deployment name based on selections made on the form. Now that it works, I can go back to the custom form and set the "Deployment Name" field to be invisible just like the "Project" one.
 
 ### Per-site network selection
-So far, vRA has been automatically placing VMs on networks based solely on  [which networks are tagged as available](vra8-custom-provisioning-part-one#using-tags-for-resource-placement)  for the selected site. I'd like to give my users a bit more control over which network their VMs get attached to, particularly as some networks may be set aside for different functions or have different firewall rules applied.
+So far, vRA has been automatically placing VMs on networks based solely on  [which networks are tagged as available](/vra8-custom-provisioning-part-one#using-tags-for-resource-placement)  for the selected site. I'd like to give my users a bit more control over which network their VMs get attached to, particularly as some networks may be set aside for different functions or have different firewall rules applied.
 
 As a quick recap, I've got five networks available for vRA, split across my two sites using tags:
 

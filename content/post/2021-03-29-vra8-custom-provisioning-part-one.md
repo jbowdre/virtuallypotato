@@ -10,7 +10,7 @@ tags:
 title: 'vRA8 Custom Provisioning: Part One'
 ---
 
-I recently shared [some details about my little self-contained VMware homelab](vmware-home-lab-on-intel-nuc-9) as well as how I [integrated {php}IPAM into vRealize Automation 8 for assigning IPs to deployed VMs](integrating-phpipam-with-vrealize-automation-8). For my next trick, I'll be crafting a flexible Cloud Template and accompanying vRealize Orchestrator workflow that will help to deploy and configure virtual machines based on a vRA user's input. Buckle up, this is going to be A Ride.
+I recently shared [some details about my little self-contained VMware homelab](/vmware-home-lab-on-intel-nuc-9) as well as how I [integrated {php}IPAM into vRealize Automation 8 for assigning IPs to deployed VMs](/integrating-phpipam-with-vrealize-automation-8). For my next trick, I'll be crafting a flexible Cloud Template and accompanying vRealize Orchestrator workflow that will help to deploy and configure virtual machines based on a vRA user's input. Buckle up, this is going to be A Ride.
 
 ### Objectives
 Before getting into the *how* it would be good to start with the *what* - what exactly are we hoping to accomplish here? For my use case, I'll need a solution which can:
@@ -39,7 +39,7 @@ On the vRA side of things, I logged in to the Cloud Assembly portion and went to
 I also created a Network Profile and added each of the nested dvPortGroups I had created for this purpose.
 ![Network Profile with added vSphere networks](/images/posts-2020/LST4LisFl.png)
 
-Each network also gets associated with the related IP Range which was [imported from {php}IPAM](integrating-phpipam-with-vrealize-automation-8).
+Each network also gets associated with the related IP Range which was [imported from {php}IPAM](/integrating-phpipam-with-vrealize-automation-8).
 ![IP Range bound to a network](/images/posts-2020/AZsVThaRO.png)
 
 Since each of my hosts only has 100GB of datastore and my Windows template specifies a 60GB VMDK, I went ahead and created a Storage Profile so that deployments would default to being Thin Provisioned.
