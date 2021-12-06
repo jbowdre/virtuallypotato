@@ -2,9 +2,9 @@
   {{ template "_internal/disqus.html" . }}
   <!-- add custom comments markup here -->
   <script src="https://utteranc.es/client.js"
-        repo="jbowdre/jbowdre.github.io"
-        issue-term="title"
-        theme="github-dark"
+        repo="{{ $.Site.Params.utterances.repo }}"
+        issue-term="{{ $.Site.Params.utterances.issueterm }}"
+        theme="{{ $.Site.Params.utterances.theme }}"
         crossorigin="anonymous"
         async>
   </script>

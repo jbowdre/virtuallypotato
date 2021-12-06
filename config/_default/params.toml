@@ -107,3 +107,8 @@ enable = false # To enable matomo analytics change to `true`.
 websiteDomain = "example.com" # Set the domain name of your website, in most cases same as your base URL this is required.
 matomoDomain = "matomo.example.com" # Set to Matomo domain
 matomoSiteID = "1" # Default is set to 1, change this to the siteid being tracked
+
+[utterances]
+  repo="jbowdre/jbowdre.github.io" # owner/repo where github comments will happen
+  issueterm="title" # how will the issues be mapped to the articles
+  theme="icy-dark" # theme to be applied to comments box
