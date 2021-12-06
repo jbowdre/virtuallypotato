@@ -65,10 +65,10 @@ footerLogo = "logos/potato_32.png"
 languageMenuName = "🌐"
 
 # Title separator, default to |.
-# titleSeparator = "|"
+titleSeparator = "-"
 
 # Enable or disable comments globally. Default to true.
-# comments = false
+comments = false
 
 # Maximum number of recent posts.
 # numberOfRecentPosts = 8
