@@ -1,6 +1,6 @@
 # set `baseurl` to your root domain
 # if you set it to "/" share icons won't work properly on production
-baseurl = "https://stg.vpot8.ooo/"  # Include trailing slash
+# baseurl = "https://stg.vpot8.ooo/"  # Include trailing slash
 title = "Virtually Potato"  
 # copyright = "Copyright © 2018–2021, John Bowdre"
 # canonifyurls = true
