@@ -15,3 +15,7 @@
     noClasses = false
     # style = "monokai"
     tabWidth = 2
+[tableOfContents]
+  endlevel = 6
+  ordered = false
+  startLevel = 3
