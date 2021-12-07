@@ -22,4 +22,4 @@ DefaultContentLanguage = "en"
   series = "series"
 
 [permalinks]
-  post = ":filename"
+  posts = ":filename"
