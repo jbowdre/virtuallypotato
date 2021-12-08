@@ -1,5 +1,5 @@
 ---
-categories:
+series:
 - Tips
 date: "2020-12-23T08:34:30Z"
 header:

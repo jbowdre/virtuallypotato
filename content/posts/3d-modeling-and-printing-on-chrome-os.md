@@ -1,5 +1,5 @@
 ---
-categories: null
+series: null
 date: "2020-09-14T08:34:30Z"
 header:
   teaser: assets/images/posts-2020/qDTXt1jp3.png

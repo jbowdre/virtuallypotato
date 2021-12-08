@@ -1,5 +1,5 @@
 ---
-categories:
+series:
 - Scripts
 date: "2020-09-16T08:34:30Z"
 header:

@@ -1,5 +1,5 @@
 ---
-categories:
+series:
 - Projects
 date: "2021-10-28T00:00:00Z"
 header:

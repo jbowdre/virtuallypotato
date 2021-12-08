@@ -1,5 +1,5 @@
 ---
-categories:
+series:
 - Tips
 date: "2021-07-24T16:46:00Z"
 header:
@@ -233,7 +233,7 @@ Okay, it looks like [`_include/category-list.html`](https://github.com/mmistakes
   {% assign categories_sorted = page.categories | sort_natural %}
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].categories_label | default: "Categories:" }} </strong>
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].categories_label | default: "series:" }} </strong>
     <span itemprop="keywords">
     {% for category_word in categories_sorted %}
       <a href="{{ category_word | slugify | prepend: path_type | prepend: site.category_archive.path | relative_url }}" class="page__taxonomy-item p-category" rel="tag">{{ category_word }}</a>{% unless forloop.last %}<span class="sep">, </span>{% endunless %}

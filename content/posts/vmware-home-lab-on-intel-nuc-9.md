@@ -1,5 +1,5 @@
 ---
-categories:
+series:
 - vRA8
 date: "2021-02-05T08:34:30Z"
 header:
