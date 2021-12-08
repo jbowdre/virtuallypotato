@@ -24,18 +24,34 @@
   weight = -106
 
 # Submenus are done this way: parent -> identifier
-# [[main]]
-#   name = "Links"
-#   identifier = "Links"
-#   weight = -108
-# [[main]]
-#   parent = "Links"
-#   name = "LinkedIn"
-#   url = "https://www.linkedin.com/"
-# [[main]]
-#   parent = "Links"
-#   name = "Twitter"
-#   url = "https://twitter.com/"
+[[main]]
+  name = "Connect"
+  identifier = "Connect"
+  weight = -100
+[[main]]
+  parent = "Connect"
+  name = "Matrix"
+  url = "https://matrix.to/#/@john:bowdre.net"
+[[main]]
+  parent = "Connect"
+  name = "XMPP"
+  url = "https://conversations.im/i/john@chat.vpot8.ooo"
+[[main]]
+  parent = "Connect"
+  name = "Twitter"
+  url = "https://twitter.com/johndotbowdre"
+[[main]]
+  parent = "Connect"
+  name = "GitHub"
+  url = "https://github.com/jbowdre"
+[[main]]
+  parent = "Connect"
+  name = "CounterSocial"
+  url = "https://counter.social/@john_b"
+[[main]]
+  parent = "Connect"
+  name = "Polywork"
+  url = "https://john.bowdre.net/"
 
 # [[main]]
 #   name = "About"
