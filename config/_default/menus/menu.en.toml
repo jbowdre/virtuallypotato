@@ -4,28 +4,43 @@
   weight = -110
 
 [[main]]
-  name = "Archives"
-  url = "archives/"
+  name = "vRealize Automation 8"
+  url = "series/vra8/"
   weight = -109
 
-# Submenus are done this way: parent -> identifier
 [[main]]
-  name = "Links"
-  identifier = "Links"
+  name = "Projects"
+  url = "series/projects/"
   weight = -108
-[[main]]
-  parent = "Links"
-  name = "LinkedIn"
-  url = "https://www.linkedin.com/"
-[[main]]
-  parent = "Links"
-  name = "Twitter"
-  url = "https://twitter.com/"
 
 [[main]]
-  name = "About"
-  url = "about/"
+  name = "Scripts"
+  url = "series/scripts"
   weight = -107
+
+[[main]]
+  name = "Tips & Tricks"
+  url = "series/tips"
+  weight = -106
+
+# Submenus are done this way: parent -> identifier
+# [[main]]
+#   name = "Links"
+#   identifier = "Links"
+#   weight = -108
+# [[main]]
+#   parent = "Links"
+#   name = "LinkedIn"
+#   url = "https://www.linkedin.com/"
+# [[main]]
+#   parent = "Links"
+#   name = "Twitter"
+#   url = "https://twitter.com/"
+
+# [[main]]
+#   name = "About"
+#   url = "about/"
+#   weight = -107
 
 # social menu links
 
@@ -34,10 +49,12 @@
   type = "social"
   weight = 1
   url = "https://github.com/jbowdre"
+
 [[social]]
   name = "twitter"
   weight = 2
   url = "https://twitter.com/johndotbowdre"
+
 [[social]]
   name = "rss"
   weight = 3
