@@ -1,6 +1,5 @@
 ---
-series:
-- vRA8
+series: vRA8
 date: "2021-07-21T00:00:00Z"
 header:
   teaser: assets/images/posts-2021/07/20210721-successful-ad_machine.png

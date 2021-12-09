@@ -1,6 +1,5 @@
 ---
-series:
-- Tips
+series: Tips
 date: "2020-09-24T08:34:30Z"
 header:
   teaser: assets/images/posts-2020/fmLDUWjia.png

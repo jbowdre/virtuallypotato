@@ -1,6 +1,5 @@
 ---
-series:
-- vRA8
+series: vRA8
 date: "2021-08-13T00:00:00Z"
 tags:
 - vmware

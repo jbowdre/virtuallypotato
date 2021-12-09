@@ -1,6 +1,5 @@
 ---
-series:
-- Projects
+series: Projects
 date: "2021-10-28T00:00:00Z"
 header:
   teaser: assets/images/posts-2021/10/20211028_wireguard_in_the_cloud.jpg

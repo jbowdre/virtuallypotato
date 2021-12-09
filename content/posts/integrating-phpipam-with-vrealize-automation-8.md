@@ -1,6 +1,5 @@
 ---
-series:
-- vRA8
+series: vRA8
 date: "2021-02-22T08:34:30Z"
 header:
   teaser: assets/images/posts-2020/7_QI-Ti8g.png

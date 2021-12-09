@@ -1,6 +1,5 @@
 ---
-series:
-- Scripts
+series: Scripts
 date: "2021-04-29T08:34:30Z"
 tags:
 - linux

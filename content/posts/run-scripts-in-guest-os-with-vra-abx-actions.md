@@ -1,6 +1,5 @@
 ---
-series:
-- vRA8
+series: vRA8
 date: "2021-09-03T00:00:00Z"
 header:
   teaser: assets/images/posts-2021/09/20210903_action_run_success.png

@@ -1,6 +1,5 @@
 ---
-series:
-- Projects
+series: Projects
 date: "2021-06-28T00:00:00Z"
 header:
   teaser: assets/images/posts-2020/2xe34VJym.png

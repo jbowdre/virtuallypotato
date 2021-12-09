@@ -1,6 +1,5 @@
 ---
-series:
-- vRA8
+series: vRA8
 date: "2021-11-05T00:00:00Z"
 header:
   teaser: assets/images/posts-2021/11/20211105_ssc_403.png
