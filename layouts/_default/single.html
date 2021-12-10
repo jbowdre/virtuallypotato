@@ -15,12 +15,6 @@
     <h1 class="post_title">{{ $t }}</h1>
     {{- partial "post-meta" . }}
     {{- partial "image-feature" . }}
-    <!-- {{ if $p.toc }}
-    <div class="post_toc">
-      <h2>{{ T "overview" }}</h2>
-      {{ .TableOfContents }}
-    </div>
-    {{ end }} -->
     <div class="post_body">
       {{- .Content }}
     </div>
