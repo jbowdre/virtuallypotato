@@ -10,7 +10,7 @@ introDescription = "Wrangler of imaginary computers."
 # ga_analytics = "UA-183355934-1"
 
 # limit the number of taxonomies links shown on the sidebar of each page by default.
-numberOfTagsShown = 14 # Applies for all other default & custom taxonomies. e.g categories, brands see https://gohugo.io/content-management/taxonomies#what-is-a-taxonomy
+numberOfTagsShown = 10 # Applies for all other default & custom taxonomies. e.g categories, brands see https://gohugo.io/content-management/taxonomies#what-is-a-taxonomy
 
 # Whether to default to storing images and other assets in the `static` directory, or use Hugo page bundles.
 # Switch to `true` if you'd like to group assets with the post itself (as a "leaf bundle").
@@ -62,10 +62,10 @@ titleSeparator = "-"
 comments = true
 
 # Maximum number of recent posts.
-# numberOfRecentPosts = 8
+numberOfRecentPosts = 6
 
 # Maximum number of featured posts.
-# numberOfFeaturedPosts = 8
+numberOfFeaturedPosts = 4
 
 # Date format. Checkout https://gohugo.io/functions/format/#hugo-date-and-time-templating-reference for details.
 # dateFormat = "2006-01-02" # Default to "Jan 2, 2006".
