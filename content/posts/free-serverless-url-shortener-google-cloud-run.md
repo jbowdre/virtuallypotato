@@ -7,22 +7,22 @@ tags:
 - serverless
 title: Free serverless URL shortener on Google Cloud Run
 ---
-#### Intro
+### Intro
 I've been [using short.io with a custom domain](https://twitter.com/johndotbowdre/status/1370125198196887556) to keep track of and share messy links for a few months now. That approach has worked very well, but it's also seriously overkill for my needs. I don't need (nor want) tracking metrics to know anything about when those links get clicked, and short.io doesn't provide an easy way to turn that off. I was casually looking for a lighter self-hosted alternative today when I stumbled upon a *serverless* alternative: **[sheets-url-shortener](https://github.com/ahmetb/sheets-url-shortener)**. This uses [Google Cloud Run](https://cloud.google.com/run/) to run an ultralight application container which receives an incoming web request, looks for the path in a Google Sheet, and redirects the client to the appropriate URL. It supports connecting with a custom domain, and should run happily within the [Cloud Run Free Tier limits](https://cloud.google.com/run/pricing).
 
 The Github instructions were pretty straight-forward but I did have to fumble through a few additional steps to get everything up and running. Here we go:
 
-#### Shortcut mapping
+### Shortcut mapping
 Since the setup uses a simple Google Sheets document to map the shortcuts to the original long-form URLs, I started by going to [https://sheets.new](https://sheets.new) to create a new Sheet. I then just copied in the shorcuts and URLs I was already using in short.io. By the way, I learned on a previous attempt that this solution only works with lowercase shortcuts so I made sure to convert my `MixedCase` ones as I went.
 ![Creating a new sheet](/images/posts-2021/08/20210820_sheet.png)
 
 I then made a note of the Sheet ID from the URL; that's the bit that looks like `1SMeoyesCaGHRlYdGj9VyqD-qhXtab1jrcgHZ0irvNDs`. That will be needed later on.
 
-#### Create a new GCP project
+### Create a new GCP project
 I created a new project in my GCP account by going to [https://console.cloud.google.com/projectcreate](https://console.cloud.google.com/projectcreate) and entering a descriptive name.
 ![Creating a new GCP project](/images/posts-2021/08/20210820_create_project.png)
 
-#### Deploy to GCP
+### Deploy to GCP
 At this point, I was ready to actually kick off the deployment. Ahmet made this part exceptionally easy: just hit the **Run on Google Cloud** button from the [Github project page](https://github.com/ahmetb/sheets-url-shortener#setup). That opens up a Google Cloud Shell instance which prompts for authorization before it starts the deployment script.
 ![Open in Cloud Shell prompt](/images/posts-2021/08/20210820_open_in_cloud_shell.png)
 
@@ -31,14 +31,14 @@ At this point, I was ready to actually kick off the deployment. Ahmet made this 
 The script prompted me to select a project and a region, and then asked for the Sheet ID that I copied earlier. 
 ![Cloud Shell deployment](/images/posts-2021/08/20210820_cloud_shell.png)
 
-#### Grant access to the Sheet
+### Grant access to the Sheet
 In order for the Cloud Run service to be able to see the URL mappings in the Sheet I needed to share the Sheet with the service account. That service account is found by going to [https://console.cloud.google.com/run](https://console.cloud.google.com/run), clicking on the new `sheets-url-shortener` service, and then viewing the **Permissions** tab. I'm interested in the one that's `############-computer@developer.gserviceaccount.com`.
 ![Finding the service account](/images/posts-2021/08/20210820_service_account.png)
 
 I then went back to the Sheet, hit the big **Share** button at the top, and shared the Sheet to the service account with *Viewer* access.
 ![Sharing to the service account](/images/posts-2021/08/20210820_share_with_svc_account.png)
 
-#### Quick test
+### Quick test
 Back in GCP land, the details page for the `sheets-url-shortener` Cloud Run service shows a gross-looking URL near the top: `https://sheets-url-shortener-vrw7x6wdzq-uc.a.run.app`. That doesn't do much for *shortening* my links, but it'll do just fine for a quick test. First, I pointed my browser straight to that listed URL:
 ![Testing the web server](/images/posts-2021/08/20210820_home_page.png)
 
@@ -47,14 +47,14 @@ This at least tells me that the web server portion is working. Now to see if I c
 
 Hmm, not quite. Luckily the error tells me exactly what I need to do...
 
-#### Enable Sheets API
+### Enable Sheets API
 I just needed to visit `https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=############` to enable the Google Sheets API.
 ![Enabling Sheets API](/images/posts-2021/08/20210820_enable_sheets_api.png)
 
 Once that's done, I can try my redirect again - and, after a brief moment, it successfully sends me on to Polywork!
 ![Successful redirect](/images/posts-2021/08/20210820_successful_redirect.png)
 
-#### Link custom domain
+### Link custom domain
 The whole point of this project is to *shorten* URLs, but I haven't done that yet. I'll want to link in my `go.bowdre.net` domain to use that in place of the rather unwieldy `https://sheets-url-shortener-vrw7x6wdzq-uc.a.run.app`. I do that by going back to the [Cloud Run console](https://console.cloud.google.com/run) and selecting the option at the top to **Manage Custom Domains**.
 ![Manage custom domains](/images/posts-2021/08/20210820_manage_custom_domain.png)
 
@@ -67,13 +67,13 @@ The wizard then tells me exactly what record I need to create/update with my dom
 It took a while for the domain mapping to go live once I've updated the record.
 ![Processing mapping...](/images/posts-2021/08/20210820_domain_mapping.png)
 
-#### Final tests
+### Final tests
 Once it did finally update, I was able to hit `https://go.bowdre.net` to get the error/landing page, complete with a valid SSL cert:
 ![Successful error!](/images/posts-2021/08/20210820_landing_page.png)
 
 And testing [go.bowdre.net/ghia](https://go.bowdre.net/ghia) works as well!
 
-#### Outro
+### Outro
 I'm very pleased with how this quick little project turned out. Managing my shortened links with a Google Sheet is quite convenient, and I really like the complete lack of tracking or analytics. Plus I'm a sucker for an excuse to use a cloud technology I haven't played a lot with yet.
 
 And now I can hand out handy-dandy short links!
