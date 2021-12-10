@@ -1,25 +1,15 @@
 +++
-title = "About"
-description = "Hugo, the world's fastest framework for building websites"
-date = "2019-02-28"
-aliases = ["about-us", "about-hugo", "contact"]
-author = "Hugo Authors"
+title = "Hi, I'm John"
+description = "I’m no vExpert but I can generally fumble through a project and make it work. Here’s how I did it."
+date = "2021-12-09"
+aliases = ["about-john", "about-me", "contact"]
+author = "John Bowdre"
 +++
 
-Written in Go, Hugo is an open source static site generator available under the [Apache Licence 2.0.](https://github.com/gohugoio/hugo/blob/master/LICENSE) Hugo supports TOML, YAML and JSON data file types, Markdown and HTML content files and uses shortcodes to add rich content. Other notable features are taxonomies, multilingual mode, image processing, custom output formats, HTML/CSS/JS minification and support for Sass SCSS workflows.
+By day, I manage a large virtualized server environment, with a focus on learning to leverage cloud and automation technologies to make that task a bit easier. I'm fortunate to be with a company and in a position that lets me explore new solutions and influence organization-wide standards. My big project from the past year or so has been a vRealize Automation implementation to streamline our server deployments, and I've been sharing some of what I've learned in that process on my blog.
 
-Hugo makes use of a variety of open source projects including:
+By night, I help out on Google's product support forums as a Product Expert, where I support Pixel phones, Pixel Buds, Chromebooks (especially Pixelbooks), Wear OS, Google Fit, and Stadia. Helping users troubleshoot their issues scratches my problem-solving itch, and it helps me learn more about the Google products I use.
 
-* https://github.com/yuin/goldmark
-* https://github.com/alecthomas/chroma
-* https://github.com/muesli/smartcrop
-* https://github.com/spf13/cobra
-* https://github.com/spf13/viper
+On weekends, I race my daily-driven 2014 Subaru BRZ in local autocross events or wrench on a 1974 VW Karmann Ghia.
 
-Hugo is ideal for blogs, corporate websites, creative portfolios, online magazines, single page applications or even a website with thousands of pages.
-
-Hugo is for people who want to hand code their own website without worrying about setting up complicated runtimes, dependencies and databases.
-
-Websites built with Hugo are extremelly fast, secure and can be deployed anywhere including, AWS, GitHub Pages, Heroku, Netlify and any other hosting provider.
-
-Learn more and contribute on [GitHub](https://github.com/gohugoio).
+And in the free time I have left, I game on Stadia; being able to seamlessly shift between gaming on my TV or Chromebook or phone is such a slick trick, and has made gaming convenient enough for me to get back into it after a 10 year break.
