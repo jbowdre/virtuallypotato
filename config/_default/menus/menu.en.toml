@@ -1,10 +1,10 @@
 [[main]]
-  name = "Virtually Potato"
+  name = "vPotato"
   url = ""
   weight = -110
 
 [[main]]
-  name = "vRealize Automation 8"
+  name = "vRA 8"
   url = "series/vra8/"
   weight = -109
 
@@ -19,11 +19,11 @@
   weight = -107
 
 [[main]]
-  name = "Tips & Tricks"
+  name = "Tips/Tricks"
   url = "series/tips"
   weight = -106
 
-# Submenus are done this way: parent -> identifier
+# Submenus
 [[main]]
   name = "Connect"
   identifier = "Connect"
@@ -52,13 +52,6 @@
   parent = "Connect"
   name = "Polywork"
   url = "https://john.bowdre.net/"
-
-# [[main]]
-#   name = "About"
-#   url = "about/"
-#   weight = -107
-
-# social menu links
 
 [[social]]
   name = "github"
