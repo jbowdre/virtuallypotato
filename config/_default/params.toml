@@ -53,7 +53,7 @@ enforceLightMode = false
 enforceDarkMode = true
 
 # customize footer icon. see issue https://github.com/chipzoller/hugo-clarity/issues/77
-footerLogo = "logos/logo.png"
+footerLogo = "logos/logo_footer.png"
 
 # Title separator, default to |.
 titleSeparator = "-"
