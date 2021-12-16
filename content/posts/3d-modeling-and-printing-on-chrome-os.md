@@ -17,12 +17,12 @@ That's a pretty sweet setup, but I still needed a way to convert STL 3D models i
 Enter "Crostini," Chrome OS's [Linux (Beta) feature](https://chromium.googlesource.com/chromiumos/docs/+/master/containers_and_vms.md). It consists of a hardened Linux VM named `termina` which runs (by default) a Debian Buster LXD container named `penguin` (though you can spin up just about any container for which you can find an [image](https://us.images.linuxcontainers.org/)) and some fancy plumbing to let Chrome OS and Linux interact in specific clearly-defined ways. It's a brilliant balance between offering the flexibility of Linux while preserving Chrome OS's industry-leading security posture. 
 
 
-![Screenshot 2020-09-14 at 10.41.47.png](/images/posts-2020/lhTnVwCO3.png)
+![Neofetch in the Crostini terminal](/images/posts-2020/lhTnVwCO3.png)
 
 There are plenty of great guides (like [this one](https://www.computerworld.com/article/3314739/linux-apps-on-chrome-os-an-easy-to-follow-guide.html)) on how to get started with Linux on Chrome OS so I won't rehash those steps here. 
 
 One additional step you will probably want to take is make sure that your Chromebook is configured to enable hyperthreading, as it may have [hyperthreading disabled by default](https://support.google.com/chromebook/answer/9340236). Just plug `chrome://flags/#scheduler-configuration` into Chrome's address bar, set it to `Enables Hyper-Threading on relevant CPUs`, and then click the button to restart your Chromebook. You'll thank me later. 
-![Screenshot 2020-09-14 at 10.53.29.png](/images/posts-2020/LHax6lAwh.png)
+![Enabling hyperthreading](/images/posts-2020/LHax6lAwh.png)
 
 ### The Software
 I settled on using [FreeCAD](https://www.freecadweb.org/) for parametric modeling and [Ultimaker Cura](https://ultimaker.com/software/ultimaker-cura) for my GCODE slicer, but unfortunately getting them working cleanly wasn't entirely straightforward. 
@@ -64,7 +64,7 @@ Comment[de_DE]=Feature-basierter parametrischer Modellierer
 MimeType=application/x-extension-fcstd
 ```
 That's it! Get on with your 3D-modeling bad self. 
-![Screenshot 2020-09-14 at 10.40.23.png](/images/posts-2020/qDTXt1jp3.png)
+![FreeCAD](/images/posts-2020/qDTXt1jp3.png)
 Now that you've got a model, be sure to [export it as an STL mesh](https://wiki.freecadweb.org/Export_to_STL_or_OBJ) so you can import it into your slicer. 
 
 #### Ultimaker Cura
@@ -84,12 +84,12 @@ $ sudo apt update && sudo apt install menulibre
 $ menulibre
 ```
 Just plug in the relevant details (you can grab the appropriate icon [here](https://github.com/Ultimaker/Cura/blob/master/icons/cura-128.png)), hit the filing cabinet Save icon, and you should then be able to search for Cura from the Chrome OS launcher.
-![Screenshot 2020-09-14 at 11.00.47.png](/images/posts-2020/VTISYOKHO.png)
+![Using menulibre to create the launcher shortcut](/images/posts-2020/VTISYOKHO.png)
 
-![Screenshot 2020-09-14 at 10.40.38.png](/images/posts-2020/f8nRJcyI6.png)
+![Ultimaker Cura](/images/posts-2020/f8nRJcyI6.png)
 
 From there, just import the STL mesh, configure the appropriate settings, slice, and save the resulting GCODE. You can then just upload the GCODE straight to The Spaghetti Detective and kick off the print. 
 
-![PXL_20200902_201747849.MP.jpg](/images/posts-2020/2g57odtq2.jpeg)
+![Successful print, designed and sliced on Chrome OS!](/images/posts-2020/2g57odtq2.jpeg)
 
 Nice!
