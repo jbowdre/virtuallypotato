@@ -12,25 +12,25 @@ Do you (like me) find yourself frequently searching for information within the s
 
 ### The basics
 Point your browser to `chrome://settings/searchEngines` to see which sites are registered as Custom Search Engines:
-![Screenshot 2020-09-24 at 09.51.07.png](/images/posts-2020/RuIrsHDqC.png)
+![Custom search engines list](/images/posts-2020/RuIrsHDqC.png)
 
 Each of these search engine entries has three parts: a name ("Search engine"), a Keyword, and a Query URL. The "Search engine" title is just what will appear in the Omnibox when the search engine gets triggered, the Keyword is what you'll type in the Omnibox to trigger it, and the Query URL tells Chrome how to handle the search. All you have to do is type the keyword, hit your Tab key to activate the search, input your query, and hit Enter:
-![recording.gif](/images/posts-2020/o_o7rt4pA.gif)
+![Using a custom search engine](/images/posts-2020/o_o7rt4pA.gif)
 
 For sites which register themselves automatically, the keyword is often set to something like `domain.tld` so it might make sense to assign it as something shorter or more descriptive. 
 
 The Query URL is basically just what appears in the address bar when you search the site directly, with `%s` placed where your query text would normally go. You can view these details for a given search entry by tapping the three-dot menu button and selecting "Edit", and you can manually create new entries by hitting that big friendly "Add" button:
-![Screenshot 2020-09-24 at 10.16.01.png](/images/posts-2020/fmLDUWjia.png)
+![Editing a search engine](/images/posts-2020/fmLDUWjia.png)
 
 By searching the site directly, you might find that it supports additional search filters which get appended to the URL:
-![Screenshot 2020-09-24 at 10.35.08.png](/images/posts-2020/iHsYd7lbw.png)
+![Discovering search filters](/images/posts-2020/iHsYd7lbw.png)
 
 You can add those filters to the Query URL to further customize your Custom Search Engine:
-![Screenshot 2020-09-24 at 10.38.18.png](/images/posts-2020/EBkQTGmNb.png)
+![Adding filters to a custom search](/images/posts-2020/EBkQTGmNb.png)
 
 I spend a lot of my free time helping out on Google's support forums as a part of their [Product Experts program](https://productexperts.withgoogle.com/what-it-is), and I often need to quickly look up a Help Center article or previous forum discussion to assist users. I created a set of Custom Search Engines to make that easier:
-![Screenshot 2020-09-24 at 10.42.57.png](/images/posts-2020/630ix7uVw.png)
-![Screenshot 2020-09-24 at 10.45.54.png](/images/posts-2020/V3qLmfi50.png)
+![Google Help Center search engines](/images/posts-2020/630ix7uVw.png)
+![Pixel Buds Help search](/images/posts-2020/V3qLmfi50.png)
 
 ------
 
@@ -39,21 +39,21 @@ Even if the site doesn't have a built-in native search, you can leverage Google'
 ```
 http://google.com/search?q=%s&sitesearch=man7.org%2Flinux%2Fman-pages
 ```
-![Screenshot 2020-09-24 at 10.51.17.png](/images/posts-2020/EkmgtRYN4.png)
-![recording (4).gif](/images/posts-2020/YKADY8YQR.gif)
+![man search](/images/posts-2020/EkmgtRYN4.png)
+![Searching man](/images/posts-2020/YKADY8YQR.gif)
 
 ------
 
 ### Speak foreign to me
 This works for pretty much any site which parses the URL to render certain content. I use this for getting words/phrases instantly translated:
-![Screenshot 2020-09-24 at 11.21.58.png](/images/posts-2020/ELly_F6x6.png)
-![recording (2).gif](/images/posts-2020/1LDP5zxCU.gif)
+![Google Translate search](/images/posts-2020/ELly_F6x6.png)
+![Translating German with search!](/images/posts-2020/1LDP5zxCU.gif)
 
 ------
 
 ### Shorter shortcuts
 Your Query URL doesn't even need to include a query at all! You can use the Custom Search Engines as a sort of hyper-fast shortcut to pages you visit frequently. If I create a new entry with the Keyword `searchax` and `abusing-chromes-custom-search-engines-for-fun-and-profit` as the query URL, I can quickly open to this page by typing `searchax[tab][enter]`:
-![Screenshot 2020-09-24 at 12.10.28.png](/images/posts-2020/YilNCaHil.png)
+![Custom search shortener](/images/posts-2020/YilNCaHil.png)
 
 I use that trick pretty regularly for getting back to vCenter appliance management interfaces without having to type out the full FQDN and port number and all that. 
 
@@ -65,7 +65,7 @@ You can do some other creative stuff too, like speedily accessing a temporary sc
 data:text/html;charset=utf-8, <title>Scratchpad</title><style>body {padding: 5%; font-size: 1.5em; font-family: Arial; }"></style><link rel="shortcut icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon6.ico"/><body OnLoad='document.body.focus();' contenteditable spellcheck="true" >
 ```
 And give it a nice short keyword - like the single letter 's':
-![recording (3).gif](/images/posts-2020/h6dUCApdV.gif)
+![My own scratchpad!](/images/posts-2020/h6dUCApdV.gif)
 
 ------
 
