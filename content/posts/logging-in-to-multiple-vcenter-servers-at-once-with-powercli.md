@@ -13,7 +13,7 @@ I manage a large VMware environment spanning several individual vCenters, and I 
 
 I can, and here's how I do it.
 
-![Annotation 2020-09-16 142625.png](/images/posts-2020/LJOcy2oqc.png)
+![Logging in to multiple vCenters](/images/posts-2020/LJOcy2oqc.png)
 
 ### The Script
 The following Powershell script will let you define a list of vCenters to be accessed, securely store your credentials for each vCenter, log in to every vCenter with a single command, and also close the connections when they're no longer needed. It's also a great starting point for any other custom functions you'd like to incorporate into your PowerCLI sessions.
