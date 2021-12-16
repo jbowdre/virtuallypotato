@@ -71,13 +71,13 @@ I can then go to Service Broker and drag the new fields onto the Custom Form can
 
 ### vRO workflow
 Okay, so I've got the information I want to pass on to vCenter. Now I need to whip up a new workflow in vRO that will actually do that (after [telling vRO how to connect to the vCenter](/vra8-custom-provisioning-part-two#interlude-connecting-vro-to-vcenter), of course). I'll want to call this after the VM has been provisioned, so I'll cleverly call the workflow "VM Post-Provisioning".
-![image.png](/images/posts-2020/X9JhgWx8x.png)
+![Naming the new workflow](/images/posts-2020/X9JhgWx8x.png)
 
 The workflow will have a single input from vRA, `inputProperties` of type `Properties`. 
-![image.png](/images/posts-2020/zHrp6GPcP.png)
+![Workflow input](/images/posts-2020/zHrp6GPcP.png)
 
 The first thing this workflow needs to do is parse `inputProperties (Properties)` to get the name of the VM, and it will then use that information to query vCenter and grab the corresponding VM object. So I'll add a scriptable task item to the workflow canvas and call it `Get VM Object`. It will take `inputProperties (Properties)` as its sole input, and output a new variable called `vm` of type `VC:VirtualMachine`.
-![image.png](/images/posts-2020/5ATk99aPW.png)
+![Get VM Object action](/images/posts-2020/5ATk99aPW.png)
 
 The script for this task is fairly straightforward:
 ```js
@@ -93,7 +93,7 @@ vm = vms[0]
 ```
 
 I'll add another scriptable task item to the workflow to actually apply the notes to the VM - I'll call it `Set Notes`, and it will take both `vm (VC:VirtualMachine)` and `inputProperties (Properties)` as its inputs.
-![image.png](/images/posts-2020/w24V6YVOR.png)
+![Set Notes action](/images/posts-2020/w24V6YVOR.png)
 
 The first part of the script creates a new VM config spec, inserts the description into the spec, and then reconfigures the selected VM with the new spec.
 
@@ -118,17 +118,17 @@ System.getModule("com.vmware.library.vc.customattribute").setOrCreateCustomField
 
 ### Extensibility subscription
 Now I need to return to Cloud Assembly and create a new extensibility subscription that will call this new workflow at the appropriate time. I'll call it "VM Post-Provisioning" and attach it to the "Compute Post Provision" topic.
-![image.png](/images/posts-2020/PmhVOWJsUn.png)
+![Creating the new subscription](/images/posts-2020/PmhVOWJsUn.png)
 
 And then I'll link it to my new workflow:
-![image.png](/images/posts-2020/cEbWSOg00.png)
+![Selecting the workflow](/images/posts-2020/cEbWSOg00.png)
 
 ### Testing
 And then back to Service Broker to request a VM and see if it works:
 
-![image.png](/images/posts-2020/Lq9DBCK_Y.png)
+![Test request](/images/posts-2020/Lq9DBCK_Y.png)
 
 It worked!
-![image.png](/images/posts-2020/-Fuvz-GmF.png)
+![New VM with notes](/images/posts-2020/-Fuvz-GmF.png)
 
 In the future, I'll be exploring more features that I can add on to this "VM Post-Provisioning" workflow like creating static DNS records as needed.

@@ -37,7 +37,7 @@ That's cool and all, and  I could go ahead and request a deployment off of that 
 ![Customize form](/images/posts-2020/ZPsS0oZuc.png)
 
 When you start out, the custom form kind of jumbles up the available fields. So I'm going to start by dragging-and-dropping the fields to resemble the order defined in the Cloud Template:
-![image.png](/images/posts-2020/oLwUg1k6T.png)
+![Starting to customize the custom form](/images/posts-2020/oLwUg1k6T.png)
 
 In addition to rearranging the request form fields, Custom Forms also provide significant control over how the form behaves. You can change how a field is displayed, define default values, make fields dependent upon other fields and more. For instance, all of my templates and resources belong to a single project so making the user select the project (from a set of 1) is kind of redundant. Every deployment has to be tied to a project so I can't just remove that field, but I can select the "Project" field on the canvas and change its *Visibility* to "No" to hide it. It will silently pass along the correct project ID in the background without cluttering up the form.
 ![Hiding the Project field](/images/posts-2020/4flvfGC54.png)
@@ -78,7 +78,7 @@ With that sorted, I can go back to the Service Broker interface to modify the cu
 ![Linking the action](/images/posts-2020/mpbPukEeB.png)
 
 The last step before testing is to click that *Enable* button to activate the custom form, and then the *Save* button to save my work. So did it work? Let's head to the *Catalog* tab and open the request:
-![Screen recording 2021-05-10 17.01.37.gif](/images/posts-2020/tybyj-5dG.gif)
+![Watching the deployment name change](/images/posts-2020/tybyj-5dG.gif)
 
 Cool! So it's dynamically generating the deployment name based on selections made on the form. Now that it works, I can go back to the custom form and set the "Deployment Name" field to be invisible just like the "Project" one.
 
