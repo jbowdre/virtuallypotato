@@ -42,7 +42,7 @@
     {{- end }}
     {{ if (and ($relatedInSidebar) (isset .Params "series") ) }}
       {{$related := where .Site.RegularPages ".Params.series" "eq" .Params.series }}
-	    <h2 class="mt-4">{{ T "series_posts" }}</h2>
+	    <h2 class="mt-4">{{ T "series_posts" }}{{ .Params.series }}</h2>
       <ul>
         {{ range $related }}
         <li>
