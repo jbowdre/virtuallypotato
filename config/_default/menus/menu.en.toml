@@ -19,8 +19,8 @@
   weight = -107
 
 [[main]]
-  name = "Tips/Tricks"
-  url = "series/tips"
+  name = "Tips"
+  url = "series/tips/"
   weight = -106
 
 # Submenus
