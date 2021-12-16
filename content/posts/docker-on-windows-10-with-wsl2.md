@@ -71,12 +71,12 @@ Run the installer, and make sure to tick the box for installing the WSL2 engine.
 
 #### Step Three: Configure Docker Desktop
 Launch Docker Desktop from the Start menu, and you should be presented with this friendly prompt:
-![2020-09-22.png](/images/posts-2020/lY2FTflbK.png)
+![Great news! We're supported.](/images/posts-2020/lY2FTflbK.png)
 
 Hit that big friendly "gimme WSL2" button. Then open the Docker Settings from the system tray, and make sure that **General > Use the WSL 2 based engine** is enabled. Now navigate to **Resources > WSL Integration**, confirm that **Enable integration with my default WSL distro** is enabled as well. Smash the "Apply & Restart" button if you've made any changes.
 
 ### Test it!
 Fire up a WSL session and confirm that everything is working with `docker run hello-world`:
-![2020-09-22 (1).png](/images/posts-2020/8p-PSHx1R.png)
+![Hello, world!](/images/posts-2020/8p-PSHx1R.png)
 
 It's beautiful!
