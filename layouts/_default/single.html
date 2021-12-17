@@ -15,6 +15,19 @@
     <h1 class="post_title">{{ $t }}</h1>
     {{- partial "post-meta" . }}
     {{- partial "image-feature" . }}
+    {{ if and (gt .WordCount 400 ) (gt (len .TableOfContents) 180) ($s.toc) }}
+    <div class="post_toc">
+      <div class="wrap-collapsible">
+        <input id="collapsible" class="toggle" type="checkbox">
+        <label for="collapsible" class="lbl-toggle" tabindex="0">{{ T "overview" }}...</label>
+        <div class="collapsible-content">
+          <div class="content-inner">
+          {{ .TableOfContents }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {{ end }}
     <div class="post_body">
       {{- .Content }}
     </div>

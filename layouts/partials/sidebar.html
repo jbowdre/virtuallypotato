@@ -30,12 +30,6 @@
       <a href='{{ absLangURL (default "about/" $s.introURL) }}' class="button mt-1" role="button" title='{{ $r }}'>{{ $r }}</a>
       {{- end }}
     {{- end }}
-    {{ if and (gt .WordCount 400 ) (gt (len .TableOfContents) 180) ($s.toc) }}
-    <div class="post_toc">
-      <h2>{{ T "overview" }}</h2>
-      {{ .TableOfContents }}
-    </div>
-    {{ end }}
     {{- $relatedInSidebar := true }}
     {{- if eq $s.showRelatedInSidebar false }}
       {{ $relatedInSidebar = false }}
