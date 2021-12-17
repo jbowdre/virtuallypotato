@@ -71,4 +71,4 @@ And there it is!
 ### `git push` time
 Alright that's enough rambling for now. I'm very happy with this new setup, particularly with the automatically-generated Table of Contents to help folks navigate some of my longer posts. (I can't believe I was having to piece those together manually in this blog's previous iteration!)
 
-I'll continue to make some additional tweaks in the coming weeks but for now I'll `git push` this post and get back to documenting my never-ending [vRA project](/categories/vra8). 
+I'll continue to make some additional tweaks in the coming weeks but for now I'll `git push` this post and get back to documenting my never-ending [vRA project](/series/vra8). 
