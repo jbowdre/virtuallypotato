@@ -3,3 +3,9 @@ other = "On this page"
 
 [series_posts]
 other = "More "
+
+[all_rights]
+other = "All Rights Reserved"
+
+[powered_by]
+other = "Powered by Hugo, Clarity, GitLab, and Netlify"
