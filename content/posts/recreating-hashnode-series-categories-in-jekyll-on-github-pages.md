@@ -1,8 +1,7 @@
 ---
 series: Tips
 date: "2021-07-24T16:46:00Z"
-header:
-  teaser: assets/images/posts-2021/07/20210724-series-navigation.png
+thumbnail: images/posts-2021/07/20210724-series-navigation.png
 tags:
 - meta
 - jekyll

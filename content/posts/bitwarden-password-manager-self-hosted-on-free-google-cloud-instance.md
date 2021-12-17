@@ -1,8 +1,7 @@
 ---
 series: Projects
 date: "2018-09-26T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/i0UKdXleC.png
+thumbnail: images/posts-2020/i0UKdXleC.png
 tags:
 - docker
 - linux

@@ -1,7 +1,6 @@
 ---
 date: "2021-07-20T22:20:00Z"
-header:
-  teaser: assets/images/posts-2021/07/20210720-jekyll.png
+thumbnail: images/posts-2021/07/20210720-jekyll.png
 tags:
 - linux
 - meta

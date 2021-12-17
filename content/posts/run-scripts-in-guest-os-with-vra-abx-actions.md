@@ -1,8 +1,7 @@
 ---
 series: vRA8
 date: "2021-09-03T00:00:00Z"
-header:
-  teaser: assets/images/posts-2021/09/20210903_action_run_success.png
+thumbnail: images/posts-2021/09/20210903_action_run_success.png
 last_modified_at: "2021-09-20"
 tags:
 - vra

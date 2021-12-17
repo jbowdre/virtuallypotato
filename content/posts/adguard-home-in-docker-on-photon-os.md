@@ -1,8 +1,7 @@
 ---
 series: Projects
 date: "2021-05-27T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/HRRpFOKuN.png
+thumbnail: images/posts-2020/HRRpFOKuN.png
 tags:
 - docker
 - vmware

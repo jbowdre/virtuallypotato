@@ -1,8 +1,7 @@
 ---
 series: vRA8
 date: "2021-04-19T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/K6vcxpDj8.png
+thumbnail: images/posts-2020/K6vcxpDj8.png
 last_modified_at: "2021-10-01"
 tags:
 - vmware

@@ -1,8 +1,7 @@
 ---
 series: Projects
 date: "2020-11-14T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/aeIOr8w6k.png
+thumbnail: images/posts-2020/aeIOr8w6k.png
 tags:
 - android
 - tasker

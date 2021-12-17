@@ -1,8 +1,7 @@
 ---
 series: Tips
 date: "2020-12-23T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/-lp1-DGiM.png
+thumbnail: images/posts-2020/-lp1-DGiM.png
 tags:
 - chromeos
 title: Burn an ISO to USB with the Chromebook Recovery Utility

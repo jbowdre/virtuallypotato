@@ -1,8 +1,7 @@
 ---
 series: vRA8
 date: "2021-06-01T08:34:30Z"
-header:
-  teaser: assets/images/posts-2020/-Fuvz-GmF.png
+thumbnail: images/posts-2020/-Fuvz-GmF.png
 tags:
 - vmware
 - vra
