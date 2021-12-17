@@ -7,7 +7,7 @@ introDescription = "Wrangler of imaginary computers."
 # showShare = false # Uncomment to not show share buttons on each post. Also available in each post's front matter.
 
 # Google analytics Id
-# ga_analytics = "UA-183355934-1"
+ga_analytics = "UA-183355934-1"
 
 # limit the number of taxonomies links shown on the sidebar of each page by default.
 numberOfTagsShown = 10 # Applies for all other default & custom taxonomies. e.g categories, brands see https://gohugo.io/content-management/taxonomies#what-is-a-taxonomy
