@@ -63,6 +63,7 @@ comments = true
 
 # Maximum number of recent posts.
 numberOfRecentPosts = 6
+numberOfRelatedPosts = 6
 
 # Maximum number of featured posts.
 numberOfFeaturedPosts = 4

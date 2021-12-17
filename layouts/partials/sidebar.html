@@ -42,12 +42,18 @@
     {{- end }}
     {{ if (and ($relatedInSidebar) (isset .Params "series") ) }}
       {{$related := where .Site.RegularPages ".Params.series" "eq" .Params.series }}
+      {{- $relatedLimit := default 8 $s.numberOfRelatedPosts }}
 	    <h2 class="mt-4">{{ T "series_posts" }}{{ .Params.series }}</h2>
       <ul>
-        {{ range $related }}
+        {{ range first $relatedLimit $related }}
         <li>
           <a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title }}</a>
         </li>
+        {{ end }}
+        {{ if gt (len $related) $relatedLimit }}
+          <li>
+            <a href="/series/{{ lower .Params.series }}/">See all {{ .Params.series }}</a>
+          </li>
         {{ end }}
       </ul>
     {{ end }}
