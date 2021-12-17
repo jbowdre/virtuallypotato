@@ -1,7 +1,7 @@
 {{ if isset .Params "series" }}
 {{$related := where .Site.RegularPages ".Params.series" "eq" .Params.series }}
 {{- $relatedLimit := default 8 .Params.numberOfRelatedPosts }}
-	<h2 class="post_related">{{ T "series_posts" }}{{ .Params.series }}</h2>
+	<h2 class="post_related">{{ T "series_posts" }} {{ .Params.series }}</h2>
 	<ul>
 	  {{ range first $relatedLimit $related }}
 	      <li><a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title }}</a></li>
