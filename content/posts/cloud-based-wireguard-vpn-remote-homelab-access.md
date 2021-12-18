@@ -12,6 +12,7 @@ tags:
 - tasker
 - automation
 title: Cloud-hosted WireGuard VPN for remote homelab access
+featured: true
 ---
 For a while now, I've been using an [OpenVPN Access Server](https://openvpn.net/access-server/) virtual appliance for remotely accessing my [homelab](/vmware-home-lab-on-intel-nuc-9). That's worked _fine_ but it comes with a lot of overhead. It also requires maintaining an SSL certificate and forwarding three ports through my home router, in addition to managing a fairly complex software package and configurations. The free version of the OpenVPN server also only supports a maximum of two simultaneous connections. I recently ran into issues with the `certbot` automated SSL renewal process on my OpenVPN AS VM and decided that it might be time to look for a simpler solution.
 

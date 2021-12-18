@@ -6,6 +6,7 @@ tags:
 - chromeos
 title: Burn an ISO to USB with the Chromebook Recovery Utility
 toc: false
+featured: true
 ---
 
 There are a number of fantastic Windows applications for creating bootable USB drives from ISO images - but those don't work on a Chromebook. Fortunately there's an easily-available tool which will do the trick: Google's own [Chromebook Recovery Utility](https://chrome.google.com/webstore/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm) app. 

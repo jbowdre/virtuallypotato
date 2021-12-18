@@ -9,6 +9,7 @@ tags:
 - docker
 - shell
 title: Setting up Linux on a new Lenovo Chromebook Duet (bonus arm64 complications!)
+featured: true
 ---
 
 I've [written in the past](/3d-modeling-and-printing-on-chrome-os) about the Linux setup I've been using on my Pixel Slate. My Slate's keyboard stopped working over the weekend, though, and there don't seem to be any replacements (either Google or Brydge) to be found. And then I saw that [Walmart had the 64GB Lenovo Chromebook Duet temporarily marked down](https://twitter.com/johndotbowdre/status/1320733614426988544) to a mere $200 - just slightly more than the Slate's *keyboard* originally cost. So I jumped on that deal, and the little Chromeblet showed up today.
