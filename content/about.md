@@ -6,6 +6,7 @@ aliases = ["about-john", "about-me", "contact"]
 author = "John Bowdre"
 comments = false
 toc = false
+featureImage = "/images/bio-photo.jpg"
 +++
 
 By day, I manage a large virtualized server environment, with a focus on learning to leverage cloud and automation technologies to make that task a bit easier. My big project from the past year or so has been a VMware vRealize Automation implementation to streamline our server deployments, and I've been sharing some of what I've learned in that process here on Virtually Potato, primarily in the [vRA8 series of posts](/series/vra8). I don't have a strong development background (knowing just enough to be dangerous) so I do a lot of fumbling along the way, but I'm _generally_ make things work the way I want them to. And hopefully some of the notes I've made along the way might help someone else with their own projects!
