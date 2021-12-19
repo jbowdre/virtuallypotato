@@ -10,6 +10,7 @@ featureImage: "/images/posts-2021/12/hugo-logo-wide.png" # Sets featured image o
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
 thumbnail: "/images/posts-2021/12/hugo-logo-wide.png" # Sets thumbnail image appearing inside card on homepage.
+shareImage: "/images/posts-2021/12/hugo-logo-wide.png"
 # shareImage: "/images/path/share.png" # Designate a separate image for social media sharing.
 codeMaxLines: 10 # Override global value for how many lines within a code block before auto-collapsing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
