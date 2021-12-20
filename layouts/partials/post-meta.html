@@ -12,7 +12,7 @@
   {{- if $showDate }}
     <span>{{ partial "sprite" (dict "icon" "calendar") }}</span>
     <span class="post_date">
-      {{ $postDate -}}{{- if ne $postDate $updateDate }} <span>{{- partial "sprite" (dict "icon" "edit") -}}</span>{{- $updateDate -}}{{- end }} 
+      {{ $postDate -}}{{- if ne $postDate $updateDate }}&nbsp;&nbsp;· <span>{{- partial "sprite" (dict "icon" "edit") -}}</span>{{- $updateDate -}}{{- end }} 
     </span>
     {{- $scratch.Set "writeSeparator" true }}
   {{- end }}
