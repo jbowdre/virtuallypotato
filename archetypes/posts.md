@@ -6,6 +6,7 @@ description: "WHEREIN I explore creating posts with a Hugo Archetype" # Descript
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: true # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
+usePageBundles: true
 # menu: main
 # featureImage: "/images/posts-2021/12/file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
