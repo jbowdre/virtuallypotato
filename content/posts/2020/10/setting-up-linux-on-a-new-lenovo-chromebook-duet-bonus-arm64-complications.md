@@ -1,6 +1,7 @@
 ---
 series: Projects
 date: "2020-10-27T08:34:30Z"
+lastmod: "2021-05-20"
 thumbnail: images/posts-2020/XtmaR9Z0J.png
 tags:
 - chromeos
