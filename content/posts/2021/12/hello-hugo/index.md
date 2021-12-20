@@ -1,16 +1,19 @@
 ---
 title: "Hello Hugo" # Title of the blog post.
+# url: "hello-hugo2"
 date: 2021-12-19 # Date of post creation.
+lastmod: 2021-12-20
 description: "I migrated my blog from a Jekyll site hosted on Github Pages to a Hugo site stored in Gitlab and published via Netlify" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: false # Controls if a table of contents should be generated for first-level links automatically.
+usePageBundles: true
 # menu: main
-featureImage: "/images/posts-2021/12/hugo-logo-wide.png" # Sets featured image on blog post.
+featureImage: "/hugo-logo-wide.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-thumbnail: "/images/posts-2021/12/hugo-logo-wide.png" # Sets thumbnail image appearing inside card on homepage.
-shareImage: "/images/posts-2021/12/hugo-logo-wide.png"
+thumbnail: "/hugo-logo-wide.png" # Sets thumbnail image appearing inside card on homepage.
+shareImage: "/hugo-logo-wide.png"
 # shareImage: "/images/path/share.png" # Designate a separate image for social media sharing.
 codeMaxLines: 10 # Override global value for how many lines within a code block before auto-collapsing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
@@ -37,4 +40,4 @@ Putting Netlify in front of the repositories where my site content is stored als
 
 **Anyway, here we are: the new Virtually Potato, powered by Hugo and Netlify!**
 
-![Woohoo!](/images/posts-2021/12/celebration.gif)
+![Woohoo!](/celebration.gif)
