@@ -2,7 +2,7 @@
 series: Projects
 date: "2021-06-28T00:00:00Z"
 thumbnail: images/posts-2020/2xe34VJym.png
-last_modified_at: "2021-09-17"
+lastmod: "2021-09-17"
 tags:
 - docker
 - linux
