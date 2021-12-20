@@ -1,6 +1,5 @@
 ---
 title: "Hello Hugo" # Title of the blog post.
-# url: "hello-hugo2"
 date: 2021-12-19 # Date of post creation.
 lastmod: 2021-12-20
 description: "I migrated my blog from a Jekyll site hosted on Github Pages to a Hugo site stored in Gitlab and published via Netlify" # Description used for search engine.
