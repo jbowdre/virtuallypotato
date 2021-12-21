@@ -8,11 +8,11 @@ draft: true # Sets whether to render this page. Draft of true will not be render
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
-# featureImage: "/images/posts-2021/12/file.png" # Sets featured image on blog post.
+# featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-# thumbnail: "/images/posts-2021/12/thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
-# shareImage: "/images/path/share.png" # Designate a separate image for social media sharing.
+# thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
+# shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Tips
 tags:
