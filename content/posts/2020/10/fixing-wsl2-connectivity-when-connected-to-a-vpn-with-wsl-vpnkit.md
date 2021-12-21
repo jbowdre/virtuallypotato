@@ -1,6 +1,7 @@
 ---
 date: "2020-10-07T08:34:30Z"
 thumbnail: images/posts-2020/MnmMuA0HC.png
+usePageBundles: false
 tags:
 - windows
 - linux

@@ -2,6 +2,7 @@
 series: Tips
 date: "2021-02-18T08:34:30Z"
 thumbnail: images/posts-2020/PPZu_UOGO.png
+usePageBundles: false
 tags:
 - logs
 - vmware

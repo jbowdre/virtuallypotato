@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-06-01T08:34:30Z"
 thumbnail: images/posts-2020/-Fuvz-GmF.png
+usePageBundles: false
 tags:
 - vmware
 - vra

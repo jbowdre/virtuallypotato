@@ -3,6 +3,7 @@ series: vRA8
 date: "2021-05-18T08:34:30Z"
 lastmod: "2021-05-20"
 thumbnail: images/posts-2020/hFPeakMxn.png
+usePageBundles: false
 tags:
 - vmware
 - vra

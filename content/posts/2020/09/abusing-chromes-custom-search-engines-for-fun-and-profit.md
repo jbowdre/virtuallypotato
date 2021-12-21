@@ -2,6 +2,7 @@
 series: Tips
 date: "2020-09-24T08:34:30Z"
 thumbnail: images/posts-2020/fmLDUWjia.png
+usePageBundles: false
 tags:
 - chrome
 title: Abusing Chrome's Custom Search Engines for Fun and Profit

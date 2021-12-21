@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-11-05T00:00:00Z"
 thumbnail: images/posts-2021/11/20211105_ssc_403.png
+usePageBundles: false
 tags:
 - vra
 - lcm

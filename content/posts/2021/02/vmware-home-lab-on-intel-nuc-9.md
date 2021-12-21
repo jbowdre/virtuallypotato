@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-02-05T08:34:30Z"
 thumbnail: images/posts-2020/SIDah-Lag.png
+usePageBundles: false
 tags:
 - vmware
 - homelab

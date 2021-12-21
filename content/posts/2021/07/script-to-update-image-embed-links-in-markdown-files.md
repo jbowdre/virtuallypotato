@@ -1,6 +1,7 @@
 ---
 series: Scripts
 date: "2021-07-19T16:03:30Z"
+usePageBundles: false
 tags:
 - linux
 - shell

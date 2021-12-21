@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-05-20T08:34:30Z"
 thumbnail: images/posts-2020/wl-WPQpEl.png
+usePageBundles: false
 tags:
 - vmware
 - vra

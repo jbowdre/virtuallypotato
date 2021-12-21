@@ -2,6 +2,7 @@
 series: Projects
 date: "2021-05-27T08:34:30Z"
 thumbnail: images/posts-2020/HRRpFOKuN.png
+usePageBundles: false
 tags:
 - docker
 - vmware

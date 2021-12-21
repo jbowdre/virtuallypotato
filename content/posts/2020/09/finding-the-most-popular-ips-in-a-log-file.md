@@ -1,6 +1,7 @@
 ---
 series: Tips
 date: "2020-09-13T08:34:30Z"
+usePageBundles: false
 tags:
 - linux
 - shell

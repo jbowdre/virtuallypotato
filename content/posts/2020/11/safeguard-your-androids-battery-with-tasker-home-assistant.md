@@ -2,6 +2,7 @@
 series: Projects
 date: "2020-11-14T08:34:30Z"
 thumbnail: images/posts-2020/aeIOr8w6k.png
+usePageBundles: false
 tags:
 - android
 - tasker

@@ -2,6 +2,7 @@
 series: Tips
 date: "2021-01-30T08:34:30Z"
 thumbnail: images/posts-2020/XTaU9VDy8.png
+usePageBundles: false
 tags:
 - vmware
 title: 'PSA: halt replication before snapshotting linked vCenters'

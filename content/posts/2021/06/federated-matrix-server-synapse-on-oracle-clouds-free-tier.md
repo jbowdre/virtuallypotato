@@ -2,6 +2,7 @@
 series: Projects
 date: "2021-06-28T00:00:00Z"
 thumbnail: images/posts-2020/2xe34VJym.png
+usePageBundles: false
 lastmod: "2021-09-17"
 tags:
 - docker

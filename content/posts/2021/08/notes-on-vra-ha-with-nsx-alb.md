@@ -1,6 +1,7 @@
 ---
 series: vRA8
 date: "2021-08-25T00:00:00Z"
+usePageBundles: false
 tags:
 - nsx
 - cluster

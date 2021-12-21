@@ -2,6 +2,7 @@
 date: "2020-09-14T08:34:30Z"
 thumbnail: /images/posts-2020/qDTXt1jp3.png
 featureImage: /images/posts-2020/qDTXt1jp3.png
+usePageBundles: false
 tags:
 - linux
 - chromeos

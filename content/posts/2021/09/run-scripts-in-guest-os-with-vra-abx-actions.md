@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-09-03T00:00:00Z"
 thumbnail: images/posts-2021/09/20210903_action_run_success.png
+usePageBundles: false
 lastmod: "2021-09-20"
 tags:
 - vra

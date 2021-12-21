@@ -1,6 +1,7 @@
 ---
 series: Projects
 date: "2021-08-20T00:00:00Z"
+usePageBundles: false
 tags:
 - gcp
 - cloud

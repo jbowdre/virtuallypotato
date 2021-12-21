@@ -2,6 +2,7 @@
 series: vRA8
 date: "2021-07-21T00:00:00Z"
 thumbnail: images/posts-2021/07/20210721-successful-ad_machine.png
+usePageBundles: false
 tags:
 - vmware
 - vra
