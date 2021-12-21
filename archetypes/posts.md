@@ -14,11 +14,7 @@ usePageBundles: true
 # thumbnail: "/images/posts-2021/12/thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "/images/path/share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
-series:
-  - vra8
-  - projects
-  - scripts
-  - tips
+series: Tips
 tags:
   - vmware
   - linux
