@@ -1,7 +1,7 @@
 ---
 title: "Snikket Private XMPP Chat on Oracle Cloud Free Tier" # Title of the blog post.
 date: 2021-12-23 # Date of post creation.
-# lastmod: 2021-12-21T21:35:07-06:00 # Date when last modified
+lastmod: 2021-12-24 # Date when last modified
 description: "Notes on installing a Snikket XMPP chat instance alongside a Matrix instance on an Oracle Cloud free tier server" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
