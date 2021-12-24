@@ -56,7 +56,7 @@ I also needed to create three DNS records[^5] with my domain registrar:
 # Domain                  TTL   Class   Type  Target
 chat.vpot8.ooo            300   IN      A     132.145.174.39    
 groups.vpot8.ooo          300   IN      CNAME chat.vpot8.ooo.
-share.vpot8.ooo           300   IN      CNAME chat.example.com.
+share.vpot8.ooo           300   IN      CNAME chat.vpot8.ooo.
 ```
 
 [^4]: By default Snikket can use any UDP port in the range `49152-65535` for TURN call data but restricting it to 100 ports [should be sufficient](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/firewall.md#how-many-ports-does-the-turn-service-need) for most small servers.
