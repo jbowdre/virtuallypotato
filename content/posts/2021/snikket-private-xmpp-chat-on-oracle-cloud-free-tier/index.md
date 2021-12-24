@@ -154,17 +154,19 @@ sudo docker exec snikket create-invite --admin --group default
 That command will return a customized invite link which I can copy and paste into my browser.
 ![Snikket invite page](snikket_invite_page.png)
 
-If I've got a mobile device handy, I can go ahead and install the client there to get started; otherwise, clicking the **register an account manually** link at the bottom of the screen lets me create a username and password directly. 
+If I've got a mobile device handy, I can go ahead and install the client there to get started; the app will even automatically generate a secure password[^6] so that I (and my users) don't have to worry about it. Otherwise, clicking the **register an account manually** link at the bottom of the screen lets me create a username and password directly. 
 
 With shiny new credentials in hand, I can log in at the web portal to manage my account or access the the admin panel.
+
+[^6]: It's also easy for the administrator to generate password reset links for users who need a new password.
 
 ![Welcome home, John!](welcome_home_john.png)
 
 ### Invite more users
-Excellent, I've got a private chat server but no one to chat privately with[^6]. Time to fix that, eh? I *could* use that `docker exec snikket create-invite` command line again to create another invite link, but I think I'll do that through the admin panel instead.
+Excellent, I've got a private chat server but no one to chat privately with[^7]. Time to fix that, eh? I *could* use that `docker exec snikket create-invite` command line again to create another invite link, but I think I'll do that through the admin panel instead.
 ![Snikket admin panel](snikket_admin_panel.png)
 
-Before I get into the invite process, I'm going to take a brief detour to discuss *circles*. For those of you who didn't make a comfortable (though short-lived) home on Google+[^7], Snikket uses the term circle to refer to social circles within a local community. Each server gets a circle created by default, and new users will be automatically added to that circle. Users within the same circle will appear in each other's contact list and will also be added into a group chat together. 
+Before I get into the invite process, I'm going to take a brief detour to discuss *circles*. For those of you who didn't make a comfortable (though short-lived) home on Google+[^8], Snikket uses the term circle to refer to social circles within a local community. Each server gets a circle created by default, and new users will be automatically added to that circle. Users within the same circle will appear in each other's contact list and will also be added into a group chat together. 
 
 It might make sense to use circles to group users based on how they know each other. There could be a circle for family, a circle for people who work(ed) together, a circle for the members of a club, and a circle for The Gang that gets together every couple of weeks for board games.
 
@@ -184,11 +186,11 @@ As you can see, this page includes a toggle to select the invitation type:
 Whichever type is selected, I also need to select the time period for which the invitation link will be valid as well as which circle anyone who accepts the invitation will be added to. And then I can generate and share the new invite link as needed.
 ![New invite link](new_invite_link.png)
 
-[^6]: The ultimate in privacy?
-[^7]: Too soon? Yep. Still too soon.
+[^7]: The ultimate in privacy?
+[^8]: Too soon? Yep. Still too soon.
 
 ### Join me?
-Speaking of which, here's that invite link in case anyone wants to check out Snikket from the client side of things (and/or just talk to me about *stuff*[^8]):
+Speaking of which, here's that invite link in case anyone wants to check out Snikket from the client side of things (and/or just talk to me about *stuff*[^9]):
 
 **[https://chat.vpot8.ooo/invite/Qrsc5IaVNGM8giVH/](https://chat.vpot8.ooo/invite/Qrsc5IaVNGM8giVH/)**
 
@@ -196,7 +198,7 @@ Or if you've already got a Snikket and/or XMPP account, hit me up from your own 
 
 `john@chat.vpot8.ooo`
 
-[^8]: I'm also open to discussing *things*.
+[^9]: I'm also open to discussing *things*.
 
 ### Advanced configuration
 Okay, so that covers everything that's needed for a standard Snikket installation in OCI. The firewall configuration in particular would have been much simpler in GCP (where I could have used `ufw`) but I still think it's overall pretty straight forward. But what about my case where I wanted to put Snikket on the same server as my Matrix instance? Or the steps I needed to move Snikket from the GCP server onto the OCI server?
@@ -240,13 +242,13 @@ bowdre.net {
 }
 ```
 
-So Caddy will be listening on port `80` for traffic to `http://chat.vpot8.ooo`, `http://groups.chat.vpot8.ooo`, and `http://share.chat.vpot8.ooo`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^9]. 
+So Caddy will be listening on port `80` for traffic to `http://chat.vpot8.ooo`, `http://groups.chat.vpot8.ooo`, and `http://share.chat.vpot8.ooo`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^10]. 
 
 And then any traffic to `matrix.bowdre.net` or `bowdre.net` still gets handled as described in that other post.
 
 Did you notice that Snikket will need to get reconfigured to listen on `5080` and `5443` now? We'll get to that in just a minute. First, let's get the data onto the new server.
 
-[^9]: Remember that both Caddy and Snikket are managing their own fully-valid certificates in this scenario, but they don't necessarily know that about each other.
+[^10]: Remember that both Caddy and Snikket are managing their own fully-valid certificates in this scenario, but they don't necessarily know that about each other.
 
 #### Migrating a Snikket instance
 Since Snikket is completely containerized, moving between hosts is a simple matter of transferring the configuration and data. 
@@ -285,7 +287,7 @@ This is also a great time to update the `A` record for `chat.vpot8.ooo` so that 
 {{% /notice %}}
 
 
-Now I just need to transfer archive from one server to the other. I've got [Tailscale](https://tailscale.com/)[^10] running on my various cloud servers so that they can talk to each other through a secure WireGuard tunnel (remember [WireGuard](/cloud-based-wireguard-vpn-remote-homelab-access/)?) without having to open any firewall ports between them, and that means I can just use `scp` to transfer the file without any fuss. I can even leverage Tailscale's [Magic DNS](https://tailscale.com/kb/1081/magicdns/) feature to avoid worrying with any IPs, just the hostname registered in Tailscale (`chat-oci`):
+Now I just need to transfer archive from one server to the other. I've got [Tailscale](https://tailscale.com/)[^11] running on my various cloud servers so that they can talk to each other through a secure WireGuard tunnel (remember [WireGuard](/cloud-based-wireguard-vpn-remote-homelab-access/)?) without having to open any firewall ports between them, and that means I can just use `scp` to transfer the file without any fuss. I can even leverage Tailscale's [Magic DNS](https://tailscale.com/kb/1081/magicdns/) feature to avoid worrying with any IPs, just the hostname registered in Tailscale (`chat-oci`):
 
 ```bash
 scp /home/john/snikket-backup.tar.gz chat-oci:/home/john/
@@ -346,4 +348,4 @@ If I refresh the login page I can now log back in with my account and verify tha
 
 And I can open the Snikket client on my phone and get back to chatting - this migration was a success!
 
-[^10]: More on Tailscale in my next post!
+[^11]: More on Tailscale in my next post!
