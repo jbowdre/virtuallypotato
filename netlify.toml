@@ -1,6 +1,11 @@
 [build]
-  command = "hugo"
   publish = "public"
 
 [build.environment]
   HUGO_VERSION = "0.89.4"
+
+[context.production]
+  command = "hugo"
+
+[context.deploy-preview]
+  command = "hugo --environment staging"
