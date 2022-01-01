@@ -1,0 +1,12 @@
+html
+    --theme-dark: #4AAED9
+    @mixin darkmode
+        
+    &[data-mode="dim"]
+        @include darkmode
+        code
+            &.noClass
+                background: var(--code-bg) !important
+        .post_content
+            a
+                color: var(--theme-dark)
