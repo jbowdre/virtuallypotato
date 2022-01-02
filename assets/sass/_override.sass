@@ -1,12 +1,17 @@
 html
-    --theme-dark: #4AAED9
+    code
+        &.noClass
+            --inlineColor: hsl(198, 100%, 24%)
+            background: hsl(198, 0%, 91%)
+
     @mixin darkmode
         
     &[data-mode="dim"]
         @include darkmode
         code
             &.noClass
-                background: var(--code-bg) !important
+                --inlineColor: hsl(194, 57%, 71%)
+                background: hsl(198, 28%, 18%)
         .post_content
             a
-                color: var(--theme-dark)
+                color: hsl(198, 65%, 57%)
