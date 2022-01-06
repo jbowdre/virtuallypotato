@@ -287,7 +287,7 @@ This is also a great time to update the `A` record for `chat.vpot8.ooo` so that 
 {{% /notice %}}
 
 
-Now I just need to transfer archive from one server to the other. I've got [Tailscale](https://tailscale.com/)[^11] running on my various cloud servers so that they can talk to each other through a secure WireGuard tunnel (remember [WireGuard](/cloud-based-wireguard-vpn-remote-homelab-access/)?) without having to open any firewall ports between them, and that means I can just use `scp` to transfer the file without any fuss. I can even leverage Tailscale's [Magic DNS](https://tailscale.com/kb/1081/magicdns/) feature to avoid worrying with any IPs, just the hostname registered in Tailscale (`chat-oci`):
+Now I just need to transfer the archive from one server to the other. I've got [Tailscale](https://tailscale.com/)[^11] running on my various cloud servers so that they can talk to each other through a secure WireGuard tunnel (remember [WireGuard](/cloud-based-wireguard-vpn-remote-homelab-access/)?) without having to open any firewall ports between them, and that means I can just use `scp` to transfer the file without any fuss. I can even leverage Tailscale's [Magic DNS](https://tailscale.com/kb/1081/magicdns/) feature to avoid worrying with any IPs, just the hostname registered in Tailscale (`chat-oci`):
 
 ```bash
 scp /home/john/snikket-backup.tar.gz chat-oci:/home/john/
@@ -348,4 +348,4 @@ If I refresh the login page I can now log back in with my account and verify tha
 
 And I can open the Snikket client on my phone and get back to chatting - this migration was a success!
 
-[^11]: More on Tailscale in my next post!
+[^11]: More on how I use Tailscale [here](/secure-networking-made-simple-with-tailscale/)!
