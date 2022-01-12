@@ -1,5 +1,5 @@
 ---
-title: "VMware Tanzu Community Edition Kubenertes Platform in a Homelab" # Title of the blog post.
+title: "VMware Tanzu Community Edition Kubernetes Platform in a Homelab" # Title of the blog post.
 date: 2022-01-12 # Date of post creation.
 # lastmod: 2022-01-06T09:42:51-06:00 # Date when last modified
 description: "Gaining familiarity with VMware Tanzu Community Edition by deploying phpIPAM on Kubernetes in my homelab" # Description used for search engine.
