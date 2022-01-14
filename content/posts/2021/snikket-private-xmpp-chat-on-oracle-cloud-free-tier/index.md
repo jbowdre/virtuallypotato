@@ -1,7 +1,7 @@
 ---
 title: "Snikket Private XMPP Chat on Oracle Cloud Free Tier" # Title of the blog post.
 date: 2021-12-23 # Date of post creation.
-lastmod: 2021-12-24 # Date when last modified
+lastmod: 2022-01-14 # Date when last modified
 description: "Notes on installing a Snikket XMPP chat instance alongside a Matrix instance on an Oracle Cloud free tier server" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -39,7 +39,7 @@ A few days ago I migrated my original Snikket instance from Google Cloud (GCP) t
 [^3]: That said, Snikket is built on the [XMPP messaging standard](https://xmpp.org/) which means it can inter-operate with other XMPP-based chat networks, servers, and clients - though of course the best experience will be had between Snikket servers and clients. 
 
 ### Infrastructure setup
-You can refer to my notes from last time for details on how I [created the Ubuntu 20.04 VM](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#instance-creation) and [configured the firewall rules](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#firewall-configuration) both at the cloud infrastructure level as well as within the host. Snikket does need a few additional [firewall ports](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/firewall.md) beyond what was needed for my Matrix setup:
+You can refer to my notes from last time for details on how I [created the Ubuntu 20.04 VM](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#instance-creation) and [configured the firewall rules](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#firewall-configuration) both at the cloud infrastructure level as well as within the host using `iptables`. Snikket does need a few additional [firewall ports](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/firewall.md) beyond what was needed for my Matrix setup:
 
 | Port(s) | Transport | Purpose |
 | --- | --- | --- |
@@ -50,6 +50,51 @@ You can refer to my notes from last time for details on how I [created the Ubunt
 | `5222` | TCP | Connections from clients |
 | `5269` | TCP | Connections from other servers |
 | `60000-60100`[^4] | UDP | Audio/Video data proxy (TURN data) |
+
+As a gentle reminder, Oracle's `iptables` configuration inserts a `REJECT all` rule at the bottom of each chain. I needed to make sure that each of my `ALLOW` rules got inserted above that point. So I used `iptables -L INPUT --line-numbers` to identify which line held the `REJECT` rule, and then used `iptables -I INPUT [LINE_NUMBER] -m state --state NEW -p [PROTOCOL] --dport [PORT] -j ACCEPT` to insert the new rules above that point. 
+```bash
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 80 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 443 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dports 3478-3479 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp -m multiport --dports 3478-3479 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp -m multiport --dports 3478,3479 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 5000 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 5222 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 5269 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p udp -m multiport --dports 3478,3479 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p udp -m multiport --dports 5349,5350 -j ACCEPT
+sudo iptables -I INPUT 9 -m state --state NEW -p udp -m multiport --dports 60000:60100 -j ACCEPT
+```
+
+Then to verify the rules are in the right order:
+```bash
+$ sudo iptables -L INPUT --line-numbers -n
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination
+1    ts-input   all  --  0.0.0.0/0            0.0.0.0/0
+2    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+3    ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0
+4    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+5    ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp spt:123
+6    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:22
+7    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:443
+8    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:80
+9    ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state NEW multiport dports 5349,5350
+10   ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state NEW multiport dports 60000:60100
+11   ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state NEW multiport dports 3478,3479
+12   ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:5269
+13   ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:5222
+14   ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW tcp dpt:5000
+15   ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW multiport dports 3478,3479
+16   REJECT     all  --  0.0.0.0/0            0.0.0.0/0            reject-with icmp-host-prohibited
+```
+
+Before moving on, it's important to save them so the rules will persist across reboots!
+```bash
+$ sudo netfilter-persistent save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
+run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
+```
 
 I also needed to create three DNS records[^5] with my domain registrar:
 ```
