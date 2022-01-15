@@ -4,6 +4,9 @@ html
             --inlineColor: hsl(198, 100%, 24%)
             background: hsl(198, 0%, 91%)
 
+    .notices
+        border-radius: 0.5rem
+
     @mixin darkmode
         
     &[data-mode="dim"]
@@ -15,3 +18,17 @@ html
         .post_content
             a
                 color: hsl(198, 65%, 57%)
+        .notices
+            color: var(--light)
+            &.info
+                border-color: hsl(198, 100%, 32%)
+                background: hsl(198, 100%, 24%)
+            &.warning
+                border-color: hsl(9, 92%, 50%)
+                background: hsl(9, 100%, 38%)
+            &.note
+                border-color: hsl(46, 100%, 45%)
+                background: hsl(41, 100%, 36%)                                            
+            &.tip
+                border-color: hsl(93, 85%, 32%)
+                background: hsl(93, 100%, 21%)
