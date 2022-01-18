@@ -1,6 +1,7 @@
 ---
 series: vRA8
 date: "2021-08-13T00:00:00Z"
+lastmod: "2022-01-18"
 usePageBundles: true
 thumbnail: 20210813_workflow_success.png
 tags:
@@ -375,7 +376,7 @@ if (staticDns == "true" && supportedDomains.indexOf(dnsDomain) >= 0) {
         }
     }
     sshSession.disconnect()
-    if (created == false) {
+    if (deleted == false) {
         System.warn("Error! Unable to delete DNS record.")
     }
 } else {
