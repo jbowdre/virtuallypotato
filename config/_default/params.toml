@@ -15,7 +15,7 @@ footerLogo = "logos/logo_footer.png"
 
 ## Site preferences
 numberOfTagsShown = 10 
-codeMaxLines = 10
+codeMaxLines = 25
 codeLineNumbers = false
 enableMathNotation = false
 usePageBundles = true
