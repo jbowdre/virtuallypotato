@@ -12,3 +12,6 @@ other = "Powered by"
 
 [and]
 other = "and"
+
+[view_source]
+other = "View source"
