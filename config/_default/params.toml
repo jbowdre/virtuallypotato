@@ -40,4 +40,4 @@ comments = true
 [utterances]
   repo="jbowdre/virtuallypotato" # owner/repo where github comments will happen
   issueterm="title" # how will the issues be mapped to the articles
-  theme="icy-dark" # theme to be applied to comments box
+  theme="dark-blue" # theme to be applied to comments box
