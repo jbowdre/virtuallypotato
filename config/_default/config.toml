@@ -10,3 +10,6 @@ DefaultContentLanguage = "en"
 
 [permalinks]
   posts = ":filename"
+
+[outputs]
+   home = ["HTML", "RSS","JSON"]

@@ -15,3 +15,21 @@ other = "and"
 
 [view_source]
 other = "View source"
+
+[no_matches]
+other = "No matches found"
+
+[quick_links]
+other = "Quick links"
+
+[search_field_placeholder]
+other = "Search"
+
+[search_results_label]
+other = "Search Results"
+
+[short_search_query]
+other = "Query is too short"
+
+[type_to_search]
+other = "Type to search"

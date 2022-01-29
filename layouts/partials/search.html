@@ -1,0 +1,12 @@
+<!-- search from https://github.com/onweru/compose -->
+<div class="search">
+  <label for="find" class="search_label">
+    <svg class="icon icon_search">
+      <use xlink:href="#search"></use>
+    </svg>
+  </label>
+  <input type="search" class="search_field" placeholder='{{ T "search_field_placeholder" }}' id="find" autocomplete="off">
+  <div class="search_results results"></div>
+</div>
+<script src="{{ "/js/fuse.js" | relURL }}"></script>
+<script src="{{ "/js/search.js" | relURL }}"></script>
