@@ -7,6 +7,7 @@ tags:
 - vmware
 - homelab
 - vra
+- lcm
 title: VMware Home Lab on Intel NUC 9
 featured: false
 ---

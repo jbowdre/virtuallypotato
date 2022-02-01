@@ -20,6 +20,7 @@ tags:
   - linux
   - tanzu
   - kubernetes
+  - shell
 comment: true # Disable comment if false.
 ---
 

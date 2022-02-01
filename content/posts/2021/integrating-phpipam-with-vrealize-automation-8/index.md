@@ -7,6 +7,8 @@ tags:
 - python
 - rest
 - vmware
+- vra
+- networking
 title: Integrating {php}IPAM with vRealize Automation 8
 ---
 

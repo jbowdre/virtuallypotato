@@ -6,6 +6,7 @@ tags:
 - docker
 - windows
 - wsl
+- containers
 title: Docker on Windows 10 with WSL2
 ---
 

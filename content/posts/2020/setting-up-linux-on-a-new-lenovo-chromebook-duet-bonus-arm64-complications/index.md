@@ -10,6 +10,7 @@ tags:
 - crostini
 - docker
 - shell
+- containers
 title: Setting up Linux on a new Lenovo Chromebook Duet (bonus arm64 complications!)
 featured: true
 ---

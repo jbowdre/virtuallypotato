@@ -6,6 +6,7 @@ thumbnail: 20210723-script.png
 tags:
 - linux
 - shell
+- automation
 title: Automatic unattended expansion of Linux root LVM volume to fill disk
 toc: false
 ---

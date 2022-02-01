@@ -6,6 +6,7 @@ tags:
 - linux
 - shell
 - logs
+- regex
 title: Finding the most popular IPs in a log file
 ---
 

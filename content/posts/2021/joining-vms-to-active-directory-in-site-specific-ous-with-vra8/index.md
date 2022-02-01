@@ -8,6 +8,8 @@ tags:
 - vra
 - abx
 - activedirectory
+- automation
+- windows
 title: Joining VMs to Active Directory in site-specific OUs with vRA8
 ---
 Connecting a deployed Windows VM to an Active Directory domain is pretty easy; just apply an appropriately-configured [customization spec](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-CAEB6A70-D1CF-446E-BC64-EC42CDB47117.html) and vCenter will take care of it for you. Of course, you'll likely then need to move the newly-created computer object to the correct Organizational Unit so that it gets all the right policies and such. 

@@ -7,6 +7,7 @@ tags:
 - cluster
 - vra
 - availability
+- networking
 title: Notes on vRA HA with NSX-ALB
 ---
 This is going to be a pretty quick recap of the steps I recently took to convert a single-node instance of vRealize Automation 8.4.2 into a 3-node High-Availability vRA cluster behind a standalone NSX Advanced Load Balancer (without NSX being deployed in the environment). No screenshots or specific details since I ran through this in the lab at work and didn't capture anything along the way, and my poor NUC homelab struggles enough to run a single instance of memory-hogging vRA.

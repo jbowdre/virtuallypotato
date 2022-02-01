@@ -8,6 +8,8 @@ tags:
 - docker
 - linux
 - cloud
+- containers
+- chat
 title: Federated Matrix Server (Synapse) on Oracle Cloud's Free Tier
 ---
 

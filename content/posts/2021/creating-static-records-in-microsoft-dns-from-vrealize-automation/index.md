@@ -10,6 +10,7 @@ tags:
 - vro
 - javascript
 - powershell
+- automation
 title: Creating static records in Microsoft DNS from vRealize Automation
 ---
 One of the requirements for my vRA deployments is the ability to automatically create a static `A` records for non-domain-joined systems so that users can connect without needing to know the IP address. The organization uses Microsoft DNS servers to provide resolution on the internal domain. At first glance, this shouldn't be too much of a problem: vRealize Orchestrator 8.x can run PowerShell scripts, and PowerShell can use the [`Add-DnsServerResourceRecord` cmdlet](https://docs.microsoft.com/en-us/powershell/module/dnsserver/add-dnsserverresourcerecord?view=windowsserver2019-ps) to create the needed records.

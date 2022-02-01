@@ -12,6 +12,8 @@ tags:
 - homelab
 - tasker
 - automation
+- networking
+- security
 title: Cloud-hosted WireGuard VPN for remote homelab access
 featured: false
 ---

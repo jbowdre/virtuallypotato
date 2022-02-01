@@ -7,6 +7,8 @@ tags:
 - docker
 - linux
 - cloud
+- gcp
+- security
 title: BitWarden password manager self-hosted on free Google Cloud instance
 ---
 
