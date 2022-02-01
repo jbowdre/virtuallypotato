@@ -8,7 +8,7 @@ tags:
 - homelab
 - vra
 title: VMware Home Lab on Intel NUC 9
-featured: true
+featured: false
 ---
 
 I picked up an Intel NUC 9 Extreme kit a few months back (thanks, VMware!) and have been slowly tinkering with turning it into an extremely capable self-contained home lab environment. I'm pretty happy with where things sit right now so figured it was about time to start documenting and sharing what I've done. 

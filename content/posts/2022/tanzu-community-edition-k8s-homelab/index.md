@@ -3,7 +3,7 @@ title: "VMware Tanzu Community Edition Kubernetes Platform in a Homelab" # Title
 date: 2022-01-12 # Date of post creation.
 # lastmod: 2022-01-06T09:42:51-06:00 # Date when last modified
 description: "Gaining familiarity with VMware Tanzu Community Edition by deploying phpIPAM on Kubernetes in my homelab" # Description used for search engine.
-featured: false # Sets if post is a featured post, making appear on the home page side bar.
+featured: true # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
