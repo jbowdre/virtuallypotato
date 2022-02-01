@@ -19,6 +19,7 @@ tags:
   - vmware
   - linux
   - tanzu
+  - kubernetes
 comment: true # Disable comment if false.
 ---
 
