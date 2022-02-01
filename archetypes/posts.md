@@ -14,11 +14,59 @@ usePageBundles: true
 # thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
-series: Tips
+series: 
+  - Tips
+  - Projects
+  - Scripts
+  - vRA8
 tags:
   - vmware
   - linux
+  - vra
+  - docker
   - chromeos
+  - cloud
+  - javascript
+  - vro
+  - meta
+  - shell
+  - homelab
+  - powershell
+  - vpn
+  - automation
+  - crostini
+  - jekyll
+  - tasker
+  - windows
+  - abx
+  - android
+  - gcp
+  - hugo
+  - kubernetes
+  - logs
+  - powercli
+  - tanzu
+  - wireguard
+  - wsl
+  - 3dprinting
+  - activedirectory
+  - availability
+  - certs
+  - chat
+  - chrome
+  - cluster
+  - containers
+  - homeassistant
+  - lcm
+  - networking
+  - nsx
+  - openssl
+  - python
+  - regex
+  - rest
+  - salt
+  - security
+  - serverless
 comment: true # Disable comment if false.
 ---
 
