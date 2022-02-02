@@ -1,6 +1,6 @@
 ---
 title: "Logging in to a Tanzu Community Edition Kubernetes Cluster from a new device" # Title of the blog post.
-date: 2022-02-01 # Date of post creation.
+date: 2022-02-01T22:07:18-06:00 # Date of post creation.
 # lastmod: 2022-02-01T10:58:57-06:00 # Date when last modified
 description: "The Tanzu Community Edition documentation does a great job of explaining how to authenticate to a newly-deployed cluster at the tail end of the installation steps, but how do you log in from another system once it's set up?" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
