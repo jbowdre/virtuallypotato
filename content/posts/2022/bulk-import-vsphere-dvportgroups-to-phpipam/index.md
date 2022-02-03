@@ -24,59 +24,64 @@ tags:
 comment: true # Disable comment if false.
 ---
 
-I [recently wrote](tanzu-community-edition-k8s-homelab/#a-real-workload---phpipam) about getting started with VMware's [Tanzu Community Edition](https://tanzucommunityedition.io/) and deploying [phpIPAM](https://phpipam.net/) as my first real-world Kubernetes workload. Well I've spent much of my time since then working on a script which would help to populate my phpIPAM instance with a list of networks to monitor.
+I [recently wrote](/tanzu-community-edition-k8s-homelab/#a-real-workload---phpipam) about getting started with VMware's [Tanzu Community Edition](https://tanzucommunityedition.io/) and deploying [phpIPAM](https://phpipam.net/) as my first real-world Kubernetes workload. Well I've spent much of my time since then working on a script which would help to populate my phpIPAM instance with a list of networks to monitor.
 
 ### Planning and Exporting
 The first step in making this work was to figure out which networks I wanted to import. We've got hundreds of different networks in use across our production vSphere environments. I focused only on those which are portgroups on distributed virtual switches since those configurations are pretty standardized (being vCenter constructs instead of configured on individual hosts). These dvPortGroups bear a naming standard which conveys all sorts of useful information, and it's easy and safe to rename any dvPortGroups which _don't_ fit the standard (unlike renaming portgroups on a standard virtual switch). 
 
-The standard naming convention is `[Site]-[Description] [Network Address]{/[Mask]}`. So the networks look something like this:
+The standard naming convention is `[Site/Description] [Network Address]{/[Mask]}`. So the networks (across two virtual datacenters and two dvSwitches) look something like this:
 ![Production dvPortGroups approximated in my testing lab environment](dvportgroups.png)
 
-Some networks have masks in the name, some don't. Most networks correctly include the network address with a `0` in the last octet, but some use an `x` instead. And the VLANs associated with the networks have a varying number of digits. These are all things that I needed to keep in mind as I worked on a solution which would make a true best effort at importing all of these. 
+Some networks have masks in the name, some don't; and some use an underscore (`_`) rather than a slash (`/`) to separate the network from the mask . Most networks correctly include the network address with a `0` in the last octet, but some use an `x` instead. And the VLANs associated with the networks have a varying number of digits. Consistency can be difficult so these are all things that I had to keep in mind as I worked on a solution which would make a true best effort at importing all of these. 
 
-As long as the dvPortGroup names stick to this format I can parse the name to come up with the site/location as well as the IP space of the network. The dvPortGroup also carries information about the associated VLAN, which is useful information to have. And I can easily export this information with a simple PowerCLI query:
+As long as the dvPortGroup names stick to this format I can parse the name to come up with a description as well as the IP space of the network. The dvPortGroup also carries information about the associated VLAN, which is useful information to have. And I can easily export this information with a simple PowerCLI query:
 
 ```powershell
 PS /home/john> get-vdportgroup | select Name, VlanConfiguration
 
-Name                       VlanConfiguration
-----                       -----------------
-
+Name                           VlanConfiguration
+----                           -----------------
 MGT-Home 192.168.1.0
-MGT-Servers 172.16.10.0    VLAN 1610
-BOW-Servers 172.16.20.0    VLAN 1620
-BOW-Servers 172.16.30.x    VLAN 4
-BOW-Servers 172.16.40.0/26 VLAN 44
-DRE-Servers 172.16.50.0/28 VLAN 400
-DRE-Servers 172.16.60.0    VLAN 1660
+MGT-Servers 172.16.10.0        VLAN 1610
+BOW-Servers 172.16.20.0        VLAN 1620
+BOW-Servers 172.16.30.0        VLAN 1630
+BOW-Servers 172.16.40.0        VLAN 1640
+DRE-Servers 172.16.50.0        VLAN 1650
+DRE-Servers 172.16.60.x        VLAN 1660
+VPOT8-Mgmt 172.20.10.0/27      VLAN 20
+VPOT8-Servers 172.20.10.32/27  VLAN 30
+VPOT8-Servers 172.20.10.64_26  VLAN 40
 ```
 
-In my [homelab](/vmware-home-lab-on-intel-nuc-9/), I only have a single vCenter. In production, we've got a handful of vCenters, and each manages the hosts in a given region. So I can use information about which vCenter hosts a dvPortGroup to figure out which region a network is in. When I import this data into phpIPAM, I can use the vCenter name to assign [remote scan agents](https://github.com/jbowdre/phpipam-agent-docker) to networks based on the region that they're in. 
+In my [homelab](/vmware-home-lab-on-intel-nuc-9/), I only have a single vCenter. In production, we've got a handful of vCenters, and each manages the hosts in a given region. So I can use information about which vCenter hosts a dvPortGroup to figure out which region a network is in. When I import this data into phpIPAM, I can use the vCenter name to assign [remote scan agents](https://github.com/jbowdre/phpipam-agent-docker) to networks based on the region that they're in. I can also grab information about which virtual datacenter a dvPortGroup lives in, which I'll use for grouping networks into sites or sections. 
 
 The vCenter can be found in the `Uid` property returned by `get-vdportgroup`:
 ```powershell
-PS /home/john> get-vdportgroup | select Name, VlanConfiguration, UID
+PS /home/john> get-vdportgroup | select Name, VlanConfiguration, Datacenter, Uid
 
-Name                       VlanConfiguration      Uid
-----                       -----------------      ---
-MGT-Home 192.168.1.0                              /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-27015/
-MGT-Servers 172.16.10.0    VLAN 1610              /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-27017/
-BOW-Servers 172.16.20.0    VLAN 1620              /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28010/
-BOW-Servers 172.16.30.x    VLAN 4                 /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28011/
-BOW-Servers 172.16.40.0/26 VLAN 44                /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28012/
-DRE-Servers 172.16.50.0/28 VLAN 400               /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28013/
-DRE-Servers 172.16.60.0    VLAN 1660              /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28014/
+Name                     VlanConfiguration   Datacenter Uid
+----                     -----------------   ---------- ---
+MGT-Home 192.168.1.0                         Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-27015/
+MGT-Servers 172.16.10.0  VLAN 1610           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-27017/
+BOW-Servers 172.16.20.0  VLAN 1620           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28010/
+BOW-Servers 172.16.30.0  VLAN 1630           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28011/
+BOW-Servers 172.16.40.0  VLAN 1640           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28012/
+DRE-Servers 172.16.50.0  VLAN 1650           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28013/
+DRE-Servers 172.16.60.x  VLAN 1660           Lab        /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-28014/
+VPOT8-Mgmt 172.20.10.0/… VLAN 20             Other Lab  /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-35018/
+VPOT8-Servers 172.20.10… VLAN 30             Other Lab  /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-35019/
+VPOT8-Servers 172.20.10… VLAN 40             Other Lab  /VIServer=lab\john@vcsa.lab.bowdre.net:443/DistributedPortgroup=DistributedVirtualPortgroup-dvportgroup-35020/
 ```
 
 It's not pretty, but it'll do the trick. All that's left is to export this data into a handy-dandy CSV-formatted file that I can easily parse for import:
 
 ```powershell
-get-vdportgroup | select Name, VlanConfiguration, Uid | export-csv -NoTypeInformation ./networks.csv
+get-vdportgroup | select Name, VlanConfiguration, Datacenter, Uid | export-csv -NoTypeInformation ./networks.csv
 ```
 ![My networks.csv export, including the networks which don't match the naming criteria and will be skipped by the import process.](/networks.csv.png)
 
 ### Setting up phpIPAM
-There are a few additional steps needed to enable API access to a freshly-installed phpIPAM installation. To start, I log in to my phpIPAM instance and navigate to the **Administration > Server Management > phpIPAM Settings** page, where I enabled both the *Prettify links* and *API* feature settings - making sure to hit the **Save** button at the bottom of the page once I do so.
+After [deploying a fresh phpIPAM instance on my Tanzu Community Edition Kubernetes cluster](/tanzu-community-edition-k8s-homelab/#a-real-workload---phpipam), there are a few additional steps needed to enable API access. To start, I log in to my phpIPAM instance and navigate to the **Administration > Server Management > phpIPAM Settings** page, where I enabled both the *Prettify links* and *API* feature settings - making sure to hit the **Save** button at the bottom of the page once I do so.
 ![Enabling the API](/server_settings.png)
 
 Then I need to head to the **User Management** page to create a new user that will be used to authenticate against the API:
@@ -84,6 +89,9 @@ Then I need to head to the **User Management** page to create a new user that wi
 
 And finally, I head to the **API** section to create a new API key with Read/Write permissions:
 ![API key creation](/api_user.png)
+
+I'm also going to head in to **Administration > IP Related Management > Sections** and delete the default sample sections so that the inventory will be nice and empty:
+![We don't need no stinkin' sections!](/empty_sections.png)
 
 ### Script time
 Well that's enough prep work; now it's time for the script. It's going to start by prompting the user to input required details like the fully-qualified host name of the phpIPAM server, the credentials and API key to use for the connection, and the CSV file from which to import the networks.
@@ -96,13 +104,30 @@ Notice that the script also prompts for a default set of DNS nameservers to be u
 # The latest version of this script can be found on Github:
 # https://github.com/jbowdre/misc-scripts/blob/main/Python/phpipam-bulk-import.py
 
+"""
+This interactive script helps to import vSphere dvPortGroup networks into phpIPAM for monitoring IP usage.
+
+It is assumed that the dvPortGroups are named like '[Description] [Network address]{/[mask]}':
+  Ex:
+    LAB-Management 192.168.1.0
+    BOW-Servers 172.16.10.0/26
+
+Networks can be exported from vSphere via PowerCLI:
+  
+  Get-VDPortgroup | Select Name, Datacenter, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
+
+Subnets added to phpIPAM will be automatically configured for monitoring either using the built-in scan agent (default)
+or a new remote scan agent named for the source vCenter ('vcenter_name-agent').
+
+"""
+
 import requests
 from collections import namedtuple
 
 check_cert = True
 created = 0
 remote_agent = False
-mapping_set = namedtuple('mapping_set', ['name', 'id'])
+name_to_id = namedtuple('name_to_id', ['name', 'id'])
 
 #for testing only
 # from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -119,8 +144,11 @@ def validate_input_is_not_empty(field, prompt):
       return user_input
 
 
-def get_unique_values_for_key(key, list_of_dict):
-  return set(sub[key] for sub in list_of_dict)
+def get_sorted_list_of_unique_values(key, list_of_dict):
+  valueSet = set(sub[key] for sub in list_of_dict)
+  valueList = list(valueSet)
+  valueList.sort()
+  return valueList
 
 
 def get_id_from_sets(name, sets):
@@ -142,70 +170,58 @@ def auth_session(uri, auth):
   return token
 
 
-def get_agent_sets(uri, token, vcenters):
-  # check for and create missing remote scan agents, and return 
-  # a list of namedTuples  mapping the names to IDs
+def get_agent_sets(uri, token, regions):
   agent_sets = []
 
-  def create_agent_set(uri, token, agentName):
+  def create_agent_set(uri, token, name):
     import secrets
     payload = {
-      'name': agentName,
+      'name': name,
       'type': 'mysql',
-      'code': secrets.base64.urlsafe_b64encode(secrets.token_bytes(24)).decode("utf-8")
+      'code': secrets.base64.urlsafe_b64encode(secrets.token_bytes(24)).decode("utf-8"),
+      'description': f'Remote scan agent for region {name}'
     }
     req = requests.post(f'{uri}/tools/scanagents/', data=payload, headers=token, verify=check_cert)
     id = req.json()['id']
-    agent_set = mapping_set(agentName, id)
-    print(f'[AGENT_CREATE] Remote scan agent {agentName} created.')
+    agent_set = name_to_id(name, id)
+    print(f'[AGENT_CREATE] {name} created.')
     return agent_set
 
-  for vcenter in vcenters:
-    agentName = f'{vcenter}-agent'
-    req = requests.get(f'{uri}/tools/scanagents/?filter_by=name&filter_value={agentName}', headers=token, verify=check_cert)
+  for region in regions:
+    name = regions[region]['name']
+    req = requests.get(f'{uri}/tools/scanagents/?filter_by=name&filter_value={name}', headers=token, verify=check_cert)
     if req.status_code == 200:
       id = req.json()['data'][0]['id']
-      print(f'[AGENT_FOUND] Remote scan agent {agentName} found.')
-      agent_set = mapping_set(agentName, id)
+      agent_set = name_to_id(name, id)
     else:
-      agent_set = create_agent_set(uri, token, agentName)
+      agent_set = create_agent_set(uri, token, name)
     agent_sets.append(agent_set)
   return agent_sets
 
 
-def get_section_sets(uri, token, sections, topSectionId):
-  # check for and create missing sections, and return a list of 
-  # namedTuples mapping the names to IDs
-  section_sets = []
+def get_section(uri, token, section, parentSectionId):
 
-  def create_section_set(uri, token, section, topSectionId):
+  def create_section(uri, token, section, parentSectionId):
     payload = {
       'name': section,
-      'masterSection': topSectionId,
+      'masterSection': parentSectionId,
       'permissions': '{"2":"2"}',
       'showVLAN': '1'
     }
     req = requests.post(f'{uri}/sections/', data=payload, headers=token, verify=check_cert)
     id = req.json()['id']
-    section_set = mapping_set(section, id)
     print(f'[SECTION_CREATE] Section {section} created.')
-    return section_set
+    return id
 
-  for section in sections:
-    req = requests.get(f'{uri}/sections/{section}/', headers=token, verify=check_cert)
-    if req.status_code == 200:
-      id = req.json()['data']['id']
-      print(f'[SECTION_FOUND] Section {section} found.')
-      section_set = mapping_set(section, id)
-    else:
-      section_set = create_section_set(uri, token, section, topSectionId)
-    section_sets.append(section_set)
-  return section_sets
+  req = requests.get(f'{uri}/sections/{section}/', headers=token, verify=check_cert)
+  if req.status_code == 200:
+    id = req.json()['data']['id']
+  else:
+    id = create_section(uri, token, section, parentSectionId)
+  return id
 
 
 def get_vlan_sets(uri, token, vlans):
-  # check for and create missing VLANs, and return a list of
-  # namedTuples mapping the VLAN numbers to IDs
   vlan_sets = []
 
   def create_vlan_set(uri, token, vlan):
@@ -215,60 +231,53 @@ def get_vlan_sets(uri, token, vlans):
     }
     req = requests.post(f'{uri}/vlan/', data=payload, headers=token, verify=check_cert)
     id = req.json()['id']
-    vlan_set = mapping_set(vlan, id)
+    vlan_set = name_to_id(vlan, id)
     print(f'[VLAN_CREATE] VLAN {vlan} created.')
     return vlan_set
 
   for vlan in vlans:
-    if vlan is not '':
+    if vlan != 0:
       req = requests.get(f'{uri}/vlan/?filter_by=number&filter_value={vlan}', headers=token, verify=check_cert)
       if req.status_code == 200:
         id = req.json()['data'][0]['vlanId']
-        print(f'[VLAN_FOUND] VLAN {vlan} found.')
-        vlan_set = mapping_set(vlan, id)
+        vlan_set = name_to_id(vlan, id)
       else:
         vlan_set = create_vlan_set(uri, token, vlan)
       vlan_sets.append(vlan_set)
   return vlan_sets
 
 
-def get_nameserver_sets(uri, token, vcenters, ips):
-  # check for and create missing nameservers, and return a list
-  # of namedTuples mapping the names to IDs
+def get_nameserver_sets(uri, token, regions):
+
   nameserver_sets = []
 
-  def create_nameserver_set(uri, token, ips, vcenter):
-    name = f'{vcenter}-nameserver'
+  def create_nameserver_set(uri, token, name, nameservers):
     payload = {
       'name': name,
-      'namesrv1': ips,
-      'description': f'Nameserver created for {vcenter}'
+      'namesrv1': nameservers,
+      'description': f'Nameserver created for region {name}'
     }
     req = requests.post(f'{uri}/tools/nameservers/', data=payload, headers=token, verify=check_cert)
     id = req.json()['id']
-    nameserver_set = mapping_set(name, id)
+    nameserver_set = name_to_id(name, id)
     print(f'[NAMESERVER_CREATE] Nameserver {name} created.')
     return nameserver_set
 
-  for vcenter in vcenters:
-    name = f'{vcenter}-nameserver'
+  for region in regions:
+    name = regions[region]['name']
     req = requests.get(f'{uri}/tools/nameservers/?filter_by=name&filter_value={name}', headers=token, verify=check_cert)
     if req.status_code == 200:
       id = req.json()['data'][0]['id']
-      print(f'[NAMESERVER_FOUND] Nameserver {name} found.')
-      nameserver_set = mapping_set(name, id)
+      nameserver_set = name_to_id(name, id)
     else:
-      nameserver_set = create_nameserver_set(uri, token, ips, vcenter)
+      nameserver_set = create_nameserver_set(uri, token, name, regions[region]['nameservers'])
     nameserver_sets.append(nameserver_set)
   return nameserver_sets
 
 
 def create_subnet(uri, token, network):
-  # create new subnets
 
   def update_nameserver_permissions(uri, token, network):
-    # update nameserver permissions so a subnet's parent section
-    # has access to the nameserver
     nameserverId = network['nameserverId']
     sectionId = network['sectionId']
     req = requests.get(f'{uri}/tools/nameservers/{nameserverId}/', headers=token, verify=check_cert)
@@ -328,21 +337,19 @@ def import_networks(filepath):
           if network['subnet'].split('.')[-1].lower() == 'x':
             network['subnet'] = network['subnet'].lower().replace('x', '0')
           network['name'] = row['Name']
-          network['section'] = row['Name'].split('-')[0]
           if '/' in row['Name'][-3]:
             network['mask'] = row['Name'].split('/')[-1]
           else:
             network['mask'] = '24'
+          network['section'] = row['Datacenter']
           try:
-            network['vlan'] = row['VlanConfiguration'].split('VLAN ')[1]
+            network['vlan'] = int(row['VlanConfiguration'].split('VLAN ')[1])
           except:
-            network['vlan'] = ''
+            network['vlan'] = 0
           network['vcenter'] = f"{(row['Uid'].split('@'))[1].split(':')[0].split('.')[0]}"
           networks.append(network)
       line_count += 1
-    print(f'\nProcessed {line_count} lines.')
-  print(f'Found {len(networks)} networks:\n')
-  print(networks)
+    print(f'Processed {line_count} lines and found:')
   return networks
 
 
@@ -350,7 +357,11 @@ def main():
   # gather inputs
   import socket
   import getpass
-  import os.path
+  import argparse
+  from pathlib import Path
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("filepath", type=Path)
 
   print("""\n\n
   This script helps to add vSphere networks to phpIPAM for IP address management. It is expected
@@ -358,12 +369,47 @@ def main():
   named like '[Site]-[Purpose] [Subnet IP]{/[mask]}' (ex: 'LAB-Servers 192.168.1.0'). The following PowerCLI
   command can be used to export the networks from vSphere:
 
-    Get-VDPortgroup | Select Name, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
+    Get-VDPortgroup | Select Name, Datacenter, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
 
   Subnets added to phpIPAM will be automatically configured for monitoring either using the built-in
   scan agent (default) or a new remote scan agent named for the source vCenter ('vcenter_name-agent').
   """)
-  input('Press enter to continue...')
+
+  try:
+    p = parser.parse_args()
+    filepath = p.filepath
+  except:
+    # make sure filepath is a path to an actual file
+    while True:
+      filepath = Path(validate_input_is_not_empty('Filepath', 'Path to CSV-formatted export from vCenter'))
+      if filepath.exists():
+        break
+      else:
+        print(f'[ERROR] Unable to find file at {filepath.name}.')
+        continue
+  
+  # get collection of networks to import
+  networks = import_networks(filepath)
+  networkNames = get_sorted_list_of_unique_values('name', networks)
+  print(f'\n- {len(networkNames)} networks:\n\t{networkNames}')
+  vcenters = get_sorted_list_of_unique_values('vcenter', networks)
+  print(f'\n- {len(vcenters)} vCenter servers:\n\t{vcenters}')
+  vlans = get_sorted_list_of_unique_values('vlan', networks)
+  print(f'\n- {len(vlans)} VLANs:\n\t{vlans}')
+  sections = get_sorted_list_of_unique_values('section', networks)
+  print(f'\n- {len(sections)} Datacenters:\n\t{sections}')
+
+  regions = {}
+  for vcenter in vcenters:
+    nameservers = None
+    name = validate_input_is_not_empty('Region Name', f'Region name for vCenter {vcenter}')
+    for region in regions:
+      if name in regions[region]['name']:
+        nameservers = regions[region]['nameservers']
+    if not nameservers:
+      nameservers = validate_input_is_not_empty('Nameserver IPs', f"Comma-separated list of nameserver IPs in {name}")
+      nameservers = nameservers.replace(',',';').replace(' ','')
+    regions[vcenter] = {'name': name, 'nameservers': nameservers}
 
   # make sure hostname resolves
   while True:
@@ -383,19 +429,8 @@ def main():
   username = validate_input_is_not_empty('Username', f'Username with read/write access to {hostname}')
   password = getpass.getpass(f'Password for {username}:\n')
   apiAppId = validate_input_is_not_empty('App ID', f'App ID for API key (from https://{hostname}/administration/api/)')
-  topSectionName = validate_input_is_not_empty('Top-level Section Name', f'Top-level Section name (from https://{hostname}/administration/sections/)')
-  nameserver_ips = validate_input_is_not_empty('Nameserver IPs', f'Comma-separated list default nameserver IPs for DNS lookups from {hostname}')
-  
-  # make sure filepath is a path to an actual file
-  while True:
-    filepath = validate_input_is_not_empty('Filepath', 'Path to CSV-formatted export from vCenter')
-    if os.path.isfile(filepath):
-      break
-    else:
-      print(f'[ERROR] Unable to find file at {filepath}.')
-      continue
-  
-  agent = input('\nUse per-vCenter remote scan agents instead of a single local scanner? (y/N):\n')
+
+  agent = input('\nUse per-region remote scan agents instead of a single local scanner? (y/N):\n')
   try:
     if agent.lower()[0] == 'y':
       global remote_agent
@@ -403,7 +438,7 @@ def main():
   except:
     pass
 
-  proceed = input(f'\n\nProceed with importing networks from {filepath} to {hostname}? (y/N):\n')
+  proceed = input(f'\n\nProceed with importing {len(networkNames)} networks to {hostname}? (y/N):\n')
   try:
     if proceed.lower()[0] == 'y':
       pass
@@ -415,41 +450,30 @@ def main():
     sys.exit("Operation aborted.")
   del proceed
 
-  # get collection of networks to import
-  networks = import_networks(filepath)
-  vcenters = get_unique_values_for_key('vcenter', networks)
-  sections = get_unique_values_for_key('section', networks)
-  vlans = get_unique_values_for_key('vlan', networks)
-
   # assemble variables
-  nameserver_ips = nameserver_ips.replace(',',';').replace(' ','')
   uri = f'https://{hostname}/api/{apiAppId}'
   auth = (username, password)
-  topSectionName = [topSectionName]
 
   # auth to phpIPAM
   token = auth_session(uri, auth)
 
-  # get lists of dictionaries matching names to IDs
-  nameserver_sets = get_nameserver_sets(uri, token, vcenters, nameserver_ips)
+  nameserver_sets = get_nameserver_sets(uri, token, regions)
   vlan_sets = get_vlan_sets(uri, token, vlans)
-  topSection_sets = get_section_sets(uri, token, topSectionName, None)
-  topSectionId = topSection_sets[0].id
-  section_sets = get_section_sets(uri, token, sections, topSectionId)
   if remote_agent:
-    agent_sets = get_agent_sets(uri, token, vcenters)
+    agent_sets = get_agent_sets(uri, token, regions)
   
   # create the networks
   for network in networks:
-    network['nameserverId'] = get_id_from_sets(f"{network['vcenter']}-nameserver", nameserver_sets)
-    network['sectionId'] = get_id_from_sets(network['section'], section_sets)
-    network['topSectionId'] = topSectionId
-    if network['vlan'] is '':
+    network['region'] = regions[network['vcenter']]['name']
+    network['regionId'] = get_section(uri, token, network['region'], None)
+    network['nameserverId'] = get_id_from_sets(network['region'], nameserver_sets)
+    network['sectionId'] = get_section(uri, token, network['section'], network['regionId'])
+    if network['vlan'] == 0:
       network['vlanId'] = None
     else:
       network['vlanId'] = get_id_from_sets(network['vlan'], vlan_sets) 
     if remote_agent:
-      network['agentId'] = get_id_from_sets(f"{network['vcenter']}-agent", agent_sets)
+      network['agentId'] = get_id_from_sets(network['region'], agent_sets)
     else:
       network['agentId'] = '1'
     create_subnet(uri, token, network)
