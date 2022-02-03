@@ -1,6 +1,7 @@
 ---
 series: Projects
 date: "2021-08-20T00:00:00Z"
+lastmod: 2022-02-03
 usePageBundles: true
 tags:
 - gcp
@@ -14,7 +15,7 @@ I've been [using short.io with a custom domain](https://twitter.com/johndotbowdr
 The Github instructions were pretty straight-forward but I did have to fumble through a few additional steps to get everything up and running. Here we go:
 
 ### Shortcut mapping
-Since the setup uses a simple Google Sheets document to map the shortcuts to the original long-form URLs, I started by going to [https://sheets.new](https://sheets.new) to create a new Sheet. I then just copied in the shorcuts and URLs I was already using in short.io. By the way, I learned on a previous attempt that this solution only works with lowercase shortcuts so I made sure to convert my `MixedCase` ones as I went.
+Since the setup uses a simple Google Sheets document to map the shortcuts to the original long-form URLs, I started by going to [https://sheets.new](https://sheets.new) to create a new Sheet. I then just copied in the shortcuts and URLs I was already using in short.io. By the way, I learned on a previous attempt that this solution only works with lowercase shortcuts so I made sure to convert my `MixedCase` ones as I went.
 ![Creating a new sheet](20210820_sheet.png)
 
 I then made a note of the Sheet ID from the URL; that's the bit that looks like `1SMeoyesCaGHRlYdGj9VyqD-qhXtab1jrcgHZ0irvNDs`. That will be needed later on.
@@ -86,4 +87,5 @@ And now I can hand out handy-dandy short links!
 | [go.bowdre.net/matrix](https://go.bowdre.net/matrix) | Chat with me on Matrix |
 | [go.bowdre.net/twits](https://go.bowdre.net/twits) | Follow me on Twitter |
 | [go.bowdre.net/stadia](https://go.bowdre.net/stadia) | Game with me on Stadia |
+| [go.bowdre.net/shorterer](https://go.bowdre.net/shorterer) | This post! |
 
