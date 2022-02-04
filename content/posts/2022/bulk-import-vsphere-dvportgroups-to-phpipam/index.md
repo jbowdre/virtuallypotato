@@ -1,17 +1,17 @@
 ---
 title: "Bulk Import vSphere dvPortGroups to phpIPAM" # Title of the blog post.
-date: 2022-01-21T15:24:00-06:00 # Date of post creation.
+date: 2022-02-04 # Date of post creation.
 # lastmod: 2022-01-21T15:24:00-06:00 # Date when last modified
 description: "I wrote a Python script to interface with the phpIPAM API and import a large number of networks exported from vSphere for IP management." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
-toc: false # Controls if a table of contents should be generated for first-level links automatically.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
+toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
 # featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-# thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
+thumbnail: "code.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Scripts
@@ -94,32 +94,11 @@ I'm also going to head in to **Administration > IP Related Management > Sections
 ![We don't need no stinkin' sections!](/empty_sections.png)
 
 ### Script time
-Well that's enough prep work; now it's time for the script. It's going to start by prompting the user to input required details like the fully-qualified host name of the phpIPAM server, the credentials and API key to use for the connection, and the CSV file from which to import the networks.
-
-![Answering the script's prompts](/script_initial.png)
-
-Notice that the script also prompts for a default set of DNS nameservers to be used. It will create a nameserver set in phpIPAM for each region (based on the vCenter) using these IPs. 
+Well that's enough prep work; now it's time for the Python3 [script](https://github.com/jbowdre/misc-scripts/blob/main/Python/phpipam-bulk-import.py):
 
 ```python
 # The latest version of this script can be found on Github:
 # https://github.com/jbowdre/misc-scripts/blob/main/Python/phpipam-bulk-import.py
-
-"""
-This interactive script helps to import vSphere dvPortGroup networks into phpIPAM for monitoring IP usage.
-
-It is assumed that the dvPortGroups are named like '[Description] [Network address]{/[mask]}':
-  Ex:
-    LAB-Management 192.168.1.0
-    BOW-Servers 172.16.10.0/26
-
-Networks can be exported from vSphere via PowerCLI:
-  
-  Get-VDPortgroup | Select Name, Datacenter, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
-
-Subnets added to phpIPAM will be automatically configured for monitoring either using the built-in scan agent (default)
-or a new remote scan agent named for the source vCenter ('vcenter_name-agent').
-
-"""
 
 import requests
 from collections import namedtuple
@@ -129,11 +108,12 @@ created = 0
 remote_agent = False
 name_to_id = namedtuple('name_to_id', ['name', 'id'])
 
-#for testing only
+## for testing only:
 # from requests.packages.urllib3.exceptions import InsecureRequestWarning
 # requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # check_cert = False
 
+## Makes sure input fields aren't blank.
 def validate_input_is_not_empty(field, prompt):
   while True:
     user_input = input(f'\n{prompt}:\n')
@@ -144,6 +124,8 @@ def validate_input_is_not_empty(field, prompt):
       return user_input
 
 
+## Takes in a list of dictionary items, extracts all the unique values for a given key,
+#  and returns a sorted list of those.
 def get_sorted_list_of_unique_values(key, list_of_dict):
   valueSet = set(sub[key] for sub in list_of_dict)
   valueList = list(valueSet)
@@ -151,12 +133,13 @@ def get_sorted_list_of_unique_values(key, list_of_dict):
   return valueList
 
 
+## Match names and IDs
 def get_id_from_sets(name, sets):
   return [item.id for item in sets if name == item.name][0]
 
 
+## Authenticate to phpIPAM endpoint and return an auth token
 def auth_session(uri, auth):
-  # authenticate to the API endpoint and retrieve an auth token
   print(f'Authenticating to {uri}...')
   try:
     req = requests.post(f'{uri}/user/', auth=auth, verify=check_cert)
@@ -170,11 +153,13 @@ def auth_session(uri, auth):
   return token
 
 
+## Find or create a remote scan agent for each region (vcenter)
 def get_agent_sets(uri, token, regions):
   agent_sets = []
 
   def create_agent_set(uri, token, name):
     import secrets
+    # generate a random secret to be used for identifying this agent
     payload = {
       'name': name,
       'type': 'mysql',
@@ -199,6 +184,7 @@ def get_agent_sets(uri, token, regions):
   return agent_sets
 
 
+## Find or create a section for each virtual datacenter
 def get_section(uri, token, section, parentSectionId):
 
   def create_section(uri, token, section, parentSectionId):
@@ -221,6 +207,7 @@ def get_section(uri, token, section, parentSectionId):
   return id
 
 
+## Find or create VLANs
 def get_vlan_sets(uri, token, vlans):
   vlan_sets = []
 
@@ -247,6 +234,7 @@ def get_vlan_sets(uri, token, vlans):
   return vlan_sets
 
 
+## Find or create nameserver configurations for each region
 def get_nameserver_sets(uri, token, regions):
 
   nameserver_sets = []
@@ -275,6 +263,7 @@ def get_nameserver_sets(uri, token, regions):
   return nameserver_sets
 
 
+## Find or create subnet for each dvPortGroup
 def create_subnet(uri, token, network):
 
   def update_nameserver_permissions(uri, token, network):
@@ -319,8 +308,8 @@ def create_subnet(uri, token, network):
     print(f"[ERROR] Problem creating subnet {network['name']}: {req.json()}")
 
 
+## Import list of networks from the specified CSV file
 def import_networks(filepath):
-  # import the list of networks from the specified csv file
   print(f'Importing networks from {filepath}...')
   import csv
   import re
@@ -339,6 +328,8 @@ def import_networks(filepath):
           network['name'] = row['Name']
           if '/' in row['Name'][-3]:
             network['mask'] = row['Name'].split('/')[-1]
+          elif '_' in row['Name'][-3]:
+            network['mask'] = row['Name'].split('_')[-1]
           else:
             network['mask'] = '24'
           network['section'] = row['Datacenter']
@@ -354,7 +345,6 @@ def import_networks(filepath):
 
 
 def main():
-  # gather inputs
   import socket
   import getpass
   import argparse
@@ -363,23 +353,23 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("filepath", type=Path)
 
-  print("""\n\n
-  This script helps to add vSphere networks to phpIPAM for IP address management. It is expected
-  that the vSphere networks are configured as portgroups on distributed virtual switches and 
-  named like '[Site]-[Purpose] [Subnet IP]{/[mask]}' (ex: 'LAB-Servers 192.168.1.0'). The following PowerCLI
-  command can be used to export the networks from vSphere:
-
-    Get-VDPortgroup | Select Name, Datacenter, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
-
-  Subnets added to phpIPAM will be automatically configured for monitoring either using the built-in
-  scan agent (default) or a new remote scan agent named for the source vCenter ('vcenter_name-agent').
-  """)
-
+  # Accept CSV file as an argument to the script or prompt for input if necessary
   try:
     p = parser.parse_args()
     filepath = p.filepath
   except:
     # make sure filepath is a path to an actual file
+    print("""\n\n
+    This script helps to add vSphere networks to phpIPAM for IP address management. It is expected
+    that the vSphere networks are configured as portgroups on distributed virtual switches and 
+    named like '[Description] [Subnet IP]{/[mask]}' (ex: 'LAB-Servers 192.168.1.0'). The following PowerCLI
+    command can be used to export the networks from vSphere:
+
+      Get-VDPortgroup | Select Name, Datacenter, VlanConfiguration, Uid | Export-Csv -NoTypeInformation ./networks.csv
+
+    Subnets added to phpIPAM will be automatically configured for monitoring either using the built-in
+    scan agent (default) or a new remote scan agent for each vCenter.
+    """)
     while True:
       filepath = Path(validate_input_is_not_empty('Filepath', 'Path to CSV-formatted export from vCenter'))
       if filepath.exists():
@@ -457,6 +447,7 @@ def main():
   # auth to phpIPAM
   token = auth_session(uri, auth)
 
+  # create nameserver entries
   nameserver_sets = get_nameserver_sets(uri, token, regions)
   vlan_sets = get_vlan_sets(uri, token, vlans)
   if remote_agent:
@@ -483,4 +474,147 @@ def main():
 
 if __name__ == "__main__":
   main()
+
 ```
+
+I'll run it and provide the path to the network export CSV file:
+```bash
+python3 phpipam-bulk-import.py ~/networks.csv
+```
+
+The script will print out a little descriptive bit about what sort of networks it's going to try to import and then will straight away start processing the file to identify the networks, vCenters, VLANs, and datacenters which will be imported:
+
+```
+Importing networks from /home/john/networks.csv...
+Processed 17 lines and found:
+
+- 10 networks:
+        ['BOW-Servers 172.16.20.0', 'BOW-Servers 172.16.30.0', 'BOW-Servers 172.16.40.0', 'DRE-Servers 172.16.50.0', 'DRE-Servers 172.16.60.x', 'MGT-Home 192.168.1.0', 'MGT-Servers 172.16.10.0', 'VPOT8-Mgmt 172.20.10.0/27', 'VPOT8-Servers 172.20.10.32/27', 'VPOT8-Servers 172.20.10.64_26']
+
+- 1 vCenter servers:
+        ['vcsa']
+
+- 10 VLANs:
+        [0, 20, 30, 40, 1610, 1620, 1630, 1640, 1650, 1660]
+
+- 2 Datacenters:
+        ['Lab', 'Other Lab']
+```
+
+It then starts prompting for the additional details which will be needed:
+
+```
+Region name for vCenter vcsa:
+Labby
+
+Comma-separated list of nameserver IPs in Lab vCenter:
+192.168.1.5
+
+Fully-qualified domain name of the phpIPAM host:
+ipam-k8s.lab.bowdre.net
+
+Username with read/write access to ipam-k8s.lab.bowdre.net:
+api-user
+Password for api-user:
+
+
+App ID for API key (from https://ipam-k8s.lab.bowdre.net/administration/api/):
+api-user
+
+Use per-region remote scan agents instead of a single local scanner? (y/N):
+y
+```
+
+Up to this point, the script has only been processing data locally, getting things ready for talking to the phpIPAM API. But now, it prompts to confirm that we actually want to do the thing (yes please) and then gets to work:
+
+```
+Proceed with importing 10 networks to ipam-k8s.lab.bowdre.net? (y/N):
+y
+Authenticating to https://ipam-k8s.lab.bowdre.net/api/api-user...
+
+[AUTH_SUCCESS] Authenticated successfully!
+[VLAN_CREATE] VLAN 20 created.
+[VLAN_CREATE] VLAN 30 created.
+[VLAN_CREATE] VLAN 40 created.
+[VLAN_CREATE] VLAN 1610 created.
+[VLAN_CREATE] VLAN 1620 created.
+[VLAN_CREATE] VLAN 1630 created.
+[VLAN_CREATE] VLAN 1640 created.
+[VLAN_CREATE] VLAN 1650 created.
+[VLAN_CREATE] VLAN 1660 created.
+[SECTION_CREATE] Section Labby created.
+[SECTION_CREATE] Section Lab created.
+[SUBNET_CREATE] Created subnet 192.168.1.0/24
+[SUBNET_CREATE] Created subnet 172.16.10.0/24
+[SUBNET_CREATE] Created subnet 172.16.20.0/24
+[SUBNET_CREATE] Created subnet 172.16.30.0/24
+[SUBNET_CREATE] Created subnet 172.16.40.0/24
+[SUBNET_CREATE] Created subnet 172.16.50.0/24
+[SUBNET_CREATE] Created subnet 172.16.60.0/24
+[SECTION_CREATE] Section Other Lab created.
+[SUBNET_CREATE] Created subnet 172.20.10.0/27
+[SUBNET_CREATE] Created subnet 172.20.10.32/27
+[SUBNET_CREATE] Created subnet 172.20.10.64/26
+
+[FINISH] Created 10 of 10 networks.
+```
+
+Success! Now I can log in to my phpIPAM instance and check out my newly-imported subnets:
+![New subnets!](/created_subnets.png)
+
+Even the one with the weird name formatting was parsed and imported correctly:
+![Subnet details](/subnet_detail.png)
+
+So now phpIPAM knows about the vSphere networks I care about, and it can keep track of which vLAN and nameservers go with which networks. Great! But it still isn't scanning or monitoring those networks, even though I told the script that I wanted to use a remote scan agent. And I can check in the **Administration > Server management > Scan agents** section of the phpIPAM interface to see my newly-created agent configuration.
+![New agent config](/agent_config.png)
+
+... but I haven't actually *deployed* an agent yet. I'll do that by following the same basic steps [described here](/tanzu-community-edition-k8s-homelab/#phpipam-agent) to spin up my `phpipam-agent` on Kubernetes, and I'll plug in that automagically-generated code for the `IPAM_AGENT_KEY` environment variable:
+
+```yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpipam-agent
+spec:
+  selector:
+    matchLabels:
+      app: phpipam-agent
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: phpipam-agent
+    spec:
+      containers:
+      - name: phpipam-agent
+        image: ghcr.io/jbowdre/phpipam-agent:latest
+        env:
+        - name: IPAM_DATABASE_HOST
+          value: "ipam-k8s.lab.bowdre.net"
+        - name: IPAM_DATABASE_NAME
+          value: "phpipam"
+        - name: IPAM_DATABASE_USER
+          value: "phpipam"
+        - name: IPAM_DATABASE_PASS
+          value: "VMware1!"
+        - name: IPAM_DATABASE_PORT
+          value: "3306"
+        - name: IPAM_AGENT_KEY
+          value: "CxtRbR81r1ojVL2epG90JaShxIUBl0bT"
+        - name: IPAM_SCAN_INTERVAL
+          value: "15m"
+        - name: IPAM_RESET_AUTODISCOVER
+          value: "false"
+        - name: IPAM_REMOVE_DHCP
+          value: "false"
+        - name: TZ
+          value: "UTC"
+```
+
+I kick it off with a `kubectl apply` command and check back a few minutes later (after the 15-minute interval defined in the above YAML) to see that it worked, the remote agent scanned like it was supposed to and is reporting IP status back to the phpIPAM database server:
+![Newly-discovered IPs](/discovered_ips.png)
+
+I think I've got some more tweaks to do with this environment (why isn't phpIPAM resolving hostnames despite the correct DNS servers getting configured?) but this at least demonstrates a successful proof-of-concept import thanks to my Python script. Sure, I only imported 10 networks here, but I feel like I'm ready to process the several hundred which are available in our production environment now.
+
+And who knows, maybe this script will come in handy for someone else. Until next time!
