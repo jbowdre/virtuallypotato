@@ -131,7 +131,7 @@ There's a note there that I'll also need to include credentials so that the Ness
 Now I can scroll to the bottom of the page, click the down-arrow next to the *Save* button and select the **Launch** option to kick off the scan:
 ![Go for launch](/launch.png)
 
-That drops me back to the *My Scans* view where I can see the status of my scans - the one I just created (which will take a few minutes to execute) as well as the earlier discovery scan. I'll grab another coffee while I stare at the little green spinny thing.
+That drops me back to the *My Scans* view where I can see the status of my scan. I'll grab another coffee while I stare at the little green spinny thing.
 ![My scans](/my_scans.gif)
 
 Okay, break's over - and so is the scan! Now I can click on the name of the scan to view the results:
