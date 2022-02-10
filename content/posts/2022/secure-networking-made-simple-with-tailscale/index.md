@@ -246,7 +246,7 @@ I'm going to start by creating a group called `admins` and add myself to that gr
 ```json
 {
   "groups": {
-    "group:admins": ["john@bowdre.net"],
+    "group:admins": ["john@example.com"],
   },
   "tagOwners": {
     "tag:home": ["group:admins"],
@@ -369,7 +369,7 @@ And that gets DNS working again for my cloud servers while still serving the res
     "win01": "100.124.116.125"
   },
   "groups": {
-    "group:admins": ["john@bowdre.net"],
+    "group:admins": ["john@example.com"],
   },
   "tagOwners": {
     "tag:home": ["group:admins"],
