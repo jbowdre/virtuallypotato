@@ -1,7 +1,7 @@
 ---
 title: "Snikket Private XMPP Chat on Oracle Cloud Free Tier" # Title of the blog post.
 date: 2021-12-23 # Date of post creation.
-lastmod: 2022-01-14 # Date when last modified
+lastmod: 2022-02-10 # Date when last modified
 description: "Notes on installing a Snikket XMPP chat instance alongside a Matrix instance on an Oracle Cloud free tier server" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -238,11 +238,13 @@ Whichever type is selected, I also need to select the time period for which the 
 ### Join me?
 Speaking of which, here's that invite link in case anyone wants to check out Snikket from the client side of things (and/or just talk to me about *stuff*[^9]):
 
-**[https://chat.vpot8.ooo/invite/Qrsc5IaVNGM8giVH/](https://chat.vpot8.ooo/invite/Qrsc5IaVNGM8giVH/)**
+{{% notice info "Link removed" %}}
+The invite link has since expired so there's no point sharing it here. If you'd like an account on my server, feel free to hit me up via one of the various options under the **Connect** menu up top and I'll send you a personal invite. Or if you'd like a personal Snikket server but don't want to build and manage it on your own, check out **[Snikket Hosting](https://snikket.org/hosting/)**.
+{{% /notice %}}
 
-Or if you've already got a Snikket and/or XMPP account, hit me up from your own server:
+If you've already got a Snikket and/or XMPP account, hit me up from your own server:
 
-`john@chat.vpot8.ooo`
+{{< cloakemail address="john@chat.vpot8.ooo" protocol="xmpp">}}
 
 [^9]: I'm also open to discussing *things*.
 
