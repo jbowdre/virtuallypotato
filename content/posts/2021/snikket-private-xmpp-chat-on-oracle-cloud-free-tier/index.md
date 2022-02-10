@@ -174,7 +174,7 @@ So here's my config:
 
 ```
 SNIKKET_DOMAIN=chat.vpot8.ooo
-SNIKKET_ADMIN_EMAIL=ops@vpot8.ooo
+SNIKKET_ADMIN_EMAIL=ops@example.com
 
 # Limit UDP port range
 SNIKKET_TWEAK_TURNSERVER_MIN_PORT=60000
