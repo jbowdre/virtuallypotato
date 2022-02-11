@@ -1,5 +1,5 @@
 title = "Virtually Potato"  
-paginate = 10
+paginate = 15
 theme = ["hugo-cloak-email", "hugo-clarity"]
 enableEmoji = true
 DefaultContentLanguage = "en"
