@@ -1,6 +1,6 @@
 +++
 title = "Hi, I'm John"
-description = "I’m no vExpert but I can generally fumble through a project and make it work. Here’s how I did it."
+description = "I can generally fumble through a project and make it work. Here’s how I did it."
 date = "2021-12-09"
 aliases = ["about-john", "about-me", "contact"]
 author = "John Bowdre"

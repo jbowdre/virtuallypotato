@@ -2,7 +2,7 @@
 twitter = "@johndotbowdre"
 largeTwitterCard = true 
 introDescription = "Wrangler of imaginary computers."
-description = "I am no vExpert but I can generally fumble through a project and make it work. Here I share how I did it: my adventures with VMware vRealize Automation, cloud and automation projects I'm working on, linux and Powershell scripts I've cobbled together, and other tech tips and tricks."
+description = "I can generally fumble through a project and make it work. Here I share how I did it: my adventures with VMware vRealize Automation, cloud and automation projects I'm working on, linux and Powershell scripts I've cobbled together, and other tech tips and tricks."
 since = 2018
 
 ## Logos & icons
