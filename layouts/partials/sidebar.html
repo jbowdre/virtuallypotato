@@ -25,6 +25,9 @@
       <div class="author_bio">
         {{ markdownify $introDescription }}
       </div>
+      <div>
+        <a href="https://vexpert.vmware.com/directory/9430"><img class="sidebar_badge" src="/logos/vexpert.png" alt="VMware vExpert"></a>
+      </div>
       {{- if ( ne $s.introURL false ) }}
       {{- $r := T "read_more" }}
       <a href='{{ absLangURL (default "about/" $s.introURL) }}' class="button mt-1" role="button" title='{{ $r }}'>{{ $r }}</a>
