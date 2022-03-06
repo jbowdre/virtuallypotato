@@ -1,6 +1,7 @@
 {{- define "main" }}
 {{- $s := .Site.Params }}
 {{- $p := .Params }}
+{{- $ageDays := div (sub now.Unix .Date.Unix) 86400 }}
 {{- $scratch := newScratch }}
 {{- if isset $p "image" }}
   {{- $scratch.Set "image" $p.image }}
@@ -14,6 +15,14 @@
     {{- $t := .Title }}
     <h1 class="post_title">{{ $t }}</h1>
     {{- partial "post-meta" . }}
+    {{ with .Param "lastmod" }}
+      {{ $ageDays = div (sub now.Unix .Unix) 86400 }}
+    {{ end }}
+    {{ if gt $ageDays 365 }}
+      <div class="notices info"><div class="label">Technology keeps moving but this post has not.</div>
+        <i>{{ T "old_content" }}</i>
+      </div>
+    {{ end }}
     {{- partial "image-feature" . }}
     {{ if and (gt .WordCount 400 ) (gt (len .TableOfContents) 180) ($s.toc) }}
     <div class="post_toc">
