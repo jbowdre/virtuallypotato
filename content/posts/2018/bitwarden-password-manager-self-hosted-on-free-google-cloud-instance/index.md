@@ -1,6 +1,7 @@
 ---
 series: Projects
 date: "2018-09-26T08:34:30Z"
+lastmod: "2022-03-06"
 thumbnail: i0UKdXleC.png
 usePageBundles: true
 tags:
@@ -18,13 +19,18 @@ A friend mentioned the  [BitWarden](https://bitwarden.com/) password manager to 
 
 I wanted to try out the self-hosted setup, and I discovered that the [official distribution](https://help.bitwarden.com/article/install-on-premise/) works beautifully on an `n1-standard-1` 1-vCPU Google Compute Engine instance - but that would cost me an estimated $25/mo to run after my free Google Cloud Platform trial runs out. And I can't really scale that instance down further because the embedded database won't start with less than 2GB of RAM.
 
-I then came across [this comment](https://www.reddit.com/r/Bitwarden/comments/8vmwwe/best_place_to_self_host_bitwarden/e1p2f71/) on Reddit which discussed in somewhat-vague terms the steps required to get BitWarden to run on the [free](https://cloud.google.com/free/docs/always-free-usage-limits#compute_name) `f1-micro` instance, and also introduced me to the community-built [bitwarden_rs](https://github.com/dani-garcia/bitwarden_rs) project which is specifically designed to run a BW-compatible server on resource-constrained hardware. So here are the steps I wound up taking to get this up and running.
+I then came across [this comment](https://www.reddit.com/r/Bitwarden/comments/8vmwwe/best_place_to_self_host_bitwarden/e1p2f71/) on Reddit which discussed in somewhat-vague terms the steps required to get BitWarden to run on the [free](https://cloud.google.com/free/docs/always-free-usage-limits#compute_name) `e2-micro` instance, and also introduced me to the community-built [vaultwarden](https://github.com/dani-garcia/vaultwarden) project which is specifically designed to run a BW-compatible server on resource-constrained hardware. So here are the steps I wound up taking to get this up and running.
+
+{{% notice info "bitwarden_rs -> vaultwarden"%}}
+When I originally wrote this post back in September 2018, the containerized BitWarden solution was called `bitwarden_rs`. The project [has since been renamed](https://github.com/dani-garcia/vaultwarden/discussions/1642) to `vaultwarden`, and I've since moved to the hosted version of BitWarden. I have attempted to update this article to account for the change but have not personally tested this lately. Good luck, dear reader!
+{{% /notice %}}
+
 
 ### Spin up a VM
 *Easier said than done, but head over to https://console.cloud.google.com/ and fumble through:*
 
 1. Creating a new project (or just add an instance to an existing one).
-2. Creating a new Compute Engine instance, selecting `f1-micro` for the Machine Type and ticking the *Allow HTTPS traffic* box.
+2. Creating a new Compute Engine instance, selecting `e2-micro` for the Machine Type and ticking the *Allow HTTPS traffic* box.
 3. *(Optional)* Editing the instance to add an ssh-key for easier remote access.
 
 ### Configure Dynamic DNS
@@ -115,47 +121,41 @@ $ sudo apt-get install docker-ce
 ```
 
 ### Install Certbot and generate SSL cert
-*Steps taken from [here](https://certbot.eff.org/lets-encrypt/debianstretch-other.html).*
-1. Add `stretch-backports` repo:
+*Steps taken from [here](https://certbot.eff.org/instructions?ws=other&os=debianbuster).*
+1. Install Certbot:
 ```shell
-$ sudo add-apt-repository \
-    "deb https://ftp.debian.org/debian \
-    stretch-backports main"
+$ sudo apt-get install certbot
 ```
-2. Install Certbot:
-```shell
-$ sudo apt-get install certbot -t stretch-backports
-```
-3. Generate certificate:
+2. Generate certificate:
 ```shell
 $ sudo certbot certonly --standalone -d [FQDN]
 ```
-4. Create a directory to store the new certificates and copy them there:
+3. Create a directory to store the new certificates and copy them there:
 ```shell
 $ sudo mkdir -p /ssl/keys/
 $ sudo cp -p /etc/letsencrypt/live/[FQDN]/fullchain.pem /ssl/keys/
 $ sudo cp -p /etc/letsencrypt/live/[FQDN]/privkey.pem /ssl/keys/
 ```
 
-### Set up bitwarden_rs
-*Using the container image available [here](https://github.com/dani-garcia/bitwarden_rs).*
+### Set up vaultwarden
+*Using the container image available [here](https://github.com/dani-garcia/vaultwarden).*
 1. Let's just get it up and running first:
 ```shell
-$ sudo docker run -d --name bitwarden \
+$ sudo docker run -d --name vaultwarden \
     -e ROCKET_TLS={certs='"/ssl/fullchain.pem", key="/ssl/privkey.pem"}' \
     -e ROCKET_PORT='8000' \
     -v /ssl/keys/:/ssl/ \
     -v /bw-data/:/data/ \
     -v /icon_cache/ \
     -p 0.0.0.0:443:8000 \
-    mprasil/bitwarden:latest
+    vaultwarden/server:latest
 ```
 2. At this point you should be able to point your web browser at `https://[FQDN]` and see the BitWarden login screen. Click on the Create button and set up a new account. Log in, look around, add some passwords, etc. Everything should basically work just fine.
 3. Unless you want to host passwords for all of the Internet you'll probably want to disable signups at some point by adding the `env` option `SIGNUPS_ALLOWED=false`. And you'll need to set `DOMAIN=https://[FQDN]` if you want to use U2F authentication:
 ```shell
-$ sudo docker stop bitwarden
-$ sudo docker rm bitwarden
-$ sudo docker run -d --name bitwarden \
+$ sudo docker stop vaultwarden
+$ sudo docker rm vaultwarden
+$ sudo docker run -d --name vaultwarden \
     -e ROCKET_TLS={certs='"/ssl/fullchain.pem",key="/ssl/privkey.pem"'} \
     -e ROCKET_PORT='8000' \
     -e SIGNUPS_ALLOWED=false \
@@ -164,21 +164,21 @@ $ sudo docker run -d --name bitwarden \
     -v /bw-data/:/data/ \
     -v /icon_cache/ \
     -p 0.0.0.0:443:8000 \
-    mprasil/bitwarden:latest
+    vaultwarden/server:latest
 ```
 
-### Install bitwarden_rs as a service
+### Install vaultwarden as a service
 *So we don't have to keep manually firing this thing off.*
-1. Create a script to stop, remove, update, and (re)start the `bitwarden_rs` container:
+1. Create a script to stop, remove, update, and (re)start the `vaultwarden` container:
 ```shell
-$ sudo vi /usr/local/bin/start-bitwarden.sh
+$ sudo vi /usr/local/bin/start-vaultwarden.sh
     #!/bin/bash
 
-    docker stop bitwarden
-    docker rm bitwarden
-    docker pull mprasil/bitwarden
+    docker stop vaultwarden
+    docker rm vaultwarden
+    docker pull vaultwarden/server
 
-    docker run -d --name bitwarden \
+    docker run -d --name vaultwarden \
             -e ROCKET_TLS={certs='"/ssl/fullchain.pem",key="/ssl/privkey.pem"'} \
             -e ROCKET_PORT='8000' \
             -e SIGNUPS_ALLOWED=false \
@@ -187,12 +187,12 @@ $ sudo vi /usr/local/bin/start-bitwarden.sh
             -v /bw-data/:/data/ \
             -v /icon_cache/ \
             -p 0.0.0.0:443:8000 \
-            mprasil/bitwarden:latest
-$ sudo chmod 744 /usr/local/bin/start-bitwarden.sh
+            vaultwarden/server:latest
+$ sudo chmod 744 /usr/local/bin/start-vaultwarden.sh
 ```
 2. And add it as a `systemd` service:
 ```shell
-$ sudo vi /etc/systemd/system/bitwarden.service
+$ sudo vi /etc/systemd/system/vaultwarden.service
     [Unit]
     Description=BitWarden container
     Requires=docker.service
@@ -200,31 +200,31 @@ $ sudo vi /etc/systemd/system/bitwarden.service
 
     [Service]
     Restart=always
-    ExecStart=/usr/local/bin/bitwarden-start.sh
-    ExecStop=/usr/bin/docker stop bitwarden
+    ExecStart=/usr/local/bin/vaultwarden-start.sh
+    ExecStop=/usr/bin/docker stop vaultwarden
 
     [Install]
     WantedBy=default.target
-$ sudo chmod 644 /etc/systemd/system/bitwarden.service
+$ sudo chmod 644 /etc/systemd/system/vaultwarden.service
 ```
 3. Try it out:
 ```shell
-$ sudo systemctl start bitwarden
-$ sudo systemctl status bitwarden
+$ sudo systemctl start vaultwarden
+$ sudo systemctl status vaultwarden
     ● bitwarden.service - BitWarden container
-       Loaded: loaded (/etc/systemd/system/bitwarden.service; enabled; vendor preset: enabled)
+       Loaded: loaded (/etc/systemd/system/vaultwarden.service; enabled; vendor preset: enabled)
        Active: deactivating (stop) since Sun 2018-09-09 03:43:20 UTC;   1s ago
       Process: 13104 ExecStart=/usr/local/bin/bitwarden-start.sh (code=exited, status=0/SUCCESS)
      Main PID: 13104 (code=exited, status=0/SUCCESS); Control PID:  13229 (docker)
         Tasks: 5 (limit: 4915)
        Memory: 9.7M
           CPU: 375ms
-       CGroup: /system.slice/bitwarden.service
+       CGroup: /system.slice/vaultwarden.service
                └─control
-                 └─13229 /usr/bin/docker stop bitwarden
+                 └─13229 /usr/bin/docker stop vaultwarden
 
-    Sep 09 03:43:20 bitwarden bitwarden-start.sh[13104]: Status: Image is up to date for mprasil/bitwarden:latest
-    Sep 09 03:43:20 bitwarden bitwarden-start.sh[13104]:        ace64ca5294eee7e21be764ea1af9e328e944658b4335ce8721b99a33061d645
+    Sep 09 03:43:20 vaultwarden vaultwarden-start.sh[13104]: Status: Image is up to date for vaultwarden/server:latest
+    Sep 09 03:43:20 vaultwarden vaultwarden-start.sh[13104]:        ace64ca5294eee7e21be764ea1af9e328e944658b4335ce8721b99a33061d645
 ```
 
 ### Conclusion
