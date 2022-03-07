@@ -219,7 +219,7 @@ secret/tce-mgmt-pinniped-addon patched
 
 I can watch as the `pinniped-supervisor` and `dexsvc` services get updated with the new service type:
 ```bash
-❯ kubectl get svc -A
+❯ kubectl get svc -A -w
 NAMESPACE               NAME                    TYPE            CLUSTER-IP       EXTERNAL-IP    PORT(S)           
 pinniped-supervisor     pinniped-supervisor     NodePort        100.65.185.82    <none>         443:31234/TCP     
 tanzu-system-auth       dexsvc                  NodePort        100.70.238.106   <none>         5556:30167/TCP    
@@ -234,6 +234,7 @@ I'll also need to restart the `pinniped-post-deploy-job` job to account for the 
 ```bash
 ❯ kubectl -n pinniped-supervisor delete jobs pinniped-post-deploy-job
 job.batch "pinniped-post-deploy-job" deleted
+
 ❯ kubectl get jobs -A -w
 NAMESPACE             NAME                       COMPLETIONS   DURATION   AGE
 pinniped-supervisor   pinniped-post-deploy-job   0/1                      0s
@@ -365,7 +366,7 @@ Now I can *Do Work*!
 ![Back to the grind](/cat-working.gif)
 
 {{% notice note "Create DHCP reservations for control plane nodes" %}}
-VMware [points out](https://tanzucommunityedition.io/docs/latest/verify-deployment/#configure-dhcp-reservations-for-the-control-plane-nodes-vsphere-only) that it's important to create DHCP reservations for the IP addresses which were dynamically assigned to the control plane nodes in both the management and workload clusters so be sure to take care of that before getting too involved in Work.
+VMware [points out](https://tanzucommunityedition.io/docs/latest/verify-deployment/#configure-dhcp-reservations-for-the-control-plane-nodes-vsphere-only) that it's important to create DHCP reservations for the IP addresses which were dynamically assigned to the control plane nodes in both the management and workload clusters so be sure to take care of that before getting too involved in "Work".
 {{% /notice %}}
 
 [^crb]: Or a different one. In reality, you probably don't want the same users having the same levels of access on both the management and workload clusters. But I stuck with just the one here for now.
