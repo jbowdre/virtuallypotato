@@ -12,7 +12,7 @@ usePageBundles: true
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
 thumbnail: "ldaps_test.png" # Sets thumbnail image appearing inside card on homepage.
-# shareImage: "share.png" # Designate a separate image for social media sharing.
+shareImage: "ldaps_test.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Projects
 tags:
