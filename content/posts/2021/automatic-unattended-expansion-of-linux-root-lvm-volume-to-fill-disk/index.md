@@ -25,6 +25,10 @@ It was a bit trickier for Linux systems though. My Linux templates all use LVM t
 
 I found a great script [here](https://github.com/alpacacode/Homebrewn-Scripts/blob/master/linux-scripts/partresize.sh) that helped with most of those operations, but it required the user to specify the physical and logical volumes. I modified it to auto-detect those, and here's what I came up with:
 
+{{% notice info "MBR only" %}}
+When I cobbled together this script I was primarily targeting the Enterprise Linux (RHEL, CentOS) systems that I work with in my environment, and those happened to have MBR partition tables. This script would need to be modified a bit to work with GPT partitions like you might find on Ubuntu.
+{{% /notice %}}
+
 ```shell
 #!/bin/bash
 # This will attempt to automatically detect the LVM logical volume where / is mounted and then 
