@@ -18,7 +18,7 @@
     {{- with .Param "lastmod" -}}
       {{- $ageDays = div (sub now.Unix .Unix) 86400 -}}
     {{- end -}}
-    {{- if gt $ageDays 365 -}}
+    {{- if and (gt $ageDays 365) (not $p.timeless) -}}
       <div class="notices info"><div class="label">{{- T "old_content_label" -}}</div>
         <i>{{- T "old_content_note" -}}</i>
       </div>

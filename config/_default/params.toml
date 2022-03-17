@@ -29,6 +29,7 @@ numberOfRecentPosts = 6
 numberOfRelatedPosts = 6
 numberOfFeaturedPosts = 4
 toc = true
+timeless = false
 
 ## Website author
 [author]
