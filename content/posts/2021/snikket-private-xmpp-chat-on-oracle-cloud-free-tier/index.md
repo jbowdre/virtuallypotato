@@ -1,7 +1,7 @@
 ---
 title: "Snikket Private XMPP Chat on Oracle Cloud Free Tier" # Title of the blog post.
 date: 2021-12-23 # Date of post creation.
-lastmod: 2022-02-10 # Date when last modified
+lastmod: 2022-03-17 # Date when last modified
 description: "Notes on installing a Snikket XMPP chat instance alongside a Matrix instance on an Oracle Cloud free tier server" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -52,7 +52,7 @@ You can refer to my notes from last time for details on how I [created the Ubunt
 | `5269` | TCP | Connections from other servers |
 | `60000-60100`[^4] | UDP | Audio/Video data proxy (TURN data) |
 
-As a gentle reminder, Oracle's `iptables` configuration inserts a `REJECT all` rule at the bottom of each chain. I needed to make sure that each of my `ALLOW` rules got inserted above that point. So I used `iptables -L INPUT --line-numbers` to identify which line held the `REJECT` rule, and then used `iptables -I INPUT [LINE_NUMBER] -m state --state NEW -p [PROTOCOL] --dport [PORT] -j ACCEPT` to insert the new rules above that point. 
+As a gentle reminder, Oracle's `iptables` configuration inserts a `REJECT all` rule at the bottom of each chain. I needed to make sure that each of my `ALLOW` rules get inserted above that point. So I used `iptables -L INPUT --line-numbers` to identify which line held the `REJECT` rule, and then used `iptables -I INPUT [LINE_NUMBER] -m state --state NEW -p [PROTOCOL] --dport [PORT] -j ACCEPT` to insert the new rules above that point. 
 ```bash
 sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 443 -j ACCEPT
@@ -97,16 +97,15 @@ run-parts: executing /usr/share/netfilter-persistent/plugins.d/15-ip4tables save
 run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
 ```
 
-I also needed to create three DNS records[^5] with my domain registrar:
+I also needed to create three DNS records with my domain registrar:
 ```
-# Domain                  TTL   Class   Type  Target
-chat.vpot8.ooo            300   IN      A     132.145.174.39    
-groups.vpot8.ooo          300   IN      CNAME chat.vpot8.ooo.
-share.vpot8.ooo           300   IN      CNAME chat.vpot8.ooo.
+# Domain                TTL   Class   Type      Target
+chat.vpota.to           300   IN      A         132.145.174.39    
+groups.vpota.to         300   IN      CNAME     chat.vpota.to
+share.vpota.to          300   IN      CNAME     chat.vpota.to
 ```
 
 [^4]: By default Snikket can use any UDP port in the range `49152-65535` for TURN call data but restricting it to 100 ports [should be sufficient](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/firewall.md#how-many-ports-does-the-turn-service-need) for most small servers.
-[^5]: Get it? vpotatooo? Sometimes my genius... it's almost frightening.
 
 ### Install `docker` and `docker-compose`
 Snikket is distributed as a set of docker containers which makes it super easy to get up and running on basically any Linux system. But, of course, you'll first need to [install `docker`](https://docs.docker.com/engine/install/ubuntu/)
@@ -173,7 +172,7 @@ In my case, I'm going to add two additional parameters to restrict the UDP TURN 
 So here's my config:
 
 ```
-SNIKKET_DOMAIN=chat.vpot8.ooo
+SNIKKET_DOMAIN=chat.vpota.to
 SNIKKET_ADMIN_EMAIL=ops@example.com
 
 # Limit UDP port range
@@ -188,7 +187,7 @@ With everything in place, I can start up the Snikket server:
 sudo docker-compose up -d
 ```
 
-This will take a moment or two to pull down all the required container images, start them, and automatically generate the SSL certificates. Very soon, though, I can point my browser to `https://chat.vpot8.ooo` and see a lovely login page - complete with an automagically-valid-and-trusted certificate:
+This will take a moment or two to pull down all the required container images, start them, and automatically generate the SSL certificates. Very soon, though, I can point my browser to `https://chat.vpota.to` and see a lovely login page - complete with an automagically-valid-and-trusted certificate:
 ![Snikket login page](snikket_login_page.png)
 
 Of course, I don't yet have a way to log in, and like I mentioned earlier Snikket doesn't offer open user registration. Every user (even me, the admin!) has to be invited. Fortunately I can generate my first invite directly from the command line:
@@ -244,7 +243,7 @@ The invite link has since expired so there's no point sharing it here. If you'd 
 
 If you've already got a Snikket and/or XMPP account, hit me up from your own server:
 
-{{< cloakemail address="john@chat.vpot8.ooo" protocol="xmpp">}}
+{{< cloakemail address="john@chat.vpota.to" protocol="xmpp">}}
 
 [^9]: I'm also open to discussing *things*.
 
@@ -261,15 +260,15 @@ One of the really cool things about Caddy is that it automatically generates SSL
 Fortunately, the [Snikket reverse proxy documentation](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/reverse_proxy.md#basic) was recently updated with a sample config for making this happen. Matrix and Snikket really only overlap on ports `80` and `443` so those are the only ports I'll need to handle, which lets me go for the "Basic" configuration instead of the "Advanced" one. I can just adapt the sample config from the documentation and add that to my existing `/etc/caddy/Caddyfile` alongside the config for Matrix:
 
 ```
-http://chat.vpot8.ooo,
-http://groups.chat.vpot8.ooo,
-http://share.chat.vpot8.ooo {
+http://chat.vpota.to,
+http://groups.chat.vpota.to,
+http://share.chat.vpota.to {
         reverse_proxy localhost:5080
 }
 
-chat.vpot8.ooo,
-groups.chat.vpot8.ooo,
-share.chat.vpot8.ooo {
+chat.vpota.to,
+groups.chat.vpota.to,
+share.chat.vpota.to {
          reverse_proxy https://localhost:5443 {
                 transport http {
                         tls_insecure_skip_verify
@@ -290,7 +289,7 @@ bowdre.net {
 }
 ```
 
-So Caddy will be listening on port `80` for traffic to `http://chat.vpot8.ooo`, `http://groups.chat.vpot8.ooo`, and `http://share.chat.vpot8.ooo`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^10]. 
+So Caddy will be listening on port `80` for traffic to `http://chat.vpota.to`, `http://groups.chat.vpota.to`, and `http://share.chat.vpota.to`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^10]. 
 
 And then any traffic to `matrix.bowdre.net` or `bowdre.net` still gets handled as described in that other post.
 
@@ -331,7 +330,7 @@ This would be a great time to go ahead and stop this original Snikket instance. 
 sudo docker-compose down
 ```
 {{% notice tip "Update DNS" %}}
-This is also a great time to update the `A` record for `chat.vpot8.ooo` so that it points to the new server. It will need a little bit of time for the change to trickle out, and the updated record really needs to be in place before starting Snikket on the new server so that there aren't any certificate problems.
+This is also a great time to update the `A` record for `chat.vpota.to` so that it points to the new server. It will need a little bit of time for the change to trickle out, and the updated record really needs to be in place before starting Snikket on the new server so that there aren't any certificate problems.
 {{% /notice %}}
 
 
@@ -366,8 +365,8 @@ cd /etc/snikket
 Before I fire this up on the new host, I need to edit the `snikket.conf` to tell Snikket to use those different ports defined in the reverse proxy configuration using [a couple of `SNIKKET_TWEAK_*` lines](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/reverse_proxy.md#snikket):
 
 ```
-SNIKKET_DOMAIN=chat.vpot8.ooo
-SNIKKET_ADMIN_EMAIL=ops@vpot8.ooo
+SNIKKET_DOMAIN=chat.vpota.to
+SNIKKET_ADMIN_EMAIL=ops@example.com
 
 SNIKKET_TWEAK_HTTP_PORT=5080
 SNIKKET_TWEAK_HTTPS_PORT=5443
@@ -380,7 +379,7 @@ Alright, let's start up the Snikket server:
 sudo docker-compose up -d
 ```
 
-After a moment or two, I can point a browser to `https://chat.vpot8.ooo` and see the login screen (with a valid SSL certificate!) but I won't actually be able to log in. As far as Snikket is concerned, this is a brand new setup.
+After a moment or two, I can point a browser to `https://chat.vpota.to` and see the login screen (with a valid SSL certificate!) but I won't actually be able to log in. As far as Snikket is concerned, this is a brand new setup.
 
 Now I can borrow the last line from the [`restore.sh` script](https://github.com/snikket-im/snikket-selfhosted/blob/main/scripts/restore.sh) to bring in my data:
 
