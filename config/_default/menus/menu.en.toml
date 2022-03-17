@@ -35,7 +35,7 @@
 [[main]]
   parent = "Connect"
   name = "XMPP"
-  url = "https://conversations.im/i/john@chat.vpota.to"
+  url = "/xmpp/"
 [[main]]
   parent = "Connect"
   name = "Twitter"

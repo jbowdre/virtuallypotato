@@ -26,4 +26,4 @@ See what I've been up to on:
 
 Securely chat with me via:
 - [Matrix](https://matrix.to/#/@john:bowdre.net)
-- [XMPP](https://conversations.im/i/john@chat.vpot8.ooo)
+- [XMPP](/xmpp/)
