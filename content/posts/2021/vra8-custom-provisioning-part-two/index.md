@@ -1,6 +1,7 @@
 ---
 series: vRA8
 date: "2021-04-02T08:34:30Z"
+lastmod: "2022-03-23"
 thumbnail: HXrAMJrH.png
 usePageBundles: true
 tags:
@@ -316,7 +317,18 @@ It creates a new `requestProperties (Properties)` variable to store the limited 
 I'll also drop in a "Foreach Element" item, which will run a linked workflow once for each item in an input array (`originalNames (Array/string)` in this case). I haven't actually created that nested workflow yet so I'm going to skip selecting that for now.
 ![Nested workflow placeholder](UIafeShcv.png)
 
-The final step of this workflow will be to replace the existing contents of `resourceNames (Array/string)` with the new name. I'll do that with another scriptable task element, named `Apply new names`, which takes `inputProperties (Properties)` and `newNames (Array/string)` as inputs and returns `resourceNames (Array/string)` as a workflow output back to vRA. vRA will see that `resourceNames` has changed and it will update the name of the deployed resource (the VM) accordingly.
+The final step of this workflow will be to replace the existing contents of `resourceNames (Array/string)` with the new name. 
+
+I'll do that with another scriptable task element, named `Apply new names`, which takes `inputProperties (Properties)` and `newNames (Array/string)` as inputs. It will return `resourceNames (Array/string)` as a *workflow output* back to vRA. vRA will see that `resourceNames` has changed and it will update the name of the deployed resource (the VM) accordingly.
+
+{{% notice info "Binding a workflow output" %}}
+To easily create a new workflow output and bind it to a task's output, click the task's **Add New** option like usual:
+![](/add_new.png)
+Select **Output** at the top of the *New Variable* dialog and the complete the form with the other required details:
+![](/new_output_parameter.png)
+{{% /notice %}}
+
+
 ![Apply new names task](h_PHeT6af.png)
 
 And here's the script for that task:
