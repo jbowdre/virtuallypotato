@@ -38,7 +38,6 @@ timeless = false
 
 ## Comments
 comments = true
-[utterances]
-  repo="jbowdre/virtuallypotato" # owner/repo where github comments will happen
-  issueterm="title" # how will the issues be mapped to the articles
-  theme="dark-blue" # theme to be applied to comments box
+utterancesRepo = "jbowdre/virtuallypotato"
+utterancesIssueTerm = "title"
+utterancesTheme = "dark-blue"
