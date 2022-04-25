@@ -39,4 +39,4 @@ Putting Netlify in front of the repositories where my site content is stored als
 
 **Anyway, here we are: the new Virtually Potato, powered by Hugo and Netlify!**
 
-![Woohoo!](/celebration.gif)
+![Woohoo!](celebration.gif)

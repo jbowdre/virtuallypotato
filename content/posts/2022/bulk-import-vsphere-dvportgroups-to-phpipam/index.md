@@ -78,20 +78,20 @@ It's not pretty, but it'll do the trick. All that's left is to export this data 
 ```powershell
 get-vdportgroup | select Name, VlanConfiguration, Datacenter, Uid | export-csv -NoTypeInformation ./networks.csv
 ```
-![My networks.csv export, including the networks which don't match the naming criteria and will be skipped by the import process.](/networks.csv.png)
+![My networks.csv export, including the networks which don't match the naming criteria and will be skipped by the import process.](networks.csv.png)
 
 ### Setting up phpIPAM
 After [deploying a fresh phpIPAM instance on my Tanzu Community Edition Kubernetes cluster](/tanzu-community-edition-k8s-homelab/#a-real-workload---phpipam), there are a few additional steps needed to enable API access. To start, I log in to my phpIPAM instance and navigate to the **Administration > Server Management > phpIPAM Settings** page, where I enabled both the *Prettify links* and *API* feature settings - making sure to hit the **Save** button at the bottom of the page once I do so.
-![Enabling the API](/server_settings.png)
+![Enabling the API](server_settings.png)
 
 Then I need to head to the **User Management** page to create a new user that will be used to authenticate against the API:
-![New user creation](/new_user.png)
+![New user creation](new_user.png)
 
 And finally, I head to the **API** section to create a new API key with Read/Write permissions:
-![API key creation](/api_user.png)
+![API key creation](api_user.png)
 
 I'm also going to head in to **Administration > IP Related Management > Sections** and delete the default sample sections so that the inventory will be nice and empty:
-![We don't need no stinkin' sections!](/empty_sections.png)
+![We don't need no stinkin' sections!](empty_sections.png)
 
 ### Script time
 Well that's enough prep work; now it's time for the Python3 [script](https://github.com/jbowdre/misc-scripts/blob/main/Python/phpipam-bulk-import.py):
@@ -560,13 +560,13 @@ Authenticating to https://ipam-k8s.lab.bowdre.net/api/api-user...
 ```
 
 Success! Now I can log in to my phpIPAM instance and check out my newly-imported subnets:
-![New subnets!](/created_subnets.png)
+![New subnets!](created_subnets.png)
 
 Even the one with the weird name formatting was parsed and imported correctly:
-![Subnet details](/subnet_detail.png)
+![Subnet details](subnet_detail.png)
 
 So now phpIPAM knows about the vSphere networks I care about, and it can keep track of which vLAN and nameservers go with which networks. Great! But it still isn't scanning or monitoring those networks, even though I told the script that I wanted to use a remote scan agent. And I can check in the **Administration > Server management > Scan agents** section of the phpIPAM interface to see my newly-created agent configuration.
-![New agent config](/agent_config.png)
+![New agent config](agent_config.png)
 
 ... but I haven't actually *deployed* an agent yet. I'll do that by following the same basic steps [described here](/tanzu-community-edition-k8s-homelab/#phpipam-agent) to spin up my `phpipam-agent` on Kubernetes, and I'll plug in that automagically-generated code for the `IPAM_AGENT_KEY` environment variable:
 
@@ -613,7 +613,7 @@ spec:
 ```
 
 I kick it off with a `kubectl apply` command and check back a few minutes later (after the 15-minute interval defined in the above YAML) to see that it worked, the remote agent scanned like it was supposed to and is reporting IP status back to the phpIPAM database server:
-![Newly-discovered IPs](/discovered_ips.png)
+![Newly-discovered IPs](discovered_ips.png)
 
 I think I've got some more tweaks to do with this environment (why isn't phpIPAM resolving hostnames despite the correct DNS servers getting configured?) but this at least demonstrates a successful proof-of-concept import thanks to my Python script. Sure, I only imported 10 networks here, but I feel like I'm ready to process the several hundred which are available in our production environment now.
 

@@ -109,36 +109,36 @@ nessus   LoadBalancer   100.67.16.51   192.168.1.79   443:31260/TCP   57s
 ```
 
 I point my browser to `https://192.168.1.79` and see that it's a great time for a quick coffee break since it will take a few minutes for Nessus to initialize itself:
-![Nessus Initialization](/nessus_init.png)
+![Nessus Initialization](nessus_init.png)
 
 Eventually that gets replaced with a login screen, where I can authenticate using the username and password specified earlier in the YAML.
-![Nessus login screen](/nessus_login.png)
+![Nessus login screen](nessus_login.png)
 
 After logging in, I get prompted to run a discovery scan to identify hosts on the network. There's a note that hosts revealed by the discovery scan will *not* count against my 16-host limit unless/until I select individual hosts for more detailed scans. That's good to know for future efforts, but for now I'm focused on just scanning my one vCenter server so I dismiss the prompt. 
 
  What I *am* interested in is scanning my vCenter for the Log4Shell vulnerability so I'll hit the friendly blue **New Scan** button at the top of the *Scans* page to create my scan. That shows me a list of *Scan Templates*:
-![Scan templates](/scan_templates.png)
+![Scan templates](scan_templates.png)
 
 I'll scroll down a bit and pick the first *Log4Shell* template:
-![Log4Shell templates](/log4shell_templates.png)
+![Log4Shell templates](log4shell_templates.png)
 
 I plug in a name for the scan and enter my vCenter IP (`192.168.1.12`) as the lone scan target:
-![Naming the scan and selecting the target](/scan_setup_page_1.png)
+![Naming the scan and selecting the target](scan_setup_page_1.png)
 
 There's a note there that I'll also need to include credentials so that the Nessus scanner can log in to the target in order to conduct the scan, so I pop over to the aptly-named *Credentials* tab to add some SSH credentials. This is just my lab environment so I'll give it the `root` credentials, but if I were running Nessus in a real environment I'd probably want to use a dedicated user account just for scans.
-![Giving credentials for the scan](/scan_setup_page2.png)
+![Giving credentials for the scan](scan_setup_page2.png)
 
 Now I can scroll to the bottom of the page, click the down-arrow next to the *Save* button and select the **Launch** option to kick off the scan:
-![Go for launch](/launch.png)
+![Go for launch](launch.png)
 
 That drops me back to the *My Scans* view where I can see the status of my scan. I'll grab another coffee while I stare at the little green spinny thing.
-![My scans](/my_scans.gif)
+![My scans](my_scans.gif)
 
 Okay, break's over - and so is the scan! Now I can click on the name of the scan to view the results:
-![Results summary](/scan_results_summary.png)
+![Results summary](scan_results_summary.png)
 
 And I can drill down into the vulnerability details:
-![Log4j-related vulnerabilities](/scan_results_log4j.png)
+![Log4j-related vulnerabilities](scan_results_log4j.png)
 
 This reveals a handful of findings related to old 1.x versions of Log4j (which went EOL in 2015 - yikes!) as well as [CVE-2021-44832](https://nvd.nist.gov/vuln/detail/CVE-2021-44832) Remote Code Execution vulnerability (which is resolved in Log4j 2.17.1), but the inclusion of Log4j 2.17.0 in vCenter 7.0U3c *was* sufficient to close the highly-publicized [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228) Log4Shell vulnerability. Hopefully VMware can get these other Log4j vulnerabilities taken care of in another upcoming vCenter release.
 
