@@ -77,7 +77,7 @@ zip QUARTZ64_EFI.img.zip QUARTZ64_EFI.img
 
 I can then write it to the micro SD card by opening CRU, clicking on the gear icon, and selecting the *Use local image* option.
 
-![Writing the firmware image](/writing_firmware.png)
+![Writing the firmware image](writing_firmware.png)
 
 #### ESXi installation media
 I'll also need to prepare the ESXi installation media (download [here](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=ESXI-ARM)). For that, I'll be using a 256GB USB drive. Due to the limited storage options on the Quartz64, I'll be installing ESXi onto the same drive I use to boot the installer so, in this case, the more storage the better. By default, ESXi 7.0 will consume up to 128GB for the new `ESX-OSData` partition; whatever is leftover will be made available as a VMFS datastore. That could be problematic given the unavailable/flaky USB support of the Quartz64. (While you *can* install ESXi onto a smaller drive, down to about ~20GB, the lack of additional storage on this hardware makes it pretty important to take advantage of as much space as you can.)
@@ -88,7 +88,7 @@ mv VMware-VMvisor-Installer-7.0.0-19546333.aarch64.iso{,.bin}
 ```
 
 Then it's time to write the image onto the USB drive:
-![Writing the ESXi installer image](/writing_esxi.png)
+![Writing the ESXi installer image](writing_esxi.png)
 
 
 #### Console connection
@@ -101,7 +101,7 @@ I'll need to use the Quartz64 serial console interface and ["Woodpecker" edition
 | 10 | `TXD` | Orange |
 
 I leave the yellow wire dangling free on both ends since I don't need a `+V` connection for the console to work.
-![Console connection](/console_connection.jpg)
+![Console connection](console_connection.jpg)
 
 To verify that I've got things working, I go ahead and pop the micro SD card containing the firmware into its slot on the bottom side of the Quartz64 board, connect the USB console adapter to my Chromebook, and open the [Beagle Term](https://chrome.google.com/webstore/detail/beagle-term/gkdofhllgfohlddimiiildbgoggdpoea) app to set up the serial connection.
 
@@ -119,7 +119,7 @@ I'll need to use these settings for the connection (which are the defaults selec
 ![Beagle Term settings](beagle_term_settings.png)
 
 I hit **Connect** and then connect the Quartz64's power supply. I watch as it loads the firmware and then launches the BIOS menu:
-![BIOS menu](/bios.png)
+![BIOS menu](bios.png)
 
 ### Host creation
 #### ESXi install
@@ -130,52 +130,52 @@ On that note, remember what I mentioned earlier about how the ESXi installer wou
 I hooked up a monitor to the board's HDMI port and a USB keyboard to a free port on the hub and verified that the keyboard let me maneuver through the BIOS menu. From here, I hit the **Reset** button on the Quartz64 to restart it and let it boot from the connected USB drive. When I got to the ESXi pre-boot countdown screen, I pressed `[Shift] + O` as instructed and added `autoPartitionOSDataSize=8192` to the boot options. This limits the size of the new-for-ESXi7 ESX-OSData VMFS-L volume to 8GB and will give me much more space for the local datastore.
 
 Beyond that it's a fairly typical ESXi install process:
-![Hi, welcome to the ESXi for ARM installer. I'll be your UI this evening.](/esxi_install_1.png)
-![Just to be sure, I'm going to clobber everything on this USB drive.](/esxi_install_2.png)
-![Hold on to your butts, here we go!](/esxi_install_3.png)
-![Whew, we made it!](/esxi_install_4.png)
+![Hi, welcome to the ESXi for ARM installer. I'll be your UI this evening.](esxi_install_1.png)
+![Just to be sure, I'm going to clobber everything on this USB drive.](esxi_install_2.png)
+![Hold on to your butts, here we go!](esxi_install_3.png)
+![Whew, we made it!](esxi_install_4.png)
 
 #### Initial configuration
 After the installation completed, I rebooted the host and watched for the Direct Console User Interface (DCUI) to come up:
-![ESXi DCUI](/dcui.png)
+![ESXi DCUI](dcui.png)
 
 I hit `[F2]` and logged in with the root credentials to get to the System Customization menu:
-![DCUI System Customization](/dcui_system_customization.png)
+![DCUI System Customization](dcui_system_customization.png)
 
 The host automatically received an IP issued by DHCP but I'd like for it to instead use a static IP. I'll also go ahead and configure the appropriate DNS settings. 
-![Setting the IP address](/dcui_ip_address.png)
-![Configuring DNS settings](/dcui_dns.png)
+![Setting the IP address](dcui_ip_address.png)
+![Configuring DNS settings](dcui_dns.png)
 
 I also create the appropriate matching `A` and `PTR` records in my local DNS, and (after bouncing the management network) I can access the ESXi Embedded Host Client at `https://quartzhost.lab.bowdre.net`:
-![ESXi Embedded Host Client login screen](/embedded_host_client_login.png)
-![Summary view of my new host!](/embedded_host_client_summary.png)
+![ESXi Embedded Host Client login screen](embedded_host_client_login.png)
+![Summary view of my new host!](embedded_host_client_summary.png)
 
 That's looking pretty good... but what's up with that date and time? Time has kind of lost all meaning in the last couple of years but I'm *reasonably* certain that January 1, 2001 was at least a few years ago. And I know from past experience that incorrect host time will prevent it from being successfully imported to a vCenter inventory.
 
 Let's clear that up by enabling the Network Time Protocol (NTP) service on this host. I'll do that by going to **Manage > System > Time & Date** and clicking the **Edit NTP Settings** button. I don't run a local NTP server so I'll point it at `pool.ntp.org` and set the service to start and stop with the host:
-![NTP configuration](/ntp_configuration.png)
+![NTP configuration](ntp_configuration.png)
 
 Now I hop over to the **Services** tab, select the `ntpd` service, and then click the **Start** button there. Once it's running, I then *restart* `ntpd` to help encourage the system to update the time immediately.
-![Starting the NTP service](/services.png)
+![Starting the NTP service](services.png)
 
 Once the service is started I can go back to **Manage > System > Time & Date**, click the **Refresh** button, and confirm that the host has been updated with the correct time:
-![Correct time!](/correct_time.png)
+![Correct time!](correct_time.png)
 
 With the time sorted, I'm just about ready to join this host to my vCenter, but first I'd like to take a look at the storage situation - after all, I did jump through those hoops with the installer to make sure that I would wind up with a useful local datastore. Upon going to **Storage > More storage > Devices** and clicking on the single listed storage device, I can see in the Partition Diagram that the ESX-OSData VMFS-L volume was indeed limited to 8GB, and the free space beyond that was automatically formatted as a VMFS datastore:
-![Reviewing the partition diagram](/storage_device.png)
+![Reviewing the partition diagram](storage_device.png)
 
 And I can also take a peek at that local datastore:
-![Local datastore](/storage_datastore.png)
+![Local datastore](storage_datastore.png)
 
 With 200+ gigabytes of free space on the datastore I should have ample room for a few lightweight VMs.
 
 #### Adding to vCenter
 Alright, let's go ahead and bring the new host into my vCenter environment. That starts off just like any other host, by right-clicking an inventory location in the *Hosts & Clusters* view and selecting **Add Host**.
-![Starting the process](/add_host.png)
+![Starting the process](add_host.png)
 
-![Reviewing the host details](/add_host_confirm.png)
+![Reviewing the host details](add_host_confirm.png)
 
-![Successfully added to the vCenter](/host_added.png)
+![Successfully added to the vCenter](host_added.png)
 
 Success! I've now got a single-board hypervisor connected to my vCenter. Now let's give that host a workload.[^workloads]
 
@@ -196,16 +196,16 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
 That will let me deploy from a resource already inside my lab network instead of transferring the OVA from my laptop. So now I can go back to my vSphere Client and go through the steps to **Deploy OVF Template** to the new host, and I'll plug in the URL `http://deb01.lab.bowdre.net:8000/photon_uefi.ova`:
-![Deploying a template from URL](/deploy_from_url.png)
+![Deploying a template from URL](deploy_from_url.png)
 
 I'll name it `pho01` and drop it in an appropriate VM folder:
-![Naming the new VM](/name_vm.png)
+![Naming the new VM](name_vm.png)
 
 And place it on the new Quartz64 host:
-![Host placement](/vm_placement.png)
+![Host placement](vm_placement.png)
 
 The rest of the OVF deployment is basically just selecting the default options and clicking through to finish it. And then once it's deployed, I'll go ahead and power on the new VM.
-![The newly-created Photon VM](/new_vm.png)
+![The newly-created Photon VM](new_vm.png)
 
 #### Configuring Photon
 There are just a few things I'll want to configure on this VM before I move on to installing Tailscale, and I'll start out simply by logging in with the remote console.
@@ -214,7 +214,7 @@ There are just a few things I'll want to configure on this VM before I move on t
 The default password for Photon's `root` user is `changeme`. You'll be forced to change that at first login.
 {{% /notice %}}
 
-![First login, and the requisite password change](/first_login.png)
+![First login, and the requisite password change](first_login.png)
 
 Now that I'm in, I'll set the hostname appropriately:
 ```bash
@@ -376,17 +376,17 @@ sudo tailscale up --advertise-tags "tag:home" --advertise-route "192.168.1.0/24"
 ```
 
 That will return a URL I can use to authenticate, and I'll then able to to view and manage the new Tailscale node from the `login.tailscale.com` admin portal:
-![Success!](/new_tailscale_node.png)
+![Success!](new_tailscale_node.png)
 
 You might remember [from last time](/secure-networking-made-simple-with-tailscale/#subnets-and-exit-nodes) that the "Subnets (!)" label indicates that this node is attempting to advertise a subnet route but that route hasn't yet been accepted through the admin portal. You may also remember that the `192.168.1.0/24` subnet is already being advertised by my `vyos` node:[^hassos]
-![Actively-routed subnets show up black, while advertised-but-not-currently-routed subnets appear grey](/advertised_subnets.png)
+![Actively-routed subnets show up black, while advertised-but-not-currently-routed subnets appear grey](advertised_subnets.png)
 
 Things could potentially get messy if I have two nodes advertising routes for the same subnet[^failover] so I'm going to use the admin portal to disable that route on `vyos` before enabling it for `pho01`. I'll let `vyos` continue to route the `172.16.0.0/16` subnet (which only exists inside the NUC's vSphere environment after all) and it can continue to function as an Exit Node as well.
-![Disabling the subnet on vyos](/disabling_subnet_on_vyos.png)
+![Disabling the subnet on vyos](disabling_subnet_on_vyos.png)
 
-![Enabling the subnet on pho01](/enabling_subnet_on_pho01.png)
+![Enabling the subnet on pho01](enabling_subnet_on_pho01.png)
 
-![Updated subnets](/updated_subnets.png)
+![Updated subnets](updated_subnets.png)
 
 Now I can remotely access the VM (and thus my homelab!) from any of my other Tailscale-enrolled devices!
 

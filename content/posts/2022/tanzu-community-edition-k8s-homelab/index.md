@@ -11,7 +11,7 @@ usePageBundles: true
 # featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-thumbnail: "/tanzu_community_edition.png" # Sets thumbnail image appearing inside card on homepage.
+thumbnail: "tanzu_community_edition.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Projects
@@ -27,7 +27,7 @@ comment: true # Disable comment if false.
 ---
 
 Back in October, VMware [announced](https://tanzu.vmware.com/content/blog/vmware-tanzu-community-edition-announcement) [Tanzu Community Edition](https://tanzucommunityedition.io/) as way to provide "a full-featured, easy-to-manage Kubernetes platform that’s perfect for users and learners alike." TCE bundles a bunch of open-source components together in a modular, "batteries included but swappable" way:
-![Tanzu Community Edition components](/tanzu_community_edition.png)
+![Tanzu Community Edition components](tanzu_community_edition.png)
 
 I've been meaning to brush up on my Kubernetes skills so I thought deploying and using TCE in my self-contained [homelab](/vmware-home-lab-on-intel-nuc-9/) would be a fun and rewarding learning exercise - and it was!
 
@@ -59,7 +59,7 @@ Moving on to the [Getting Started](https://tanzucommunityedition.io/docs/latest/
 I need to download a VMware OVA which can be used for deploying my Kubernetes nodes from the VMWare Customer Connect portal [here](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=TCE-090)[^register]. There are a few different options available. I'll get the Photon release with the highest Kubernetes version currently available, `photon-3-kube-v1.21.2+vmware.1-tkg.2-12816990095845873721.ova`. 
 
 Once the file is downloaded, I'll log into my vCenter and use the **Deploy OVF Template** action to deploy a new VM using the OVA. I won't bother booting the machine once deployed but will rename it to `k8s-node` to make it easier to identify later on and then convert it to a template.
-![New k8s-node template](/k8s-node_template.png)
+![New k8s-node template](k8s-node_template.png)
 
 [^register]: Register [here](https://customerconnect.vmware.com/account-registration) if you don't yet have an account.
 
@@ -156,33 +156,33 @@ Serving kickstart UI at http://[::]:8080
 ```
 
 *Now* I can point my local browser to my VM and see the UI:
-![The Tanzu Installer UI](/installer_ui.png)
+![The Tanzu Installer UI](installer_ui.png)
 
 And then I can click the button at the bottom left to save my eyes[^dark_mode] before selecting the option to deploy on vSphere. 
-![Configuring the IaaS Provider](/installer_iaas_provider.png)
+![Configuring the IaaS Provider](installer_iaas_provider.png)
 
 I'll plug in the FQDN of my vCenter and provide a username and password to use to connect to it, then hit the **Connect** button. That will prompt me to accept the vCenter's certificate thumbprint, and then I'll be able to select the virtual datacenter that I want to use. Finally, I'll paste in the SSH public key[^gen_key] I'll use for interacting with the cluster.
 
 I click **Next** and move on to the Management Cluster Settings.
-![Configuring the Management Cluster](/installer_management_cluster.png)
+![Configuring the Management Cluster](installer_management_cluster.png)
 
 This is for a lab environment that's fairly memory-constrained, so I'll pick the single-node *Development* setup with a *small* instance type. I'll name the cluster `tce-mgmt` and stick with the default `kube-vip` control plane endpoint provider. I plug in the control plane endpoint IP that I'll use for connecting to the cluster and select the *small* instance type for the worker node type.
 
 I don't have an NSX Advanced Load Balancer or any Metadata to configure so I'll skip past those steps and move on to configuring the Resources.
-![Configuring Resources](/installer_resources.png)
+![Configuring Resources](installer_resources.png)
 
 Here I pick to place the Tanzu-related resources in a VM folder named `Tanzu`, to store their data on my single host's single datastore, and to deploy to the one-host `physical-cluster` cluster.
 
 Now for the Kubernetes Networking Settings:
-![Configuring Kubernetes Networking](/installer_k8s_networking.png)
+![Configuring Kubernetes Networking](installer_k8s_networking.png)
 
 This bit is actually pretty easy. For Network Name, I select the vSphere network where the `192.168.1.0/24` network I identified earlier lives, `d-Home-Mgmt`. I leave the service and pod CIDR ranges as default.
 
 I disable the Identity Management option and then pick the `k8s-node` template I had imported to vSphere earlier.
-![Configuring the OS Image](/installer_image.png)
+![Configuring the OS Image](installer_image.png)
 
 I skip the Tanzu Mission Control piece (since I'm still waiting on access to [TMC Starter](https://tanzu.vmware.com/tmc-starter)) and click the **Review Configuration** button at the bottom of the screen to review my selections.
-![Reviewing the configuration](/installer_review.png)
+![Reviewing the configuration](installer_review.png)
 
 See the option at the bottom to copy the CLI command? I'll need to use that since clicking the friendly **Deploy** button doesn't seem to work while connected to the web server remotely.
 
@@ -222,7 +222,7 @@ Would you like to deploy a non-integrated Tanzu Kubernetes Grid management clust
 That's not what I'm after in this case, though, so I'll answer with a `n` and a `y` to confirm that I want the non-integrated TKG deployment.
 
 And now I go get coffee as it'll take 10-15 minutes for the deployment to complete.
-![Coffee break!](/coffee_break.gif)
+![Coffee break!](coffee_break.gif)
 
 Okay, I'm back - and so is my shell prompt! The deployment completed successfully:
 ```
@@ -343,10 +343,10 @@ NAME                                                         READY  SEVERITY  RE
 ```
 
 I can also go into vCenter and take a look at the VMs which constitute the two clusters:
-![Cluster VMs](/clusters_in_vsphere.png)
+![Cluster VMs](clusters_in_vsphere.png)
 
 I've highlighted the two Control Plane nodes. They got their IP addresses assigned by DHCP, but [VMware says](https://tanzucommunityedition.io/docs/latest/verify-deployment/#configure-dhcp-reservations-for-the-control-plane-nodes-vsphere-only) that I need to create reservations for them to make sure they don't change. So I'll do just that.
-![DHCP reservations on Google Wifi](/dhcp_reservations.png)
+![DHCP reservations on Google Wifi](dhcp_reservations.png)
 
 Excellent, I've got a Tanzu management cluster and a Tanzu workload cluster. What now?
 
@@ -436,7 +436,7 @@ Node:         tce-work-md-0-687444b744-cck4x/192.168.1.145
 ```
 
 So I can point my browser at `http://192.168.1.145:30001` and see the demo:
-![yelb demo page](/yelb_nodeport_demo.png)
+![yelb demo page](yelb_nodeport_demo.png)
 
 After marveling at my own magnificence[^magnificence] for a few minutes, I'm ready to move on to something more interesting - but first, I'll just delete the `yelb` namespace to clean up the work I just did:
 ```bash
@@ -501,7 +501,7 @@ yelb-ui   LoadBalancer   100.67.177.185   192.168.1.65   80:32339/TCP   4h35m
 ```
 
 And it's got an IP! I can point my browser to `http://192.168.1.65` now and see:
-![Successful LoadBalancer test!](/yelb_loadbalancer_demo.png)
+![Successful LoadBalancer test!](yelb_loadbalancer_demo.png)
 
 I'll keep the `kube-vip` load balancer since it'll come in handy, but I have no further use for `yelb`:
 ```bash
@@ -513,10 +513,10 @@ namespace "yelb" deleted
 At some point, I'm going to want to make sure that data from my Tanzu workloads stick around persistently - and for that, I'll need to [define some storage stuff](https://tanzucommunityedition.io/docs/latest/vsphere-cns/).
 
 First up, I'll add a new tag called `tkg-storage-local` to the `nuchost-local` vSphere datastore that I want to use for storing Tanzu volumes:
-![Tag (and corresponding category) applied ](/storage_tag.png)
+![Tag (and corresponding category) applied ](storage_tag.png)
 
 Then I create a new vSphere Storage Policy called `tkg-storage-policy` which states that data covered by the policy should be placed on the datastore(s) tagged with `tkg-storage-local`:
-![My Tanzu storage policy](/storage_policy.png)
+![My Tanzu storage policy](storage_policy.png)
 
 So that's the vSphere side of things sorted; now to map that back to the Kubernetes side. For that, I'll need to define a Storage Class tied to the vSphere Storage profile so I drop these details into a new file called `vsphere-sc.yaml`:
 ```yaml
@@ -566,7 +566,7 @@ vsphere-demo-1   Bound    pvc-36cc7c01-a1b3-4c1c-ba0d-dff3fd47f93b   5Gi        
 ```
 
 And for bonus points, I can see that the container volume was created on the vSphere side:
-![Container Volume in vSphere](/container_volume_in_vsphere.png)
+![Container Volume in vSphere](container_volume_in_vsphere.png)
 
 So that's storage sorted. I'll clean up my test volume before moving on:
 ```bash
@@ -937,24 +937,24 @@ replicaset.apps/phpipam-www-769c95c68d    1         1         1       5m59s
 ```
 
 And I can point my browser to the `EXTERNAL-IP` associated with the `phpipam-www` service to see the initial setup page:
-![phpIPAM installation page](/phpipam_install_page.png)
+![phpIPAM installation page](phpipam_install_page.png)
 
 I'll click the **New phpipam installation** option to proceed to the next step:
-![Database initialization options](/phpipam_database_install_options.png)
+![Database initialization options](phpipam_database_install_options.png)
 
 I'm all for easy so I'll opt for **Automatic database installation**, which will prompt me for the credentials of an account with rights to create a new database within the MariaDB instance. I'll enter `root` and the password I used for the `MYSQL_ROOT_PASSWORD` variable above:
-![Automatic database install](/phpipam_automatic_database_install.png)
+![Automatic database install](phpipam_automatic_database_install.png)
 
 I click the **Install database** button and I'm then met with a happy success message saying that the `phpipam` database was successfully created.
 
 And that eventually gets me to the post-install screen, where I set an admin password and proceed to log in:
-![We made it to the post-install!](/phpipam_post_install.png)
+![We made it to the post-install!](phpipam_post_install.png)
 
 To create a new scan agent, I go to **Menu > Administration > Server management > Scan agents**.
-![Scan agents screen](/scan_agents.png)
+![Scan agents screen](scan_agents.png)
 
 And click the button to create a new one:
-![Creating a new agent](/create_new_agent.png)
+![Creating a new agent](create_new_agent.png)
 
 I'll copy the agent code and plug it into my `phpipam-agent.yaml` file:
 ```yaml
@@ -969,18 +969,18 @@ deployment.apps/phpipam-agent created
 ```
 
 The scan agent isn't going to do anything until it's assigned to a subnet though, so now I head to **Administration > IP related management > Sections**. phpIPAM comes with a few default sections and ranges and such defined so I'll delete those and create a new one that I'll call `Lab`.
-![Section management](/section_management.png)
+![Section management](section_management.png)
 
 Now I can create a new subnet within the `Lab` section by clicking the **Subnets** menu, selecting the `Lab` section, and clicking **+ Add subnet**.
-![Empty subnets menu](/subnets_empty.png)
+![Empty subnets menu](subnets_empty.png)
 
 I'll define the new subnet as `192.168.1.0/24`. Once I enable the option to *Check hosts status*, I'll then be able to specify my new `remote-agent` as the scanner for this subnet. 
-![Creating a new subnet](/creating_new_subnet.png)
-![A new (but empty) subnet](/new_subnet_pre_scan.png)
+![Creating a new subnet](creating_new_subnet.png)
+![A new (but empty) subnet](new_subnet_pre_scan.png)
 
 It shows the scanner associated with the subnet, but no data yet. I'll need to wait a few minutes for the first scan to kick off (at the five-minute interval I defined in the configuration).
-![](/five_minutes.gif)
-![Newly discovered IPs!](/newly-discovered_IPs.png)
+![](five_minutes.gif)
+![Newly discovered IPs!](newly-discovered_IPs.png)
 
 Woah, it actually works!
 

@@ -32,14 +32,14 @@ The TCE team has created a [rather detailed guide](https://tanzucommunityedition
 [^packages]: Per VMware, "Pinniped provides the authentication service, which uses Dex to connect to identity providers such as Active Directory."
 ### Prequisite
 In order to put the "Secure" in LDAPS, I need to make sure my Active Directory domain controller is configured for that, and that means also creating a Certificate Authority for issuing certificates. I followed the steps [here](http://vcloud-lab.com/entries/windows-2016-server-r2/configuring-secure-ldaps-on-domain-controller) to get this set up in my homelab. I can then point my browser to `http://win01.lab.bowdre.net/certsrv/certcarc.asp` to download the base64-encoded CA certificate since I'll need that later.
-![Downloading the CA cert](/download_ca_cert.png)
+![Downloading the CA cert](download_ca_cert.png)
 
 With that sorted, I'm ready to move on to creating a new TCE cluster with an LDAPS identity provider configured.
 ### Cluster creation
 The [cluster deployment steps](/tanzu-community-edition-k8s-homelab/#management-cluster) are very similar to what I did last time so I won't repeat all those instructions here. The only difference is that this time I don't skip past the Identity Management screen; instead, I'll select the LDAPS radio button and get ready to fill out the form.
 
 #### Identity management configuration
-![Identity Management section](/identity_management_1.png)
+![Identity Management section](identity_management_1.png)
 
 **LDAPS Identity Management Source**
 | Field | Value | Notes |
@@ -66,13 +66,13 @@ The [cluster deployment steps](/tanzu-community-edition-k8s-homelab/#management-
 
 And I'll copy the contents of the base64-encoded CA certificate I downloaded earlier and paste them into the Root CA Certificate field.
 
-![Completed Identity Management section](/identity_management_2.png)
+![Completed Identity Management section](identity_management_2.png)
 
 Before moving on, I can use the **Verify LDAP Configuration** button to quickly confirm that the connection is set up correctly. (I discovered that it doesn't honor the attribute selections made on the previous screen so I have to search for my Common Name (`John Bowdre`) instead of my username (`john`), but this at least lets me verify that the connection and certificate are working correctly.)
-![LDAPS test](/ldaps_test.png)
+![LDAPS test](ldaps_test.png)
 
 I can then click through the rest of the wizard but (as before) I'll stop on the final review page. Despite entering everything correctly in the wizard I'll actually need to make a small edit to the deployment configuration YAML so I make a note of its location and copy it to a file called `tce-mgmt-deploy.yaml` in my working directory so that I can take a look.
-![Reviewing the cluster configuration file](/review_cluster_configuration.png)
+![Reviewing the cluster configuration file](review_cluster_configuration.png)
 
 #### Editing the cluster spec
 Remember that awkward `member:1.2.840.113556.1.4.1941:` attribute from earlier? Here's how it looks within the TCE cluster-defining YAML:
@@ -119,7 +119,7 @@ tanzu management-cluster create tce-mgmt -f tce-mgmt-deploy.yaml
 
 This will probably take 10-15 minutes to deploy so it's a great time to go top off my coffee.
 
-![Coffee break!](/coffee.gif)
+![Coffee break!](coffee.gif)
 
 
 And we're back - and with a friendly success message in the console:
@@ -288,10 +288,10 @@ After assuming the non-admin context, the next time I try to interact with the c
 ```
 
 But it will shortly spawn a browser page prompting me to log in:
-![Dex login prompt](/dex_login_prompt.png)
+![Dex login prompt](dex_login_prompt.png)
 
 Doing so successfully will yield:
-![Dex login success!](/dex_login_success.png)
+![Dex login success!](dex_login_success.png)
 
 And the `kubectl` command will return the expected details:
 ```bash
@@ -301,7 +301,7 @@ tce-mgmt-control-plane-v8l8r    Ready    control-plane,master   29h   v1.21.5+vm
 tce-mgmt-md-0-847db9ddc-5bwjs   Ready    <none>                 28h   v1.21.5+vmware.1
 ```
 
-![It's working!!! Holy crap, I can't believe it.](/its-working.gif)
+![It's working!!! Holy crap, I can't believe it.](its-working.gif)
 
 So I've now successfully logged in to the management cluster as a non-admin user with my Active Directory credentials. Excellent!
 
@@ -363,7 +363,7 @@ tce-work-md-0-bcfdc4d79-vn9xb   Ready    <none>                 11m   v1.21.5+vm
 ```
 
 Now I can *Do Work*!
-![Back to the grind](/cat-working.gif)
+![Back to the grind](cat-working.gif)
 
 {{% notice note "Create DHCP reservations for control plane nodes" %}}
 VMware [points out](https://tanzucommunityedition.io/docs/latest/verify-deployment/#configure-dhcp-reservations-for-the-control-plane-nodes-vsphere-only) that it's important to create DHCP reservations for the IP addresses which were dynamically assigned to the control plane nodes in both the management and workload clusters so be sure to take care of that before getting too involved in "Work".
