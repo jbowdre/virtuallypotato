@@ -30,8 +30,8 @@
       {{- if $centerLogo }}
         {{- partial "logo" (dict "logo" $logo "class" "nav_center") }}
       {{- end }}
-      <li class="nav_search">
-        {{- partial "search" . }}
+      <li class="search">
+        {{ partialCached "search/widget" . }}
       </li>
       {{- partialCached "follow" . }}
     </div>
