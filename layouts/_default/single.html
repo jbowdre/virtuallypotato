@@ -23,9 +23,9 @@
         <i>{{- T "old_content_note" -}}</i>
       </div>
     {{- end -}}
-    {{- if .Params.featureImage -}}
+    {{- with .Params.featureImage -}}
       <div class="post_featured">
-        {{- partial "image" (dict "file" .Params.featureImage "type" "featured") }}
+        {{- partial "image" (dict "file" . "type" "featured" "Page" $.Page) }}
       </div>
     {{- end -}}
     {{ if and (gt .WordCount 400 ) (gt (len .TableOfContents) 180) ($s.toc) }}
