@@ -8,7 +8,7 @@
 <footer class="footer">
   <div class="footer_inner wrap pale">
     <img src='{{ absURL (default $defaultFooterLogo $s.footerLogo) }}' class="icon icon_2 transparent" alt="{{ $t }}">
-    <p>{{ T "copyright" }}{{ with $s.since }}&nbsp;{{ . }}-{{ end }}&nbsp;<span class="year"></span>&nbsp;{{ $t }}. {{ T "all_rights" }}. {{ T "powered_by" }} <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com/chipzoller/hugo-clarity">Hugo Clarity theme</a>, {{ T "and" }} <a href="https://www.netlify.com/">Netlify</a>. <a href="https://github.com/jbowdre/virtuallypotato">{{ T "view_source" }}</a>.</p>
+    <p>{{ T "copyright" }}{{ with $s.since }}&nbsp;{{ . }}-{{ end }}&nbsp;<span class="year"></span>&nbsp;{{ $t }}. {{ T "all_rights" }}<a rel="me" href="https://counter.social/@john_b">.</a> {{ T "powered_by" }} <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com/chipzoller/hugo-clarity">Hugo Clarity theme</a>, {{ T "and" }} <a href="https://www.netlify.com/">Netlify</a>. <a href="https://github.com/jbowdre/virtuallypotato">{{ T "view_source" }}</a>.</p>
     {{- partialCached "top" .}}
   </div>
 </footer>
