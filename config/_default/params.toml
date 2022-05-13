@@ -32,13 +32,15 @@ toc = true
 timeless = false
 enableSearch = true
 
+## Comments
+comments = true
+utterances = true
+utterancesRepo = "jbowdre/virtuallypotato"
+utterancesIssueTerm = "title"
+utterancesTheme = "dark-blue"
+
 ## Website author
 [author]
   name = "John Bowdre"
   photo = "images/bio-photo.jpg" 
 
-## Comments
-comments = true
-utterancesRepo = "jbowdre/virtuallypotato"
-utterancesIssueTerm = "title"
-utterancesTheme = "dark-blue"
