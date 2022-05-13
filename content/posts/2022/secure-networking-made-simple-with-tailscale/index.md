@@ -184,16 +184,16 @@ Report:
 
 ### Tailscale management
 Now that the Tailscale client is installed on my devices and I've verified that they can talk to each other, it might be a good time to *log in* at [`login.tailscale.com`](https://login.tailscale.com/) to take a look at the Tailscale admin console.
-![Tailscale admin console](/admin_console.png)
+![Tailscale admin console](admin_console.png)
 
 #### Subnets and Exit Nodes
 See how the `vyos` node has little labels on it about "Subnets (!)" and "Exit Node (!)"? The exclamation marks are there because the node is *advertising* subnets and its exit node eligibility, but those haven't actually been turned on it. To enable the `vyos` node to function as a subnet router (for the `172.16.0.0/16` and `192.168.1.0/24` networks listed beneath its Tailscale IP) and as an exit node (for internet-bound traffic from other Tailscale nodes), I need to click on the little three-dot menu icon at the right edge of the row and select the "Edit route settings..." option.
-![The menu contains some other useful options too - we'll get to those!](/edit_menu.png)
+![The menu contains some other useful options too - we'll get to those!](edit_menu.png)
 
-![Edit route settings](/route_settings.png)
+![Edit route settings](route_settings.png)
 
 Now I can approve the subnet routes (individually or simultaneously and at the same time) and allow the node to route traffic to the internet as well[^exit_node].
-![Enabled the routes](/enabled_routes.png)
+![Enabled the routes](enabled_routes.png)
 
 Cool! But now that's giving me another warning...
 
@@ -202,26 +202,26 @@ Cool! But now that's giving me another warning...
 #### Key expiry
 By default, Tailscale [expires each node's encryption keys every 180 days](https://tailscale.com/kb/1028/key-expiry/). This improves security (particularly over vanilla WireGuard, which doesn't require any key rotation) but each node will need to reauthenticate (via `tailscale up`) in order to get a new key. It may not make sense to do that for systems acting as subnet routers or exit nodes since they would stop passing all Tailscale traffic once the key expires. That would also hurt for my cloud servers which are *only* accessible via Tailscale; if I can't log in through SSH (since it's blocked at the firewall) then I can't reauthenticate Tailscale to regain access. For those systems, I can click that three-dot menu again and select the "Disable key expiry" option. I tend to do this for my "always on" tailnet members and just enforce the key expiry for my "client" type devices which could potentially be physically lost or stolen.
 
-![Machine list showing enabled Subnet Router and Exit Node and disabled Key Expiry](/no_expiry.png)
+![Machine list showing enabled Subnet Router and Exit Node and disabled Key Expiry](no_expiry.png)
 
 #### Configuring DNS
 It's great that all my Tailscale machines can talk to each other directly by their respective Tailscale IP addresses, but who wants to keep up with IPs? I sure don't. Let's do some DNS. I'll start out by clicking on the [DNS](https://login.tailscale.com/admin/dns) tab in the admin console.
-![The DNS options](/dns_tab.png)
+![The DNS options](dns_tab.png)
 
 I need to add a Global Nameserver before I can enable MagicDNS so I'll click on the appropriate button to enter in the *Tailscale IP*[^dns_ip] of my home DNS server (which is using [NextDNS](https://nextdns.io/) as the upstream resolver). 
-![Adding a global name server](/add_global_ns.png)
+![Adding a global name server](add_global_ns.png)
 
 I'll also enable the toggle to "Override local DNS" to make sure all queries from connected clients are going through this server (and thus extend the NextDNS protection to all clients without having to configure them individually).
-![Overriding local DNS configuration](/override_local_dns.png)
+![Overriding local DNS configuration](override_local_dns.png)
 
 I can also define search domains to be used for unqualified DNS queries by adding another name server with the same IP address, enabling the "Restrict to search domain" option, and entering the desired domain:
-![Entering a search domain](/restrict_search_domain.png)
+![Entering a search domain](restrict_search_domain.png)
 
 This will let me resolve hostnames when connected remotely to my lab without having to type the domain suffix (ex, `vcsa` versus `vcsa.lab.bowdre.net`).
 
 And, finally, I can click the "Enable MagicDNS" button to turn on the magic. This adds a new nameserver with a private Tailscale IP which will resolve Tailscale hostnames to their internal IP addresses. 
 
-![MagicDNS Enabled!](/magicdns.png)
+![MagicDNS Enabled!](magicdns.png)
 
 
 Now I can log in to my Matrix server by simply typing `ssh matrix`. Woohoo!
@@ -257,13 +257,13 @@ I'm going to start by creating a group called `admins` and add myself to that gr
 ```
 
 Now I have two options for applying tags to devices. I can either do it from the admin console, or by passing the `--advertise-tags` flag to the `tailscale up` CLI command. I touched on the CLI approach earlier so I'll go with the GUI approach this time. It's simple - I just go back to the [Machines](https://login.tailscale.com/admin/machines) tab, click on the three-dot menu button for a machine, and select the "Edit ACL tags..." option.
-![Edit ACL tags](/acl_menu.png)
+![Edit ACL tags](acl_menu.png)
 
 I can then pick the tag (or tags!) I want to apply:
-![Selecting the tags](/selecting_tags.png)
+![Selecting the tags](selecting_tags.png)
 
 The applied tags have now replaced the owner information which was previously associated with each machine:
-![Tagged machines](/tagged_machines.png)
+![Tagged machines](tagged_machines.png)
 
 #### ACLs
 By default, Tailscale implements an implicit "Allow All" ACL. As soon as you start modifying the ACL, though, that switches to an implicit "Deny All". So I'll add new rules to explicitly state what communication should be permitted and everything else will be blocked.

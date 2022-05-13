@@ -30,15 +30,17 @@ numberOfRelatedPosts = 6
 numberOfFeaturedPosts = 4
 toc = true
 timeless = false
+enableSearch = true
+
+## Comments
+comments = true
+utterances = true
+utterancesRepo = "jbowdre/virtuallypotato"
+utterancesIssueTerm = "title"
+utterancesTheme = "dark-blue"
 
 ## Website author
 [author]
   name = "John Bowdre"
   photo = "images/bio-photo.jpg" 
 
-## Comments
-comments = true
-[utterances]
-  repo="jbowdre/virtuallypotato" # owner/repo where github comments will happen
-  issueterm="title" # how will the issues be mapped to the articles
-  theme="dark-blue" # theme to be applied to comments box

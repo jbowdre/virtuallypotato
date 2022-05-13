@@ -323,9 +323,9 @@ I'll do that with another scriptable task element, named `Apply new names`, whic
 
 {{% notice info "Binding a workflow output" %}}
 To easily create a new workflow output and bind it to a task's output, click the task's **Add New** option like usual:
-![](/add_new.png)
+![](add_new.png)
 Select **Output** at the top of the *New Variable* dialog and the complete the form with the other required details:
-![](/new_output_parameter.png)
+![](new_output_parameter.png)
 {{% /notice %}}
 
 

@@ -2,10 +2,21 @@
   publish = "public"
 
 [build.environment]
-  HUGO_VERSION = "0.89.4"
+  HUGO_VERSION = "0.96.0"
 
 [context.production]
   command = "hugo"
 
-[context.branch-deploy]
+[context.staging]
   command = "hugo --environment staging"
+  [[headers]]
+    for = "/*"
+    [headers.values]
+    X-Robots-Tag = "noindex"
+
+[context.drafts]
+  command = "hugo --environment drafts"
+  [[headers]]
+    for = "/*"
+    [headers.values]
+    X-Robots-Tag = "noindex"
