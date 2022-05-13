@@ -25,7 +25,7 @@
     {{- end -}}
     {{- with .Params.featureImage -}}
       <div class="post_featured">
-        {{- partial "image" (dict "file" . "type" "featured" "Page" $.Page) }}
+        {{- partial "image" (dict "file" $p.featureImage "alt" $p.featureImageAlt "cap" $p.featureImageCap "type" "featured" "Page" $.Page) }}
       </div>
     {{- end -}}
     {{ if and (gt .WordCount 400 ) (gt (len .TableOfContents) 180) ($s.toc) }}
