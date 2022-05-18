@@ -74,7 +74,7 @@ if (conflict) {
     System.log("Existing conflict found, skipping AD check...")
 } else {
     var result = System.getModule("net.bowdre.utility").checkForAdConflict(candidateVmName);
-    // remember this returns 'true' if a conflict is encounter
+    // remember this returns 'true' if a conflict is encountered
     if (result == true) {
         conflict = true;
         errMsg = "Conflicting AD object found!"
@@ -198,7 +198,7 @@ if (conflict) {
     System.log("Existing conflict found, skipping DNS check...")
 } else {
     if (System.resolveHostName(candidateVmName + "." + domain)) {
-        conflict == true;
+        conflict = true;
         errMsg = "Conflicting DNS record found!"
         System.warn(errMsg)
         throw(errMsg)
