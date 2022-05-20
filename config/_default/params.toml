@@ -7,7 +7,7 @@ since = 2018
 
 ## Logos & icons
 fallBackOgImage = "logos/thumbnail.png"
-iconsDir = "images/icons/"
+iconsDir = "/icons/"
 centerLogo = false
 logo = "logos/logo.png"
 footerLogo = "logos/logo_footer.png"
