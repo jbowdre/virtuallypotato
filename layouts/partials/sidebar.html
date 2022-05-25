@@ -33,6 +33,14 @@
       <a href='{{ absLangURL (default "about/" $s.introURL) }}' class="button mt-1" role="button" title='{{ $r }}'>{{ $r }}</a>
       {{- end }}
     {{- end }}
+
+    {{ if .Site.Params.sidebardisclaimer }}
+    <div class="sidebardisclaimer"> 
+      <h2 class="mt-4">Disclaimer</h2> 
+      {{ .Site.Params.disclaimerText }}
+    </div> 
+  {{ end }}  
+
     {{- $relatedInSidebar := true }}
     {{- if eq $s.showRelatedInSidebar false }}
       {{ $relatedInSidebar = false }}
@@ -62,7 +70,7 @@
     <ul>
       {{- range . }}
       <li>
-        <a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title }}</a>
+        <a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title | markdownify }}</a>
       </li>
       {{- end }}
     </ul>
@@ -72,7 +80,7 @@
       {{- $recent := default 8 $s.numberOfRecentPosts }}
       {{- range first $recent $posts }}
       <li>
-        <a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title }}</a>
+        <a href="{{ .Permalink }}" class="nav-link" title="{{ .Title }}">{{ .Title | markdownify }}</a>
       </li>
       {{- end }}
     </ul>
