@@ -63,6 +63,7 @@ tags:
   - salt
   - security
   - serverless
+  - api
 comment: true # Disable comment if false.
 ---
 
