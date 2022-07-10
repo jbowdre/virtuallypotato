@@ -2,7 +2,6 @@ title = "Virtually Potato"
 baseurl = "https://virtuallypotato.com/"
 paginate = 15
 theme = ["hugo-cloak-email", "hugo-clarity"]
-enableEmoji = true
 DefaultContentLanguage = "en"
 
 [taxonomies]
