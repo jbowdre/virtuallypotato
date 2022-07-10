@@ -1,7 +1,7 @@
 ---
 title: "Secure Networking Made Simple with Tailscale" # Title of the blog post.
 date: 2022-01-01 # Date of post creation.
-# lastmod: 2021-12-29T15:13:11-06:00 # Date when last modified
+lastmod: 2022-07-10
 description: "Tailscale makes it easy to set up and manage a secure network by building a flexible control plane on top of a high-performance WireGuard VPN." # Description used for search engine.
 featured: true # Sets if post is a featured post, making appear on the home page side bar.
 # draft: true # Sets whether to render this page. Draft of true will not be rendered.
@@ -274,7 +274,7 @@ Each ACL rule consists of four named parts:
 3. `proto` - (optional) protocol for the traffic which should be permitted.
 4. `ports` - a list of destinations (and optional ports).
 
-So I'll add this to the top of my policy file[^latin_l]:
+So I'll add this to the top of my policy file:
 ```json
 {
   "acls": [
@@ -284,14 +284,8 @@ So I'll add this to the top of my policy file[^latin_l]:
       "users": ["tag:home"],
       "ports": [
         "tag:home:*",
-        "tag:cⅼoud:*"
+        "tag:cloud:*"
         ]
-    },
-    {
-      // cloud servers can only access other cloud servers
-      "action": "accept",
-      "users": ["tag:cloud"],
-      "ports": ["tag:cⅼoud:*"]
     },
     {
       // clients can access everything
@@ -307,7 +301,7 @@ This policy becomes active as soon as I click the Save button at the bottom of t
 
 Earlier I configured Tailscale to force all nodes to use my home DNS server for resolving all queries, and I just set an ACL which prevents my cloud servers from talking to my home servers... which includes the DNS server. I can think of two ways to address this:
 1. Re-register the servers by passing the `--accept-dns=false` flag to `tailscale up` so they'll ignore the DNS configured in the admin console.
-2. Add a new ACL rule to allow DNS traffic to reach the DNS server.
+2. Add a new ACL rule to allow DNS traffic to reach the DNS server from the cloud.
 
 Option 2 sounds better to me so that's what I'm going to do. Instead of putting an IP address directly into the ACL rule I'd rather use a hostname, and unfortunately the Tailscale host names aren't available within ACL rule declarations. But I can define a host alias in the policy to map a friendly name to the IP:
 ```json
@@ -318,7 +312,7 @@ Option 2 sounds better to me so that's what I'm going to do. Instead of putting 
 }
 ```
 
-And I can then update the existing rule for `"users": ["tag:cloud"]` to add an exception for `win01:53`:
+And I can then create a new rule for `"users": ["tag:cloud"]` to add an exception for `win01:53`:
 ```json
 {
   "acls": [
@@ -327,7 +321,6 @@ And I can then update the existing rule for `"users": ["tag:cloud"]` to add an e
       "action": "accept",
       "users": ["tag:cloud"],
       "ports": [
-        "tag:cⅼoud:*",
         "win01:53"
       ]
     }
@@ -346,15 +339,14 @@ And that gets DNS working again for my cloud servers while still serving the res
       "users": ["tag:home"],
       "ports": [
         "tag:home:*",
-        "tag:cⅼoud:*"
+        "tag:cloud:*"
         ]
     },
     {
-      // cloud servers can only access other cloud servers plus my internal DNS server
+      // cloud servers can only access my internal DNS server
       "action": "accept",
       "users": ["tag:cloud"],
       "ports": [
-        "tag:cⅼoud:*",
         "win01:53"
       ]
     },      
@@ -378,8 +370,6 @@ And that gets DNS working again for my cloud servers while still serving the res
   }
 }
 ```
-
-[^latin_l]: Substituting a latin `ⅼ` in place of `l` to avoid code rendering as `"tag:cloud:*"`...
 
 ### Wrapping up
 This post has really only scratched the surface on the cool capabilities provided by Tailscale. I didn't even get into its options for [enabling HTTPS with valid certificates](https://tailscale.com/kb/1153/enabling-https/), [custom DERP servers](https://tailscale.com/kb/1118/custom-derp-servers/), [sharing tailnet nodes with other users](https://tailscale.com/kb/1084/sharing/), or [file transfer using Taildrop](https://tailscale.com/kb/1106/taildrop/). The [Next Steps](https://tailscale.com/kb/1017/install/#next-steps) section of the official Getting Started doc has some other cool ideas for Tailscale-powered use cases, and there are a ton more listed in the [Solutions](https://tailscale.com/kb/solutions/) and [Guides](https://tailscale.com/kb/guides/) categories as well.
