@@ -1,7 +1,7 @@
 ---
 title: "ESXi Arm Edition on the Quartz64 SBC" # Title of the blog post.
 date: 2022-04-23 # Date of post creation.
-# lastmod: 2022-03-02T19:37:47-06:00 # Date when last modified
+lastmod: 2022-07-21
 description: "Getting started with the experimental ESXi Arm Edition fling to run a VMware hypervisor on the PINE64 Quartz64 single-board computer, and installing a Tailscale node on Photon OS to facilitate improved remote access to my home network." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -25,6 +25,19 @@ tags:
   - vpn
 comment: true # Disable comment if false.
 ---
+{{% notice info "ESXi-ARM Fling v1.10 Update" %}}
+On July 20, 2022, VMware released a major update for the ESXi-ARM Fling. Among [other fixes and improvements](https://flings.vmware.com/esxi-arm-edition#changelog), this version enables **in-place ESXi upgrades** and [adds support for the Quartz64's **on-board NIC**](https://twitter.com/jmcwhatever/status/1549935971822706688). To update, I:
+1. Wrote the new ISO installer to another USB drive.
+2. Attached the installer drive to the USB hub, next to the existing ESXi drive.
+3. Booted the installer and selected to upgrade ESXi on the existing device.
+4. Powered-off post-install, unplugged the hub, and attached the ESXi drive directly to the USB2 port on the Quart64.
+5. Connected the ethernet cable to the onboard NIC.
+6. Booted to ESXi.
+7. Once booted, I used the DCUI to (re)configure the management network and activate the onboard network adapter.
+
+Now I've got directly-attached USB storage, and the onboard NIC provides gigabit connectivity. I've made a few tweaks to the rest of the article to reflect the lifting of those previous limitations.
+{{% /notice %}}
+
 Up until this point, [my homelab](/vmware-home-lab-on-intel-nuc-9/) has consisted of just a single Intel NUC9 ESXi host running a bunch of VMs. It's served me well but lately I've been thinking that it would be good to have an additional host for some of my workloads. In particular, I'd like to have a [Tailscale node](/secure-networking-made-simple-with-tailscale/) on my home network which _isn't_ hosted on the NUC so that I can patch ESXi remotely without cutting off my access. I appreciate the small footprint of the NUC so I'm not really interested in a large "grown-up" server at this time. So for now I thought it might be fun to experiment with [VMware's ESXi on ARM fling](https://flings.vmware.com/esxi-arm-edition) which makes it possible to run a full-fledged VMWare hypervisor on a Raspbery Pi.
 
 Of course, I decided to embark upon this project at a time when Raspberry Pis are basically impossible to get. So instead I picked up a [PINE64 Quartz64](https://wiki.pine64.org/wiki/Quartz64) single-board computer (SBC) which seems like a potentially very-capable piece of hardware.... but there is a prominent warning at the bottom of the [store page](https://pine64.com/product/quartz64-model-a-8gb-single-board-computer/):
@@ -34,15 +47,17 @@ Of course, I decided to embark upon this project at a time when Raspberry Pis ar
 {{% /notice %}}
 
 More specifically, for my use case there will be a number of limitations (at least for now - this SBC is still pretty new to the market so hopefully support will be improving further over time):
-- The onboard NIC is not supported by ESXi.
+- ~~The onboard NIC is not supported by ESXi.~~[^v1.10]
 - Onboard storage (via eMMC, eSATA, or PCIe) is not supported.
 - The onboard microSD slot is only used for loading firmware on boot, not for any other storage.
 - Only two (of the four) USB ports are documented to work reliably.
-- Of the remaining two ports, the lower USB3 port [shouldn't be depended upon either](https://wiki.pine64.org/wiki/Quartz64_Development#Confirmed_Broken) so I'm really just stuck with a single USB2 interface which will need to handle both networking and storage.[^usb3]
+- Of the remaining two ports, the lower USB3 port [shouldn't be depended upon either](https://wiki.pine64.org/wiki/Quartz64_Development#Confirmed_Broken) so I'm really just stuck with a single USB2 interface ~~which will need to handle both networking and storage~~[^v1.10].[^usb3]
 
 All that is to say that (as usual) I'll be embarking upon this project in Hard Mode - and I'll make it extra challenging (as usual) by doing all of the work from a Chromebook. In any case, here's how I managed to get ESXi running on the the Quartz64 SBC and then deploy a small workload.
 
 [^usb3]: Jared McNeill, the maintainer of the firmware image I'm using *just* [pushed a commit](https://github.com/jaredmcneill/quartz64_uefi/commit/4bda76e9fce5ed153ac49fa9d51ff34e5dd56d52) which sounds like it may address this flaky USB3 issue but that was after I had gotten everything else working as described below. I'll check that out once a new release gets published.
+
+[^v1.10]: Fixed in the v1.10 release.
 ### Bill of Materials
 Let's start with the gear (hardware and software) I needed to make this work:
 
@@ -55,13 +70,13 @@ Let's start with the gear (hardware and software) I needed to make this work:
 | [Sandisk 64GB Micro SD Memory Card](https://www.amazon.com/dp/B00M55C1I2) | only holds the firmware; a much smaller size would be fine |
 | [Monoprice USB-C MicroSD Reader](https://www.amazon.com/dp/B00YQM8352/) | to write firmware to the SD card from my Chromebook |
 | [Samsung MUF-256AB/AM FIT Plus 256GB USB 3.1 Drive](https://www.amazon.com/dp/B07D7Q41PM) | ESXi boot device and local VMFS datastore |
-| [Cable Matters 3 Port USB 3.0 Hub with Ethernet](https://www.amazon.com/gp/product/B01J6583NK) | for network connectivity and to host the above USB drive |
+| ~~[Cable Matters 3 Port USB 3.0 Hub with Ethernet](https://www.amazon.com/gp/product/B01J6583NK)~~ | ~~for network connectivity and to host the above USB drive~~[^v1.10] |
 | [3D-printed open enclosure for QUARTZ64](https://www.thingiverse.com/thing:5308499) | protect the board a little bit while allowing for plenty of passive airflow |
 
 | Downloads | Purpose |
 | --- | --- |
-| [ESXi ARM Edition](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=ESXI-ARM) (v1.9) | hypervisor |
-| [Tianocore EDK II firmware for Quartz64](https://github.com/jaredmcneill/quartz64_uefi/releases) (2022-04-16) | firmare image |
+| [ESXi ARM Edition](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=ESXI-ARM) (v1.10) | hypervisor |
+| [Tianocore EDK II firmware for Quartz64](https://github.com/jaredmcneill/quartz64_uefi/releases) (2022-07-20) | firmare image |
 | [Chromebook Recovery Utility](https://chrome.google.com/webstore/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm) | easy way to write filesystem images to external media |
 | [Beagle Term](https://chrome.google.com/webstore/detail/beagle-term/gkdofhllgfohlddimiiildbgoggdpoea) | for accessing the Quartz64 serial console |
 
@@ -69,7 +84,7 @@ Let's start with the gear (hardware and software) I needed to make this work:
 #### Firmware media
 The very first task is to write the required firmware image (download [here](https://github.com/jaredmcneill/quartz64_uefi/releases)) to a micro SD card. I used a 64GB card that I had lying around but you could easily get by with a *much* smaller one; the firmware image is tiny, and the card can't be used for storing anything else. Since I'm doing this on a Chromebook, I'll be using the [Chromebook Recovery Utility (CRU)](https://chrome.google.com/webstore/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm) for writing the images to external storage as described [in another post](/burn-an-iso-to-usb-with-the-chromebook-recovery-utility/).
 
-After downloading [`QUARTZ64_EFI.img.gz`](https://github.com/jaredmcneill/quartz64_uefi/releases/download/2022-04-16/QUARTZ64_EFI.img.gz), I need to get it into a format recognized by CRU and, in this case, that means extracting the gzipped archive and then compressing the `.img` file into a standard `.zip`:
+After downloading [`QUARTZ64_EFI.img.gz`](https://github.com/jaredmcneill/quartz64_uefi/releases/download/2022-07-20/QUARTZ64_EFI.img.gz), I need to get it into a format recognized by CRU and, in this case, that means extracting the gzipped archive and then compressing the `.img` file into a standard `.zip`:
 ```
 gunzip QUARTZ64_EFI.img.gz
 zip QUARTZ64_EFI.img.zip QUARTZ64_EFI.img
@@ -82,9 +97,9 @@ I can then write it to the micro SD card by opening CRU, clicking on the gear ic
 #### ESXi installation media
 I'll also need to prepare the ESXi installation media (download [here](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=ESXI-ARM)). For that, I'll be using a 256GB USB drive. Due to the limited storage options on the Quartz64, I'll be installing ESXi onto the same drive I use to boot the installer so, in this case, the more storage the better. By default, ESXi 7.0 will consume up to 128GB for the new `ESX-OSData` partition; whatever is leftover will be made available as a VMFS datastore. That could be problematic given the unavailable/flaky USB support of the Quartz64. (While you *can* install ESXi onto a smaller drive, down to about ~20GB, the lack of additional storage on this hardware makes it pretty important to take advantage of as much space as you can.)
 
-In any case, to make the downloaded `VMware-VMvisor-Installer-7.0.0-19546333.aarch64.iso` writeable with CRU all I need to do is add `.bin` to the end of the filename:
+In any case, to make the downloaded `VMware-VMvisor-Installer-7.0-20133114.aarch64.iso` writeable with CRU all I need to do is add `.bin` to the end of the filename:
 ```
-mv VMware-VMvisor-Installer-7.0.0-19546333.aarch64.iso{,.bin}
+mv VMware-VMvisor-Installer-7.0-20133114.aarch64.iso{,.bin}
 ```
 
 Then it's time to write the image onto the USB drive:
@@ -123,7 +138,7 @@ I hit **Connect** and then connect the Quartz64's power supply. I watch as it lo
 
 ### Host creation
 #### ESXi install
-Now that I've got everything in order I can start the install. A lot of experimentation on my part confirmed the sad news about the USB ports: of the four USB ports, only the top-right USB2 port works reliably for me. So I connect my USB NIC+hub to that port, and plug in my 256GB drive to the hub. This isn't ideal from a performance aspect, of course, but slow storage is more useful than no storage. 
+Now that I've got everything in order I can start the install. A lot of experimentation on my part confirmed the sad news about the USB ports: of the four USB ports, only the top-right USB2 port works reliably for me. So I connect my ~~USB NIC+hub to that port, and plug in my 256GB drive to the hub~~[^v1.10] 256GB USB drive there. This isn't ideal from a performance aspect, of course, but slow storage is more useful than no storage. 
 
 On that note, remember what I mentioned earlier about how the ESXi installer would want to fill up ~128GB worth of whatever drive it targets? The ESXi ARM instructions say that you can get around that by passing the `autoPartitionOSDataSize` advanced option to the installer by pressing `[Shift] + O` in the ESXi bootloader, but the Quartz64-specific instructions say that you can't do that with this board since only the serial console is available... It turns out this is a (happy) lie. 
 
