@@ -30,7 +30,7 @@ numberOfRelatedPosts = 6
 numberOfFeaturedPosts = 4
 toc = true
 timeless = false
-enableSearch = true
+enableSearch = false
 
 ## Comments
 comments = true
