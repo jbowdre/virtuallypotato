@@ -8,7 +8,7 @@ showShare = false
 showReadTime = false
 timeless = true
 +++
-> XMPP is the [Extensible Messaging and Presence Protocol](https://xmpp.org/about/technology-overview/), a set of open technologies for instant messaging, presence, multi-party chat, voice and video calls, collaboration, lightweight middleware, content syndication, and generalized routing of XML data.
+> XMPP is the [eXtensible Messaging and Presence Protocol](https://xmpp.org/about/technology-overview/), a set of open technologies for instant messaging, presence, multi-party chat, voice and video calls, collaboration, lightweight middleware, content syndication, and generalized routing of XML data.
 
 ![:left](/logos/snikket.png)It is an open, proven, supported, and extensible standard. Practically speaking, this means that any number of XMPP client-and-server combinations can communicate successfully with any other combinations. I've chosen to use [Snikket](https://snikket.org/) which makes it easy to self-host your own server for truly-decentralized, federated, end-to-end encrypted communications which doesn't rely on servers run by unknown parties. 
 
