@@ -1,5 +1,5 @@
 ---
-title: "ESXi Arm Edition on the Quartz64 SBC" # Title of the blog post.
+title: "ESXi ARM Edition on the Quartz64 SBC" # Title of the blog post.
 date: 2022-04-23 # Date of post creation.
 lastmod: 2022-07-21
 description: "Getting started with the experimental ESXi Arm Edition fling to run a VMware hypervisor on the PINE64 Quartz64 single-board computer, and installing a Tailscale node on Photon OS to facilitate improved remote access to my home network." # Description used for search engine.
@@ -26,7 +26,7 @@ tags:
 comment: true # Disable comment if false.
 ---
 {{% notice info "ESXi-ARM Fling v1.10 Update" %}}
-On July 20, 2022, VMware released a major update for the ESXi-ARM Fling. Among [other fixes and improvements](https://flings.vmware.com/esxi-arm-edition#changelog), this version enables **in-place ESXi upgrades** and [adds support for the Quartz64's **on-board NIC**](https://twitter.com/jmcwhatever/status/1549935971822706688). To update, I:
+On July 20, 2022, VMware released a [major update](https://blogs.vmware.com/arm/2022/07/20/1-10/) for the ESXi-ARM Fling. Among [other fixes and improvements](https://flings.vmware.com/esxi-arm-edition#changelog), this version enables **in-place ESXi upgrades** and [adds support for the Quartz64's **on-board NIC**](https://twitter.com/jmcwhatever/status/1549935971822706688). To update, I:
 1. Wrote the new ISO installer to another USB drive.
 2. Attached the installer drive to the USB hub, next to the existing ESXi drive.
 3. Booted the installer and selected to upgrade ESXi on the existing device.
