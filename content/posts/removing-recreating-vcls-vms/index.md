@@ -32,4 +32,5 @@ Fortunately there's a somewhat-hidden way to disable (and re-enable) vCLS on a p
 [^off-and-on]: ![](off-and-on.gif)
 
 ### Find the cluster's domain ID
-It starts with determining the affected cluster's domain ID, which is very easy to do once you know where to look.
+It starts with determining the affected cluster's domain ID, which is very easy to do once you know where to look. Simply browse to the cluster object in your vSphere inventory, and look at the URL:
+
