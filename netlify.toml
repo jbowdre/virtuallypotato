@@ -15,7 +15,7 @@
     X-Robots-Tag = "noindex"
 
 [context.drafts]
-  command = "hugo --environment drafts"
+  command = "hugo --environment drafts -D"
   [[headers]]
     for = "/*"
     [headers.values]
