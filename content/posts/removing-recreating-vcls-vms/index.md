@@ -25,5 +25,11 @@ Way back in 2020, VMware released vSphere 7 Update 1 and introduced the new [vSp
 
 ![vCLS VM](vcls-vm.png)
 
-That's very cool, particularly in large continent-spanning environments or those which reach into multiple clouds, but it may not make sense to add those additional workloads in resource-constrained homelabs. And while the vCLS VMs are supposed to be automagically self-managed, sometimes things go a little wonky and that management fails to function correctly, which can negatively impact DRS.
+That's very cool, particularly in large continent-spanning environments or those which reach into multiple clouds, but it may not make sense to add those additional workloads in resource-constrained homelabs. And while the vCLS VMs are supposed to be automagically self-managed, sometimes things go a little wonky and that management fails to function correctly, which can negatively impact DRS. Recovering from such a scenario is complicated by the complete inability to manage the vCLS VMs through the vSphere UI.
 
+Fortunately there's a somewhat-hidden way to disable (and re-enable) vCLS on a per-cluster basis, and it's easy to do once you know the trick. This can help if you want to permanently disable vCLS (like in a lab environment) or if you just need to turn it off and on again[^off-and-on] to clean up and redeploy uncooperative agent VMs.
+
+[^off-and-on]: ![](off-and-on.gif)
+
+### Find the cluster's domain ID
+It starts with determining the affected cluster's domain ID, which is very easy to do once you know where to look.
