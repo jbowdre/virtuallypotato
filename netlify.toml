@@ -20,3 +20,10 @@
     for = "/*"
     [headers.values]
     X-Robots-Tag = "noindex"
+
+[context.vanilla]
+  command = "hugo --environment vanilla"
+  [[headers]]
+    for = "/*"
+    [headers.values]
+    X-Robots-Tag = "noindex"
