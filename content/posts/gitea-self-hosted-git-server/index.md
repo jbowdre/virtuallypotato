@@ -1,7 +1,7 @@
 ---
 title: "Gitea: Ultralight Self-Hosted Git Server" # Title of the blog post.
 date: 2022-07-22 # Date of post creation.
-# lastmod: 2022-07-04T14:05:02-05:00 # Date when last modified
+lastmod: 2022-07-27
 description: "Deploying the lightweight Gitea  Git server on Oracle Cloud's free Ampere Compute."
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -456,7 +456,7 @@ And after just a few moments, all the content from my GitHub repo shows up in my
 ![Mirrored repo](mirrored_repo.png)
 
 
-You might noticed that I unchecked the *Make Repository Private* option for this one, so feel free to browse the mirrored repo at https://git.bowdre.net/john/vrealize if you'd like to check out Gitea for yourself.
+You might noticed that I unchecked the *Make Repository Private* option for this one, so feel free to browse the mirrored repo at https://git.bowdre.net/vPotato/vrealize if you'd like to check out Gitea for yourself.
 
 #### Create a new repo
 The real point of this whole exercise was to sync my Obsidian vault to a Git server under my control, so it's time to create a place for that content to live. I'll go to the **+** menu again but this time select **New Repository**, and then enter the required information:
