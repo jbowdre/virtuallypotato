@@ -9,7 +9,7 @@
   <div class="footer_inner wrap pale">
     <img src='{{ absURL (default $defaultFooterLogo $s.footerLogo) }}' class="icon icon_2 transparent" alt="{{ $t }}">
     <p>{{ T "copyright" | markdownify }}{{ with $s.since }}&nbsp;{{ . }}-{{ end }}&nbsp;<span class="year"></span>&nbsp;{{ $t }}<a rel="me" href="https://counter.social/@john_b">.</a> {{ T "all_rights" | markdownify }}.
-    <br>{{ T "powered_by" | markdownify }} <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com/chipzoller/hugo-clarity">Hugo Clarity theme</a>, {{ T "and" | markdownify }} <a href="https://www.netlify.com/">Netlify</a>. <a href="https://withcabin.com/privacy/virtuallypotato.com">{{ T "privacy_friendly" | markdownify }}</a> <a href="https://go.vpota.to/analytics">{{ T "analytics_with" | markdownify }} Cabin</a>.
+    <br>{{ T "powered_by" | markdownify }} <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com/chipzoller/hugo-clarity">Hugo Clarity theme</a>, {{ T "and" | markdownify }} <a href="https://www.netlify.com/">Netlify</a>. {{ T "analytics_with" | markdownify }} <a href="https://withcabin.com/privacy/virtuallypotato.com">Cabin</a>.
     <br><a href="https://github.com/jbowdre/virtuallypotato">{{ T "view_source" | markdownify }}</a>.</p>
     {{- partialCached "top" .}}
   </div>
