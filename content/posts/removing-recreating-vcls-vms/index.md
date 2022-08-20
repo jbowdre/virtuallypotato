@@ -1,7 +1,7 @@
 ---
 title: "Removing and Recreating vCLS VMs" # Title of the blog post.
 date: 2022-07-24
-# lastmod: 2022-07-23T16:25:05-05:00 # Date when last modified
+lastmod: 2022-07-25 # Date when last modified
 description: "How to remove and (optionally) recreate the vSphere Clustering Services VMs" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -31,6 +31,10 @@ That's very cool, particularly in large continent-spanning environments or those
 [^esxi-arm]: Or when [running the ESXi-ARM Fling](/esxi-arm-on-quartz64/), where the vCLS VMs aren't able to be created and will just [fill up the Tasks list with failures](https://flings.vmware.com/esxi-arm-edition/bugs/1099).
 
 Fortunately there's a somewhat-hidden way to disable (and re-enable) vCLS on a per-cluster basis, and it's easy to do once you know the trick. This can help if you want to permanently disable vCLS (like in a lab environment) or if you just need to turn it off and on again[^off-and-on] to clean up and redeploy uncooperative agent VMs.
+
+{{% notice warning "Proceed at your own risk" %}}
+Disabling vCLS will break DRS, and could have other unintended side effects. Don't do this in prod if you can avoid it.
+{{% /notice %}}
 
 [^off-and-on]: ![](off-and-on.gif)
 

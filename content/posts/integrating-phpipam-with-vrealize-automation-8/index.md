@@ -1,6 +1,7 @@
 ---
 series: vRA8
 date: "2021-02-22T08:34:30Z"
+lastmod: 2022-07-25
 thumbnail: 7_QI-Ti8g.png
 usePageBundles: true
 tags:
@@ -119,8 +120,12 @@ We should also go ahead and create a Nameserver set so that phpIPAM will be able
 
 Okay, we're finally ready to start entering our subnets at **Administration > IP related management > Subnets**. For each one, I entered the Subnet in CIDR format, gave it a useful description, and associated it with my `Lab` section. I expanded the *VLAN* dropdown and used the *Add new VLAN* option to enter the corresponding VLAN information, and also selected the Nameserver I had just created.
 ![Entering the first subnet](-PHf9oUyM.png)
-I also enabled the options *Mark as pool*, *Check hosts status*, *Discover new hosts*, and *Resolve DNS names*.
+I also enabled the options ~~*Mark as pool*~~, *Check hosts status*, *Discover new hosts*, and *Resolve DNS names*.
 ![Subnet options](SR7oD0jsG.png)
+
+{{% notice info "Update" %}}
+Since releasing this integration, I've learned that phpIPAM intends for the `isPool` field to identify networks where the entire range (including the subnet and broadcast addresses) are available for assignment. As a result, I no longer recommend using that field. Instead, consider [creating a custom field](https://github.com/jbowdre/phpIPAM-for-vRA8/blob/main/docs/custom_field.md) for tagging networks for vRA availability.
+{{% /notice %}}
 
 I then used the *Scan subnets for new hosts* button to run a discovery scan against the new subnet. 
 ![Scanning for new hosts](4WQ8HWJ2N.png)
@@ -287,6 +292,10 @@ You'll notice that the form includes fields for Username, Password, and Hostname
    }
 }
 ```
+{{% notice info "Update" %}}
+Check out the [source on GitHub](https://github.com/jbowdre/phpIPAM-for-vRA8/blob/main/src/main/resources/endpoint-schema.json) to see how I adjusted the schema to support custom field input.
+{{% /notice %}}
+
 We've now got the framework in place so let's move on to the first operation we'll need to write. Each operation has its own subfolder under `./src/main/python/`, and each contains (among other things) a `requirements.txt` file which will tell Maven what modules need to be imported and a `source.py` file which is where the magic happens.
 
 ### Step 5: 'Validate Endpoint' action
@@ -417,6 +426,23 @@ subnets = requests.get(f'{subnet_uri}?filter_by=isPool&filter_value=1', headers=
 subnets = subnets.json()['data']
  ```
 I decided to add the extra `filter_by=isPool&filter_value=1` argument to the query so that it will only return subnets marked as a pool in phpIPAM. This way I can use phpIPAM for monitoring address usage on a much larger set of subnets while only presenting a handful of those to vRA.
+
+{{% notice info "Update" %}}
+I now filter for networks identified by the designated custom field like so:
+```python
+    # Request list of subnets
+    subnet_uri = f'{uri}/subnets/'
+    if enableFilter == "true":
+      queryFilter = f'filter_by={filterField}&filter_value={filterValue}'
+      logging.info(f"Searching for subnets matching filter: {queryFilter}")
+    else:
+      queryFilter = ''
+      logging.info(f"Searching for all known subnets")
+    ipRanges = []
+    subnets = requests.get(f'{subnet_uri}?{queryFilter}', headers=token, verify=cert)
+    subnets = subnets.json()['data']
+```
+{{% /notice %}}
 
 Now is a good time to consult [that white paper](https://docs.vmware.com/en/VMware-Cloud-services/1.0/ipam_integration_contract_reqs.pdf) to confirm what fields I'll need to return to vRA. That lets me know that I'll need to return `ipRanges` which is a list of `IpRange` objects. `IpRange` requires `id`, `name`, `startIPAddress`, `endIPAddress`, `ipVersion`, and `subnetPrefixLength` properties. It can also accept `description`, `gatewayAddress`, and `dnsServerAddresses` properties, among others. Some of these properties are returned directly by the phpIPAM API, but others will need to be computed on the fly. 
 
