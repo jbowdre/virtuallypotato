@@ -4,7 +4,7 @@ date: 2022-08-28 # Date of post creation.
 # lastmod: 2022-08-23T15:02:50-05:00 # Date when last modified
 description: "Save time and energy by using the VMware vSphere Diagnostic Tool to quickly investigate potential configuration problems in your VMware environment."
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
