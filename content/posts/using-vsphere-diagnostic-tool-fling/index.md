@@ -253,6 +253,7 @@ RESULT: [PASS]
    Root Account Check
 [PASS]  Root password never expires
 ```
+All better!
 
 ### Conclusion
 The vSphere Diagnostic Tool makes a great addition to your arsenal of troubleshooting skills and utilities. It makes it easy to troubleshoot errors which might occur in your vSphere environment, as well as to uncover dormant issues which could cause serious problems in the future. 
