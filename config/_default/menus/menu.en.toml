@@ -30,8 +30,8 @@
   weight = -100
 [[main]]
   parent = "Connect"
-  name = "Matrix"
-  url = "https://matrix.to/#/@john:bowdre.net"
+  name = "Session"
+  url = "/session/"
 [[main]]
   parent = "Connect"
   name = "XMPP"

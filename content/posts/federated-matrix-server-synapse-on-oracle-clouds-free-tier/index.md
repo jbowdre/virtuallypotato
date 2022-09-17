@@ -410,8 +410,6 @@ And that's it! I now have my own Matrix server, and I can use my new account for
 
 All in, I'm pretty pleased with how this little project turned out, and I learned quite a bit along the way. I'm tremendously impressed by Caddy's power and simplicity, and I look forward to using it more in future projects. 
 
-If you're on Matrix, hit me up: **[@john:bowdre.net](https://matrix.to/#/@john:bowdre.net)**
-
 ### Update: Updating
 After a while, it's probably a good idea to update both the Ubntu server and the Synapse container running on it. Updating the server itself is as easy as:
 ```sh

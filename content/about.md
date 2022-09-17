@@ -25,5 +25,5 @@ See what I've been up to on:
 - [CounterSocial](https://counter.social/@john_b)
 
 Securely chat with me via:
-- [Matrix](https://matrix.to/#/@john:bowdre.net)
 - [XMPP](/xmpp/)
+- [Session](/session/)
