@@ -1,8 +1,8 @@
 ---
-title: "Fixing VMWare Content Library Sync" # Title of the blog post.
-date: 2022-08-20T15:29:39-05:00 # Date of post creation.
-# lastmod: 2022-08-20T15:29:39-05:00 # Date when last modified
-description: "An rsync-based solution to improve how VMware Content Libraries synchronize OVF templates to remote locations." # Description used for search engine.
+title: "Trusting Private Ca Certs in Tce" # Title of the blog post.
+date: 2022-10-01T16:16:42-05:00 # Date of post creation.
+# lastmod: 2022-10-01T16:16:42-05:00 # Date when last modified
+description: "WHEREIN I explore creating posts with a Hugo Archetype" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: true # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
@@ -18,11 +18,53 @@ series: Tips # Projects, Scripts, vRA8
 tags:
   - vmware
   - linux
+  - vra
   - docker
+  - chromeos
+  - cloud
+  - javascript
+  - vro
+  - meta
   - shell
+  - homelab
+  - powershell
+  - vpn
   - automation
+  - crostini
+  - jekyll
+  - tasker
+  - windows
+  - abx
+  - android
+  - gcp
+  - hugo
+  - kubernetes
+  - logs
+  - powercli
+  - tanzu
+  - wireguard
+  - wsl
+  - 3dprinting
+  - activedirectory
+  - availability
+  - certs
+  - chat
+  - chrome
+  - cluster
   - containers
+  - homeassistant
+  - lcm
+  - networking
+  - nsx
+  - openssl
   - python
+  - regex
+  - rest
+  - salt
+  - security
+  - serverless
+  - api
 comment: true # Disable comment if false.
 ---
-VMware Content Libraries provide a convenient way to store and share content like VM and OVF templates, ISO images, and other files within virtualized environments.
+
+**Insert Lead paragraph here.**
