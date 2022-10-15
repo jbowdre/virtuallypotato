@@ -1,10 +1,10 @@
 ---
 title: "Upgrading a Standalone vSphere Host With esxcli" # Title of the blog post.
-date: 2022-10-14T07:19:24-05:00 # Date of post creation.
+date: 2022-10-15T07:19:24-05:00 # Date of post creation.
 # lastmod: 2022-10-14T07:19:24-05:00 # Date when last modified
-description: "Exploring the steps to manually upgrade a standalone host from ESXi 7 to ESXi 8 using the esxcli over an SSH connection." # Description used for search engine.
+description: "Using esxcli to upgrade a vSphere host from ESXi 7.x to 8.0." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
@@ -25,7 +25,7 @@ You may have heard that there's a new vSphere release out in the wild - [vSphere
 
 The other option for upgrading a host is using the `esxcli` command to apply an update from an offline bundle. It's a pretty easy solution (and can even be done remotely, such as when connected to [my homelab](/vmware-home-lab-on-intel-nuc-9) via the [Tailscale node running on my Quartz64 ESXi-ARM host](/esxi-arm-on-quartz64/#installing-tailscale)) *but I always forget the commands.*
 
-So here's quick note on how I upgraded my lone ESXi to the new ESXi 8 IA release so that maybe I'll remember how to do it next time and won't have to go [Neeva](https://neeva.com)'ing for the answer again.
+So here's quick note on how I upgraded my lone ESXi to the new ESXi 8 IA release so that maybe I'll remember how to do it next time and won't have to go [Neeva](https://neeva.com/search?q=upgrade%20standalone%20host)'ing for the answer again.
 
 ### 0: Download the offline bundle
 Downloading the Offline Bundle from [VMware Customer Connect](https://customerconnect.vmware.com/downloads/details?downloadGroup=ESXI800&productId=1345&rPId=95214) yields a file named `VMware-ESXi-8.0-20513097-depot.zip`.
@@ -80,3 +80,7 @@ reboot
 
 And then wait (oh-so-patiently) for the host to come back up.
 
+### 6. Resume normal operation
+Once the reboot is complete, log in to the host client to verify the upgrade was successful. You can then exit maintenance mode and start powering on the VMs again.
+
+The upgrade process took me about 20 minutes from start to finish, and now I'm ready to get on with exploring [what's new in vSphere 8](https://core.vmware.com/resource/whats-new-vsphere-8)!
