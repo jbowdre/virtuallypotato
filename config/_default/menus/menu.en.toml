@@ -38,10 +38,6 @@
   url = "/xmpp/"
 [[main]]
   parent = "Connect"
-  name = "Twitter"
-  url = "https://twitter.com/johndotbowdre"
-[[main]]
-  parent = "Connect"
   name = "GitHub"
   url = "https://github.com/jbowdre"
 [[main]]
@@ -59,10 +55,6 @@
   weight = 1
   url = "https://github.com/jbowdre"
 
-[[social]]
-  name = "twitter"
-  weight = 2
-  url = "https://twitter.com/johndotbowdre"
 
 [[social]]
   name = "rss"

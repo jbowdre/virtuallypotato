@@ -21,7 +21,6 @@ And in the free time I have left, I [game on Stadia](https://stadia.com/profile/
 
 See what I've been up to on:
 - [Polywork](https://john.bowdre.net)
-- [Twitter](https://twitter.com/johndotbowdre)
 - [CounterSocial](https://counter.social/@john_b)
 
 Securely chat with me via:
