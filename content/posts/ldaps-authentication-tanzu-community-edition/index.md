@@ -14,7 +14,7 @@ usePageBundles: true
 thumbnail: "ldaps_test.png" # Sets thumbnail image appearing inside card on homepage.
 shareImage: "ldaps_test.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
-series: Projects
+series: K8s on vSphere
 tags:
   - vmware
   - kubernetes
