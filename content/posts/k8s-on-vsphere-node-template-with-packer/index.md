@@ -14,7 +14,7 @@ usePageBundles: true
 # thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
-series: Projects 
+series: K8s on vSphere
 tags:
   - vmware
   - linux
@@ -22,7 +22,7 @@ tags:
   - automation
   - kubernetes
   - containers
-  - InfrastructureAsCode
+  - infrastructure-as-code
   - packer
 comment: true # Disable comment if false.
 ---
@@ -91,7 +91,7 @@ After quite a bit of experimentation, I've settled on a preferred way to organiz
 - `ubuntu-k8s.auto.pkrvars.hcl` assigns values to those variables. This is where most of the user-facing options will be configured, such as usernames, passwords, and environment settings. 
 - `ubuntu-k8s.pkr.hcl` is where the build process is actually described.
 
-Let's quickly run through that build process, and then we'll back up and examine some other components in detail.
+Let's quickly run through that build process, and then I'll back up and examine some other components in detail.
 
 ### `ubuntu-k8s.pkr.hcl`
 #### `packer` block
@@ -152,5 +152,1032 @@ locals {
 
 I'm also using this block and the built-in `templatefile()` function to insert build-specific variables the `cloud-init` template files (more on that in a bit).
 
+#### `source` block
+The `source` block tells the `vsphere-iso` how to connect to vSphere, what hardware specs to set on the VM, and what to do with the VM once the build has finished (convert it to template, export it to OVF, and so on). 
+
+You'll notice that most of this is just mapping user-defined variables (with the `var.` prefix) to properties used by `vsphere-iso`:
+
+```text
+//  BLOCK: source
+//  Defines the builder configuration blocks.
+
+source "vsphere-iso" "ubuntu-k8s" {
+
+  // vCenter Server Endpoint Settings and Credentials
+  vcenter_server        = var.vsphere_endpoint
+  username              = var.vsphere_username
+  password              = var.vsphere_password
+  insecure_connection   = var.vsphere_insecure_connection
+
+  // vSphere Settings
+  datacenter    = var.vsphere_datacenter
+  cluster       = var.vsphere_cluster
+  datastore     = var.vsphere_datastore
+  folder        = var.vsphere_folder
+
+  // Virtual Machine Settings
+  vm_name                   = var.vm_name
+  vm_version                = var.common_vm_version
+  guest_os_type             = var.vm_guest_os_type
+  firmware                  = var.vm_firmware
+  CPUs                      = var.vm_cpu_count
+  cpu_cores                 = var.vm_cpu_cores
+  CPU_hot_plug              = var.vm_cpu_hot_add
+  RAM                       = var.vm_mem_size
+  RAM_hot_plug              = var.vm_mem_hot_add
+  cdrom_type                = var.vm_cdrom_type
+  remove_cdrom              = var.common_remove_cdrom
+  disk_controller_type      = var.vm_disk_controller_type
+  storage {
+    disk_size               = var.vm_disk_size
+    disk_thin_provisioned   = var.vm_disk_thin_provisioned
+  }
+  network_adapters {
+    network                 = var.vsphere_network
+    network_card            = var.vm_network_card
+  }
+  tools_upgrade_policy      = var.common_tools_upgrade_policy
+  notes                     = local.build_description
+  configuration_parameters  = {
+    "devices.hotplug"       = "FALSE"
+  }
+
+  // Removable Media Settings
+  iso_url                   = var.iso_url
+  iso_paths                 = local.iso_paths
+  iso_checksum              = local.iso_checksum
+  cd_content                = local.data_source_content
+  cd_label                  = var.cd_label
+
+  // Boot and Provisioning Settings 
+  boot_order        = var.vm_boot_order
+  boot_wait         = var.vm_boot_wait
+  boot_command      = var.vm_boot_command
+  ip_wait_timeout   = var.common_ip_wait_timeout
+  shutdown_command  = local.shutdown_command
+  shutdown_timeout  = var.common_shutdown_timeout
+
+  // Communicator Settings and Credentials
+  communicator              = "ssh"
+  ssh_username              = var.build_username
+  ssh_password              = var.build_password
+  ssh_private_key_file      = local.ssh_private_key_file
+  ssh_clear_authorized_keys = var.build_remove_keys
+  ssh_port                  = var.communicator_port
+  ssh_timeout               = var.communicator_timeout
+
+  // Snapshot Settings
+  create_snapshot   = var.common_snapshot_creation
+  snapshot_name     = var.common_snapshot_name
+
+  // Template and Content Library Settings
+  convert_to_template   = var.common_template_conversion
+  dynamic "content_library_destination" {
+    for_each            = var.common_content_library_name != null ? [1] : []
+    content {
+      library           = var.common_content_library_name
+      description       = local.build_description
+      ovf               = var.common_content_library_ovf
+      destroy           = var.common_content_library_destroy
+      skip_import       = var.common_content_library_skip_export
+    }
+  }
+
+  // OVF Export Settings
+  dynamic "export" {
+    for_each            = var.common_ovf_export_enabled == true ? [1] : []
+    content {     
+      name              = var.vm_name
+      force             = var.common_ovf_export_overwrite
+      options           = [
+        "extraconfig"
+      ]
+      output_directory  = "${var.common_ovf_export_path}/${var.vm_name}"
+    }
+  }
+}
+```
+
+#### `build` block
+This block brings everything together and executes the build. It calls the `source.vsphere-iso.ubuntu-k8s` block defined above, and also ties in a few `file` and `shell` provisioners. `file` provisioners are used to copy files (like SSL CA certificates and SSH keys) into the VM, while the `shell` provisioners run commands and execute scripts. Those will be handy for the post-deployment configuration tasks, like updating and installing packages.
+
+```text
+//  BLOCK: build
+//  Defines the builders to run, provisioners, and post-processors.
+
+build {
+  sources = [
+    "source.vsphere-iso.ubuntu-k8s"
+  ]
+
+  provisioner "file" {
+    source      = "certs"
+    destination = "/tmp"
+  }
+
+  provisioner "file" {
+    source      = "packer_cache/ssh_private_key_packer.pem"
+    destination = "/home/${var.build_username}/.ssh/id_ed25519"
+  }
+
+  provisioner "shell" {
+    execute_command     = "export KUBEVERSION=${var.k8s_version}; bash {{ .Path }}"
+    expect_disconnect   = true
+    environment_vars    = [
+      "KUBEVERSION=${var.k8s_version}"
+    ]
+    scripts             = var.post_install_scripts
+  }
+
+  provisioner "shell" {
+    execute_command     = "bash {{ .Path }}"
+    scripts             = var.pre_final_scripts
+  }
+}
+```
+
+So you can see that the `ubuntu-k8s.pkr.hcl` file primarily focuses on the structure and form of the build, and it's written in such a way that it can be fairly easily adapted for building other types of VMs. I use the variables defined in the `pkrvars.hcl` file to really control the result of the build.
+
+### `variables.pkr.hcl`
+Before looking at the build-specific variable definitions, let's take a quick look at the variables I've told Packer that I intend to use. After all, Packer requires that variables be declared before they can be used.
+
+Most of these carry descriptions with them so I won't restate them outside of the code block here:
+
+```text
+/*
+    DESCRIPTION:
+    Ubuntu Server 20.04 LTS variables using the Packer Builder for VMware vSphere (vsphere-iso).
+*/
+
+//  BLOCK: variable
+//  Defines the input variables.
+
+// vSphere Credentials
+
+variable "vsphere_endpoint" {
+  type        = string
+  description = "The fully qualified domain name or IP address of the vCenter Server instance. (e.g. 'sfo-w01-vc01.sfo.rainpole.io')"
+}
+
+variable "vsphere_username" {
+  type        = string
+  description = "The username to login to the vCenter Server instance. (e.g. 'svc-packer-vsphere@rainpole.io')"
+  sensitive   = true
+}
+
+variable "vsphere_password" {
+  type        = string
+  description = "The password for the login to the vCenter Server instance."
+  sensitive   = true
+}
+
+variable "vsphere_insecure_connection" {
+  type        = bool
+  description = "Do not validate vCenter Server TLS certificate."
+  default     = true
+}
+
+// vSphere Settings
+
+variable "vsphere_datacenter" {
+  type        = string
+  description = "The name of the target vSphere datacenter. (e.g. 'sfo-w01-dc01')"
+}
+
+variable "vsphere_cluster" {
+  type        = string
+  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-cl01')"
+}
+
+variable "vsphere_datastore" {
+  type        = string
+  description = "The name of the target vSphere datastore. (e.g. 'sfo-w01-cl01-vsan01')"
+}
+
+variable "vsphere_network" {
+  type        = string
+  description = "The name of the target vSphere network segment. (e.g. 'sfo-w01-dhcp')"
+}
+
+variable "vsphere_folder" {
+  type        = string
+  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-fd-templates')"
+}
+
+// Virtual Machine Settings
+
+variable "vm_name" {
+  type        = string
+  description = "Name of the new VM to create."
+}
+
+variable "vm_guest_os_language" {
+  type        = string
+  description = "The guest operating system lanugage."
+  default     = "en_US"
+}
+
+variable "vm_guest_os_keyboard" {
+  type        = string
+  description = "The guest operating system keyboard input."
+  default     = "us"
+}
+
+variable "vm_guest_os_timezone" {
+  type        = string
+  description = "The guest operating system timezone."
+  default     = "UTC"
+}
+
+variable "vm_guest_os_family" {
+  type        = string
+  description = "The guest operating system family. Used for naming. (e.g. 'linux')"
+}
+
+variable "vm_guest_os_type" {
+  type        = string
+  description = "The guest operating system type, also know as guestid. (e.g. 'ubuntu64Guest')"
+}
+
+variable "vm_firmware" {
+  type        = string
+  description = "The virtual machine firmware. (e.g. 'efi-secure'. 'efi', or 'bios')"
+  default     = "efi-secure"
+}
+
+variable "vm_cdrom_type" {
+  type        = string
+  description = "The virtual machine CD-ROM type. (e.g. 'sata', or 'ide')"
+  default     = "sata"
+}
+
+variable "vm_cpu_count" {
+  type        = number
+  description = "The number of virtual CPUs. (e.g. '2')"
+}
+
+variable "vm_cpu_cores" {
+  type        = number
+  description = "The number of virtual CPUs cores per socket. (e.g. '1')"
+}
+
+variable "vm_cpu_hot_add" {
+  type        = bool
+  description = "Enable hot add CPU."
+  default     = true
+}
+
+variable "vm_mem_size" {
+  type        = number
+  description = "The size for the virtual memory in MB. (e.g. '2048')"
+}
+
+variable "vm_mem_hot_add" {
+  type        = bool
+  description = "Enable hot add memory."
+  default     = true
+}
+
+variable "vm_disk_size" {
+  type        = number
+  description = "The size for the virtual disk in MB. (e.g. '61440' = 60GB)"
+  default     = 61440
+}
+
+variable "vm_disk_controller_type" {
+  type        = list(string)
+  description = "The virtual disk controller types in sequence. (e.g. 'pvscsi')"
+  default     = ["pvscsi"]
+}
+
+variable "vm_disk_thin_provisioned" {
+  type        = bool
+  description = "Thin provision the virtual disk."
+  default     = true
+}
+
+variable "vm_disk_eagerly_scrub" {
+  type        = bool
+  description = "Enable VMDK eager scrubbing for VM."
+  default     = false
+}
+
+variable "vm_network_card" {
+  type        = string
+  description = "The virtual network card type. (e.g. 'vmxnet3' or 'e1000e')"
+  default     = "vmxnet3"
+}
+
+variable "common_vm_version" {
+  type        = number
+  description = "The vSphere virtual hardware version. (e.g. '19')"
+}
+
+variable "common_tools_upgrade_policy" {
+  type        = bool
+  description = "Upgrade VMware Tools on reboot."
+  default     = true
+}
+
+variable "common_remove_cdrom" {
+  type        = bool
+  description = "Remove the virtual CD-ROM(s)."
+  default     = true
+}
+
+// Template and Content Library Settings
+
+variable "common_template_conversion" {
+  type        = bool
+  description = "Convert the virtual machine to template. Must be 'false' for content library."
+  default     = false
+}
+
+variable "common_content_library_name" {
+  type        = string
+  description = "The name of the target vSphere content library, if used. (e.g. 'sfo-w01-cl01-lib01')"
+  default     = null
+}
+
+variable "common_content_library_ovf" {
+  type        = bool
+  description = "Export to content library as an OVF template."
+  default     = false
+}
+
+variable "common_content_library_destroy" {
+  type        = bool
+  description = "Delete the virtual machine after exporting to the content library."
+  default     = true
+}
+
+variable "common_content_library_skip_export" {
+  type        = bool
+  description = "Skip exporting the virtual machine to the content library. Option allows for testing / debugging without saving the machine image."
+  default     = false
+}
+
+// Snapshot Settings
+
+variable "common_snapshot_creation" {
+  type        = bool
+  description = "Create a snapshot for Linked Clones."
+  default     = false
+}
+
+variable "common_snapshot_name" {
+  type        = string
+  description = "Name of the snapshot to be created if create_snapshot is true."
+  default     = "Created By Packer"
+}
+
+// OVF Export Settings
+
+variable "common_ovf_export_enabled" {
+  type        = bool
+  description = "Enable OVF artifact export."
+  default     = false
+}
+
+variable "common_ovf_export_overwrite" {
+  type        = bool
+  description = "Overwrite existing OVF artifact."
+  default     = true
+}
+
+variable "common_ovf_export_path" {
+  type        = string
+  description = "Folder path for the OVF export."
+}
+
+// Removable Media Settings
+
+variable "common_iso_datastore" {
+  type        = string
+  description = "The name of the source vSphere datastore for ISO images. (e.g. 'sfo-w01-cl01-nfs01')"
+}
+
+variable "iso_url" {
+  type        = string
+  description = "The URL source of the ISO image. (e.g. 'https://artifactory.rainpole.io/.../os.iso')"
+}
+
+variable "iso_path" {
+  type        = string
+  description = "The path on the source vSphere datastore for ISO image. (e.g. 'iso/linux/ubuntu')"
+}
+
+variable "iso_file" {
+  type        = string
+  description = "The file name of the ISO image used by the vendor. (e.g. 'ubuntu-<version>-live-server-amd64.iso')"
+}
+
+variable "iso_checksum_type" {
+  type        = string
+  description = "The checksum algorithm used by the vendor. (e.g. 'sha256')"
+}
+
+variable "iso_checksum_value" {
+  type        = string
+  description = "The checksum value provided by the vendor."
+}
+
+variable "cd_label" {
+  type        = string
+  description = "CD Label"
+  default     = "cidata"
+}
+
+// Boot Settings
+
+variable "vm_boot_order" {
+  type        = string
+  description = "The boot order for virtual machines devices. (e.g. 'disk,cdrom')"
+  default     = "disk,cdrom"
+}
+
+variable "vm_boot_wait" {
+  type        = string
+  description = "The time to wait before boot."
+}
+
+variable "vm_boot_command" {
+  type        = list(string)
+  description = "The virtual machine boot command."
+  default     = []
+}
+
+variable "vm_shutdown_command" {
+  type        = string
+  description = "Command(s) for guest operating system shutdown."
+  default     = null
+}
+
+variable "common_ip_wait_timeout" {
+  type        = string
+  description = "Time to wait for guest operating system IP address response."
+}
+
+variable "common_shutdown_timeout" {
+  type        = string
+  description = "Time to wait for guest operating system shutdown."
+}
+
+// Communicator Settings and Credentials
+
+variable "build_username" {
+  type        = string
+  description = "The username to login to the guest operating system. (e.g. 'rainpole')"
+  sensitive   = true
+}
+
+variable "build_password" {
+  type        = string
+  description = "The password to login to the guest operating system."
+  sensitive   = true
+}
+
+variable "build_password_encrypted" {
+  type        = string
+  description = "The encrypted password to login the guest operating system."
+  sensitive   = true
+  default     = null
+}
+
+variable "build_key" {
+  type        = string
+  description = "The public key to login to the guest operating system."
+  sensitive   = true
+}
+
+variable "build_remove_keys" {
+  type        = bool
+  description = "If true, Packer will attempt to remove its temporary key from ~/.ssh/authorized_keys and /root/.ssh/authorized_keys"
+  default     = true
+}
+
+// Communicator Settings
+
+variable "communicator_port" {
+  type        = string
+  description = "The port for the communicator protocol."
+}
+
+variable "communicator_timeout" {
+  type        = string
+  description = "The timeout for the communicator protocol."
+}
+
+variable "communicator_insecure" {
+  type        = bool
+  description = "If true, do not check server certificate chain and host name"
+  default     = true
+}
+
+variable "communicator_ssl" {
+  type        = bool
+  description = "If true, use SSL"
+  default     = true
+}
+
+// Provisioner Settings
+
+variable "cloud_init_apt_packages" {
+  type        = list(string)
+  description = "A list of apt packages to install during the subiquity cloud-init installer."
+  default     = []
+}
+
+variable "cloud_init_apt_mirror" {
+  type        = string
+  description = "Sets the default apt mirror during the subiquity cloud-init installer."
+  default     = ""
+}
+
+variable "post_install_scripts" {
+  type        = list(string)
+  description = "A list of scripts and their relative paths to transfer and run after OS install."
+  default     = []
+}
+
+variable "pre_final_scripts" {
+  type        = list(string)
+  description = "A list of scripts and their relative paths to transfer and run before finalization."
+  default     = []
+}
+
+// Kubernetes Settings
+
+variable "k8s_version" {
+  type        = string
+  description = "Kubernetes version to be installed. Latest stable is listed at https://dl.k8s.io/release/stable.txt"
+  default     = "1.25.3"
+}
+```
+
+### `ubuntu-k8s.auto.pkrvars.hcl`
+Packer automatically knows to load variables defined in files ending in `*.auto.pkrvars.hcl`. Storing the variable values separately from the declarations in `variables.pkr.hcl` makes it easier to protect sensitive values. 
+
+So I'll start by telling Packer what credentials to use for connecting to vSphere, and what vSphere resources to deploy to:
+```text
+/*
+    DESCRIPTION:
+    Ubuntu Server 20.04 LTS Kubernetes node variables used by the Packer Plugin for VMware vSphere (vsphere-iso).
+*/
+
+// vSphere Credentials
+vsphere_endpoint            = "vcsa.lab.bowdre.net"
+vsphere_username            = "packer"
+vsphere_password            = "VMware1!"
+vsphere_insecure_connection = true
+
+// vSphere Settings
+vsphere_datacenter = "NUC Site"
+vsphere_cluster    = "nuc-cluster"
+vsphere_datastore  = "nuchost-local"
+vsphere_network    = "MGT-Home 192.168.1.0"
+vsphere_folder     = "_Templates"
+```
+
+I'll then describe the properties of the VM itself:
+```text
+// Guest Operating System Settings
+vm_guest_os_language = "en_US"
+vm_guest_os_keyboard = "us"
+vm_guest_os_timezone = "America/Chicago"
+vm_guest_os_family   = "linux"
+vm_guest_os_type = "ubuntu64Guest"
+
+// Virtual Machine Hardware Settings
+vm_name                   = "k8s-u2004"
+vm_firmware               = "efi-secure"
+vm_cdrom_type             = "sata"
+vm_cpu_count              = 2
+vm_cpu_cores              = 1
+vm_cpu_hot_add            = true
+vm_mem_size               = 2048
+vm_mem_hot_add            = true
+vm_disk_size              = 30720
+vm_disk_controller_type   = ["pvscsi"]
+vm_disk_thin_provisioned  = true
+vm_network_card           = "vmxnet3"
+common_vm_version           = 19
+common_tools_upgrade_policy = true
+common_remove_cdrom         = true
+```
+
+Then I'll configure Packer to convert the VM to a template once the build is finished:
+```text
+// Template and Content Library Settings
+common_template_conversion         = true
+common_content_library_name        = null
+common_content_library_ovf         = false
+common_content_library_destroy     = true
+common_content_library_skip_export = true
+
+// OVF Export Settings
+common_ovf_export_enabled   = false
+common_ovf_export_overwrite = true
+common_ovf_export_path      = ""
+```
+
+Next, I'll tell it where to find the Ubuntu 20.04 ISO I downloaded and placed on a datastore, along with the SHA256 checksum to confirm its integrity:
+```text
+// Removable Media Settings
+common_iso_datastore    = "nuchost-local"
+iso_url                 = null
+iso_path                = "_ISO"
+iso_file                = "ubuntu-20.04.5-live-server-amd64.iso"
+iso_checksum_type       = "sha256"
+iso_checksum_value      = "5035be37a7e9abbdc09f0d257f3e33416c1a0fb322ba860d42d74aa75c3468d4"
+```
+
+And then I'll specify the VM's boot device order, as well as the boot command that will be used for loading the `cloud-init` coniguration into the Ubuntu installer:
+```text
+// Boot Settings
+vm_boot_order       = "disk,cdrom"
+vm_boot_wait        = "4s"
+vm_boot_command = [
+    "<esc><wait>",
+    "linux /casper/vmlinuz --- autoinstall ds=\"nocloud\"",
+    "<enter><wait>",
+    "initrd /casper/initrd",
+    "<enter><wait>",
+    "boot",
+    "<enter>"
+  ]
+```
+
+Once the installer is booted and running, Packer will wait until the VM is available via SSH and then use these credentials to log in. (How will it be able to log in with those creds? We'll take a look at the `cloud-init` configuration in just a minute...)
+```text
+// Communicator Settings
+communicator_port       = 22
+communicator_timeout    = "20m"
+common_ip_wait_timeout  = "20m"
+common_shutdown_timeout = "15m"
+build_remove_keys       = false
+build_username          = "admin"
+build_password          = "VMware1!"
+build_key               = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOpLvpxilPjpCahAQxs4RQgv+Lb5xObULXtwEoimEBpA builder"
+```
+
+Finally, I'll create two lists of scripts that will be run on the VM once the OS install is complete. The `post_install_scripts` will be run immediately after the operating system installation. The `update-packages.sh` script will cause a reboot, and then the set of `pre_final_scripts` will do some cleanup and prepare the VM to be converted to a template. 
+
+The last bit of this file also designates the desired version of Kubernetes to be installed.
+```text
+// Provisioner Settings
+post_install_scripts = [
+  "scripts/wait-for-cloud-init.sh",
+  "scripts/cleanup-subiquity.sh",
+  "scripts/install-ca-certs.sh",
+  "scripts/disable-multipathd.sh",
+  "scripts/disable-release-upgrade-motd.sh",
+  "scripts/persist-cloud-init-net.sh",
+  "scripts/configure-sshd.sh",
+  "scripts/install-k8s.sh",
+  "scripts/update-packages.sh"
+]
+
+pre_final_scripts = [
+  "scripts/cleanup-cloud-init.sh",
+  "scripts/enable-vmware-customization.sh",
+  "scripts/zero-disk.sh",
+  "scripts/generalize.sh"
+]
+
+// Kubernetes Settings
+k8s_version = "1.25.3"
+```
+
+### `user-data.pkrtpl.hcl`
+Okay, so we've covered the Packer framework that creates the VM; now let's take a quick look at the `cloud-init` configuration that will allow the OS installation to proceed unattended. 
+
+See the bits that look `${ like_this }`? Those place-holders will take input from the [`locals` block of `ubuntu-k8s.pkr.hcl`](#locals-block) mentioned above. So that's how all the OS properties will get set, including the hostname, locale, LVM partition layout, username, password, and SSH key.
+
+```yaml
+#cloud-config
+autoinstall:
+  version: 1
+  early-commands:
+    - sudo systemctl stop ssh
+  locale: ${ vm_guest_os_language }
+  keyboard:
+    layout: ${ vm_guest_os_keyboard }
+  network:
+    network:
+      version: 2
+      ethernets:
+        mainif:
+          match:
+            name: e*
+          critical: true
+          dhcp4: true
+          dhcp-identifier: mac
+  ssh:
+    install-server: true
+    allow-pw: true
+%{ if length( apt_mirror ) > 0 ~}
+  apt:
+    primary:
+      - arches: [default]
+        uri: "${ apt_mirror }"
+%{ endif ~}
+%{ if length( apt_packages ) > 0 ~}
+  packages:
+%{ for package in apt_packages ~}
+    - ${ package }
+%{ endfor ~}
+%{ endif ~}
+  storage:
+    config:
+      - ptable: gpt
+        path: /dev/sda
+        wipe: superblock
+        type: disk
+        id: disk-sda
+      - device: disk-sda
+        size: 1024M
+        wipe: superblock
+        flag: boot
+        number: 1
+        grub_device: true
+        type: partition
+        id: partition-0
+      - fstype: fat32
+        volume: partition-0
+        label: EFIFS
+        type: format
+        id: format-efi
+      - device: disk-sda
+        size: 1024M
+        wipe: superblock
+        number: 2
+        type: partition
+        id: partition-1
+      - fstype: xfs
+        volume: partition-1
+        label: BOOTFS
+        type: format
+        id: format-boot
+      - device: disk-sda
+        size: -1
+        wipe: superblock
+        number: 3
+        type: partition
+        id: partition-2
+      - name: sysvg
+        devices:
+          - partition-2
+        type: lvm_volgroup
+        id: lvm_volgroup-0
+      - name: home
+        volgroup: lvm_volgroup-0
+        size: 4096M
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-home
+      - fstype: xfs
+        volume: lvm_partition-home
+        type: format
+        label: HOMEFS
+        id: format-home
+      - name: tmp
+        volgroup: lvm_volgroup-0
+        size: 3072M
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-tmp
+      - fstype: xfs
+        volume: lvm_partition-tmp
+        type: format
+        label: TMPFS
+        id: format-tmp
+      - name: var
+        volgroup: lvm_volgroup-0
+        size: 4096M
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-var
+      - fstype: xfs
+        volume: lvm_partition-var
+        type: format
+        label: VARFS
+        id: format-var
+      - name: log
+        volgroup: lvm_volgroup-0
+        size: 4096M
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-log
+      - fstype: xfs
+        volume: lvm_partition-log
+        type: format
+        label: LOGFS
+        id: format-log
+      - name: audit
+        volgroup: lvm_volgroup-0
+        size: 4096M
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-audit
+      - fstype: xfs
+        volume: lvm_partition-audit
+        type: format
+        label: AUDITFS
+        id: format-audit
+      - name: root
+        volgroup: lvm_volgroup-0
+        size: -1
+        wipe: superblock
+        type: lvm_partition
+        id: lvm_partition-root
+      - fstype: xfs
+        volume: lvm_partition-root
+        type: format
+        label: ROOTFS
+        id: format-root
+      - path: /
+        device: format-root
+        type: mount
+        id: mount-root
+      - path: /boot
+        device: format-boot
+        type: mount
+        id: mount-boot
+      - path: /boot/efi
+        device: format-efi
+        type: mount
+        id: mount-efi
+      - path: /home
+        device: format-home
+        type: mount
+        id: mount-home
+      - path: /tmp
+        device: format-tmp
+        type: mount
+        id: mount-tmp
+      - path: /var
+        device: format-var
+        type: mount
+        id: mount-var
+      - path: /var/log
+        device: format-log
+        type: mount
+        id: mount-log
+      - path: /var/log/audit
+        device: format-audit
+        type: mount
+        id: mount-audit
+  user-data:
+    package_upgrade: true
+    disable_root: true
+    timezone: ${ vm_guest_os_timezone }
+    hostname: ${ vm_guest_os_hostname }
+    users:
+      - name: ${ build_username }
+        passwd: "${ build_password }"
+        groups: [adm, cdrom, dip, plugdev, lxd, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+%{ if length( build_key ) > 0 ~}
+        ssh_authorized_keys:
+          - ${ build_key }
+%{ endif ~}
+```
+
+### `post_install_scripts`
+After the OS install is completed, the `shell` provisioner will connect to the VM through SSH and run through some tasks. Remember how I keep talking about this build being modular? That goes down to the scripts, too, so I can use individual pieces in other builds without needing to do a lot of tweaking.
+
+#### `wait-for-cloud-init.sh`
+This simply holds up the process until the `/var/lib/cloud//instance/boot-finished` file has been created, signifying the completion of the `cloud-init` process:
+```shell
+#!/bin/bash -eu
+echo '>> Waiting for cloud-init...'
+while [ ! -f /var/lib/cloud/instance/boot-finished ]; do 
+  sleep 1
+done
+```
+
+#### `cleanup-subiquity.sh`
+Next I clean up any network configs that may have been created during the install process:
+```shell
+#!/bin/bash -eu
+if [ -f /etc/cloud/cloud.cfg.d/99-installer.cfg ]; then 
+  sudo rm /etc/cloud/cloud.cfg.d/99-installer.cfg
+  echo 'Deleting subiquity cloud-init config'
+fi
+
+if [ -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg ]; then 
+  sudo rm /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+  echo 'Deleting subiquity cloud-init network config'
+fi
+```
+
+#### `install-ca-certs.sh`
+The [`file` provisioner](#build-block) mentioned above helpfully copied my custom CA certs to the `/tmp/certs/` folder on the VM; this script will install them into the certificate store:
+```shell
+#!/bin/bash -eu
+echo '>> Installing custom certificates...'
+sudo cp /tmp/certs/* /usr/local/share/ca-certificates/
+cd /usr/local/share/ca-certificates/
+for file in *.cer; do
+  sudo mv -- "$file" "${file%.cer}.crt"
+done
+sudo /usr/sbin/update-ca-certificates
+```
+
+#### `disable-multipathd.sh`
+This disables `multipathd`:
+```shell
+#!/bin/bash -eu
+sudo systemctl disable multipathd
+echo 'Disabling multipathd'
+```
+
+#### `disable-release-upgrade-motd.sh`
+And this one disable the release upgrade notices that would otherwise be displayed upon each login:
+```shell
+#!/bin/bash -eu
+echo '>> Disabling release update MOTD...'
+sudo chmod -x /etc/update-motd.d/91-release-upgrade
+```
+
+#### `persist-cloud-init-net.sh`
+I want to make sure that this VM keeps the same IP address following the reboot that will come in a few minutes, so I 'll set a quick `cloud-init` option to help make sure that happens:
+```shell
+#!/bin/sh -eu
+echo '>> Preserving network settings...'
+echo 'manual_cache_clean: True' | sudo tee -a /etc/cloud/cloud.cfg
+```
+
+#### `configure-sshd.sh`
+Then I just set a few options for the `sshd` configuration, like disabling root login:
+
+```shell
+#!/bin/bash -eu
+echo '>> Configuring SSH'
+sudo sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/.*PubkeyAuthentication.*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+sudo sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+```
+
+#### `install-k8s.sh`
+This script is a little longer and takes care of all the Kubernetes-specific settings and packages that will need to be installed on the VM.
+
+First I make sure that the SSH key installed earlier gets the correct permissions applied, and then I enable the required `overlay` and `br_netfilter` modules:
+```shell
+#!/bin/bash -eu
+chmod 600 ~/.ssh/id_ed25519 
+
+echo ">> Installing Kubernetes components..."
+
+# Configure and enable kernel modules
+echo ".. configure kernel modules"
+cat << EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+```
 
 
+
+
+
+
+
+
+
+```shell
+# Configure networking
+echo ".. configure networking"
+cat << EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+
+sudo sysctl --system
+
+# Setup containerd
+echo ".. setup containerd"
+sudo apt-get update && sudo apt-get install -y containerd apt-transport-https jq
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo systemctl restart containerd
+
+# Disable swap
+echo ".. disable swap"
+sudo sed -i '/[[:space:]]swap[[:space:]]/ s/^\(.*\)$/#\1/g' /etc/fstab
+sudo swapoff -a
+
+# Install Kubernetes
+echo ".. install kubernetes version ${KUBEVERSION}"
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update && sudo apt-get install -y kubelet=${KUBEVERSION}-00 kubeadm=${KUBEVERSION}-00 kubectl=${KUBEVERSION}-00
+sudo apt-mark hold kubelet kubeadm kubectl
+```
