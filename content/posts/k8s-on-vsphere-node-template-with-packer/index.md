@@ -1302,4 +1302,6 @@ packer packer build -on-error=abort -force .
 
 The `-on-error=abort` option makes sure that the build will abort if any steps in the build fail, and `-force` tells Packer to delete any existing VMs/templates with the same name as the one I'm attempting to build.
 
-![Packer build session in the terminal](packer_terminal.jpg)
+![Packer build session in the terminal](packer_terminal_progress.jpg)
+
+![Packer build session complete!](packer_terminal_complete.jpg)
