@@ -11,7 +11,7 @@ usePageBundles: true
 # featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-# thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
+thumbnail: "thumbnail.jpg" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: K8s on vSphere
@@ -49,8 +49,18 @@ Packer is also extremely versatile, and a broad set of [external plugins](https:
 
 Sounds pretty cool, right? I'm not going to go too deep into "how to Packer" in this post, but HashiCorp does provide some [pretty good tutorials](https://developer.hashicorp.com/packer/tutorials) to help you get started.
 
+## Prerequisites
+Before being able to *use* Packer, you have to install it. You can learn how to do that on any system here:
+[Install Packer](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli)
+
+Packer will need a user account with sufficient privileges in the vSphere environment to be able to create and manage a VM. I'd recommend using an account dedicated to automation tasks, and assigning it the require privileges as described here:
+[Required vSphere Privileges](https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso#required-vsphere-privileges)
+
+
 ## Building my template
 I'll be using Ubuntu 20.04 LTS as the OS for my Kubernetes node template. I'll add in Kubernetes components like `containerd`, `kubectl`, `kubelet`, and `kubeadm`, and apply a few additional tweaks to get it fully ready.
+
+You can see the entirety of my Packer configuration [on GitHub](https://github.com/jbowdre/vsphere-k8s/tree/main/packer), but I'll talk through each file as we go along.
 
 ### File/folder layout
 After quite a bit of experimentation, I've settled on a preferred way to organize my Packer build files. I've found that this structure makes the builds modular enough that it's easy to reuse components in other builds, but still consolidated enough to be easily manageable. This layout is, of course, largely subjective - it's just what works well *for me*:
@@ -84,12 +94,12 @@ After quite a bit of experimentation, I've settled on a preferred way to organiz
 ```
 
 - The `certs` folder holds the Base64-encoded PEM-formatted certificate of my [internal Certificate Authority](/ldaps-authentication-tanzu-community-edition/#prequisite) which will be automatically installed in the provisioned VM's trusted certificate store. I could also include additional root or intermediate certificates as needed, just as long as the file names end in `*.cer` (we'll see why later).
-- The `data` folder stores files used for generating the `cloud-init` configuration that will be used for the OS installation and configuration.
+- The `data` folder stores files used for [generating the `cloud-init` configuration](#user-datapkrtplhcl) that will be used for the OS installation and configuration.
 - `packer_cache` keeps the SSH private key that Packer will use for logging in to the provisioned VM post-install.
-- The `scripts` directory holds a collection of scripts used for post-install configuration tasks. Sure, I could just use a single large script, but using a bunch of smaller ones helps keep things modular and easy to reuse elsewhere.
-- `variables.pkr.hcl` declares all of the variables which will be used in the Packer build, and sets the default values for some of them.
-- `ubuntu-k8s.auto.pkrvars.hcl` assigns values to those variables. This is where most of the user-facing options will be configured, such as usernames, passwords, and environment settings. 
-- `ubuntu-k8s.pkr.hcl` is where the build process is actually described.
+- The `scripts` directory holds a [collection of scripts](#post_install_scripts) used for post-install configuration tasks. Sure, I could just use a single large script, but using a bunch of smaller ones helps keep things modular and easy to reuse elsewhere.
+- `variables.pkr.hcl` declares [all of the variables](#variablespkrhcl) which will be used in the Packer build, and sets the default values for some of them.
+- `ubuntu-k8s.auto.pkrvars.hcl` [assigns values](#ubuntu-k8sautopkrvarshcl) to those variables. This is where most of the user-facing options will be configured, such as usernames, passwords, and environment settings. 
+- `ubuntu-k8s.pkr.hcl` is where the [build process](#ubuntu-k8spkrhcl) is actually described.
 
 Let's quickly run through that build process, and then I'll back up and examine some other components in detail.
 
@@ -297,6 +307,8 @@ build {
 ```
 
 So you can see that the `ubuntu-k8s.pkr.hcl` file primarily focuses on the structure and form of the build, and it's written in such a way that it can be fairly easily adapted for building other types of VMs. I use the variables defined in the `pkrvars.hcl` file to really control the result of the build.
+
+You can view the full file [here](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/ubuntu-k8s.pkr.hcl).
 
 ### `variables.pkr.hcl`
 Before looking at the build-specific variable definitions, let's take a quick look at the variables I've told Packer that I intend to use. After all, Packer requires that variables be declared before they can be used.
@@ -715,6 +727,8 @@ variable "k8s_version" {
 }
 ```
 
+The full `variables.pkr.hcl` can be viewed [here](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/variables.pkr.hcl).
+
 ### `ubuntu-k8s.auto.pkrvars.hcl`
 Packer automatically knows to load variables defined in files ending in `*.auto.pkrvars.hcl`. Storing the variable values separately from the declarations in `variables.pkr.hcl` makes it easier to protect sensitive values. 
 
@@ -848,6 +862,8 @@ pre_final_scripts = [
 // Kubernetes Settings
 k8s_version = "1.25.3"
 ```
+
+You can find an full example of this file [here](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/ubuntu-k8s.example.pkrvars.hcl).
 
 ### `user-data.pkrtpl.hcl`
 Okay, so we've covered the Packer framework that creates the VM; now let's take a quick look at the `cloud-init` configuration that will allow the OS installation to proceed unattended. 
@@ -1046,8 +1062,13 @@ autoinstall:
 %{ endif ~}
 ```
 
+View the full file [here](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/data/user-data.pkrtpl.hcl). (The `meta-data` file is [empty](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/data/meta-data), by the way.)
+
+
 ### `post_install_scripts`
 After the OS install is completed, the `shell` provisioner will connect to the VM through SSH and run through some tasks. Remember how I keep talking about this build being modular? That goes down to the scripts, too, so I can use individual pieces in other builds without needing to do a lot of tweaking.
+
+You can find all of the scripts [here](https://github.com/jbowdre/vsphere-k8s/tree/main/packer/scripts).
 
 #### `wait-for-cloud-init.sh`
 This simply holds up the process until the `/var/lib/cloud//instance/boot-finished` file has been created, signifying the completion of the `cloud-init` process:
@@ -1143,14 +1164,7 @@ sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
 
-
-
-
-
-
-
-
-
+Then I'll make some networking tweaks to enable forwarding and bridging:
 ```shell
 # Configure networking
 echo ".. configure networking"
@@ -1161,19 +1175,28 @@ net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 
 sudo sysctl --system
+```
 
+Next, set up `containerd` as the container runtime:
+```shell
 # Setup containerd
 echo ".. setup containerd"
 sudo apt-get update && sudo apt-get install -y containerd apt-transport-https jq
 sudo mkdir -p /etc/containerd
 sudo containerd config default | sudo tee /etc/containerd/config.toml
 sudo systemctl restart containerd
+```
 
+Then disable swap:
+```shell
 # Disable swap
 echo ".. disable swap"
 sudo sed -i '/[[:space:]]swap[[:space:]]/ s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
+```
 
+Next I'll install the Kubernetes components and (crucially) `apt-mark hold` them so they won't be automatically upgraded without it being a coordinated change:
+```shell
 # Install Kubernetes
 echo ".. install kubernetes version ${KUBEVERSION}"
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -1181,3 +1204,102 @@ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https:/
 sudo apt-get update && sudo apt-get install -y kubelet=${KUBEVERSION}-00 kubeadm=${KUBEVERSION}-00 kubectl=${KUBEVERSION}-00
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
+
+#### `update-packages.sh`
+Lastly, I'll be sure to update all installed packages (excepting the Kubernetes ones, of course), and then perform a reboot to make sure that any new kernel modules get loaded:
+```shell
+#!/bin/bash -eu
+echo '>> Checking for and installing updates...'
+sudo apt-get update && sudo apt-get -y upgrade
+echo '>> Rebooting!'
+sudo reboot
+```
+
+### `pre_final_scripts`
+After the reboot, all that's left are some cleanup tasks to get the VM ready to be converted to a template and subsequently cloned and customized.
+
+#### `cleanup-cloud-init.sh`
+I'll start with cleaning up the `cloud-init` state:
+```shell
+#!/bin/bash -eu
+echo '>> Cleaning up cloud-init state...'
+sudo cloud-init clean -l
+```
+
+#### `enable-vmware-customization.sh`
+And then be (re)enable the ability for VMware to be able to customize the guest successfully:
+```shell
+#!/bin/bash -eu
+echo '>> Enabling legacy VMware Guest Customization...'
+echo 'disable_vmware_customization: true' | sudo tee -a /etc/cloud/cloud.cfg
+sudo vmware-toolbox-cmd config set deployPkg enable-custom-scripts true
+```
+
+#### `zero-disk.sh`
+I'll also execute this handy script to free up unused space on the virtual disk. It works by creating a file which completely fills up the disk, and then deleting that file:
+```shell
+#!/bin/bash -eu
+echo '>> Zeroing free space to reduce disk size'
+sudo sh -c 'dd if=/dev/zero of=/EMPTY bs=1M || true; sync; sleep 1; sync'
+sudo sh -c 'rm -f /EMPTY; sync; sleep 1; sync'
+```
+
+#### `generalize.sh`
+Lastly, let's do a final run of cleaning up logs, temporary files, and unique identifiers that don't need to exist in a template:
+```shell
+#!/bin/bash -eu
+# Prepare a VM to become a template.
+
+echo '>> Clearing audit logs...'
+sudo sh -c 'if [ -f /var/log/audit/audit.log ]; then 
+  cat /dev/null > /var/log/audit/audit.log 
+  fi'
+sudo sh -c 'if [ -f /var/log/wtmp ]; then 
+  cat /dev/null > /var/log/wtmp
+  fi'
+sudo sh -c 'if [ -f /var/log/lastlog ]; then
+  cat /dev/null > /var/log/lastlog
+  fi'
+sudo sh -c 'if [ -f /etc/logrotate.conf ]; then
+  logrotate -f /etc/logrotate.conf 2>/dev/null
+  fi'
+sudo rm -rf /var/log/journal/*
+sudo rm -f /var/lib/dhcp/*
+sudo find /var/log -type f -delete
+
+echo '>> Clearing persistent udev rules...'
+sudo sh -c 'if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then
+  rm /etc/udev/rules.d/70-persistent-net.rules
+  fi'
+
+echo '>> Clearing temp dirs...'
+sudo rm -rf /tmp/*
+sudo rm -rf /var/tmp/*
+
+echo '>> Clearing host keys...'
+sudo rm -f /etc/ssh/ssh_host_*
+
+echo '>> Clearing machine-id...'
+sudo truncate -s 0 /etc/machine-id
+if [ -f /var/lib/dbus/machine-id ]; then
+  sudo rm -f /var/lib/dbus/machine-id
+  sudo ln -s /etc/machine-id /var/lib/dbus/machine-id
+fi
+
+echo '>> Clearing shell history...'
+unset HISTFILE
+history -cw
+echo > ~/.bash_history
+sudo rm -f /root/.bash_history
+```
+
+### Kick out the jams (or at least the build)
+Now that all the ducks are nicely lined up, let's give them some marching orders and see what happens. All I have to do is open a terminal session to the folder containing the `.pkr.hcl` files, and then run the Packer build command:
+
+```shell
+packer packer build -on-error=abort -force .
+```
+
+The `-on-error=abort` option makes sure that the build will abort if any steps in the build fail, and `-force` tells Packer to delete any existing VMs/templates with the same name as the one I'm attempting to build.
+
+![Packer build session in the terminal](packer_terminal.jpg)
