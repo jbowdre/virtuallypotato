@@ -269,7 +269,7 @@ source "vsphere-iso" "ubuntu-k8s" {
 ```
 
 #### `build` block
-This block brings everything together and executes the build. It calls the `source.vsphere-iso.ubuntu-k8s` block defined above, and also ties in a few `file` and `shell` provisioners. `file` provisioners are used to copy files (like SSL CA certificates and SSH keys) into the VM, while the `shell` provisioners run commands and execute scripts. Those will be handy for the post-deployment configuration tasks, like updating and installing packages.
+This block brings everything together and executes the build. It calls the `source.vsphere-iso.ubuntu-k8s` block defined above, and also ties in a `file` and a few `shell` provisioners. `file` provisioners are used to copy files (like SSL CA certificates) into the VM, while the `shell` provisioners run commands and execute scripts. Those will be handy for the post-deployment configuration tasks, like updating and installing packages.
 
 ```text
 //  BLOCK: build
@@ -283,11 +283,6 @@ build {
   provisioner "file" {
     source      = "certs"
     destination = "/tmp"
-  }
-
-  provisioner "file" {
-    source      = "packer_cache/ssh_private_key_packer.pem"
-    destination = "/home/${var.build_username}/.ssh/id_ed25519"
   }
 
   provisioner "shell" {
@@ -1146,11 +1141,9 @@ sudo sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/
 #### `install-k8s.sh`
 This script is a little longer and takes care of all the Kubernetes-specific settings and packages that will need to be installed on the VM.
 
-First I make sure that the SSH key installed earlier gets the correct permissions applied, and then I enable the required `overlay` and `br_netfilter` modules:
+First I enable the required `overlay` and `br_netfilter` modules:
 ```shell
 #!/bin/bash -eu
-chmod 600 ~/.ssh/id_ed25519 
-
 echo ">> Installing Kubernetes components..."
 
 # Configure and enable kernel modules
@@ -1300,8 +1293,18 @@ Now that all the ducks are nicely lined up, let's give them some marching orders
 packer packer build -on-error=abort -force .
 ```
 
+{{% notice info "Flags" %}}
 The `-on-error=abort` option makes sure that the build will abort if any steps in the build fail, and `-force` tells Packer to delete any existing VMs/templates with the same name as the one I'm attempting to build.
+{{% /notice %}}
 
+And off we go! Packer will output details as it goes which makes it easy to troubleshoot if anything goes wrong.
 ![Packer build session in the terminal](packer_terminal_progress.jpg)
 
+In this case, though, everything works just fine, and I'm met with a happy "success" message!
 ![Packer build session complete!](packer_terminal_complete.jpg)
+
+And I can pop over to vSphere to confirm that everything looks right:
+![The new template in vSphere](template_in_vsphere.png)
+
+## Next steps
+My brand new `k8s-u2004` template is ready for use! In the next post, I'll walk through the process of *manually* cloning this template to create my Kubernetes nodes, initializing the cluster, and installing the vSphere integrations. After that process is sorted out nicely, we'll take a look at how to use Terraform to do it all automagically. Stay tuned!
