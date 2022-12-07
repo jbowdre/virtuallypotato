@@ -32,7 +32,7 @@ There are a bunch of great projects for running Kubernetes in development/lab en
 
 So I set out to build my own! In the next couple of posts, I'll share the details of how I'm using Terraform to provision production-ready vanilla Kubernetes clusters on vSphere (complete with the vSphere Container Storage Interface plugin!) in a consistent and repeatable way. I also plan to document one of the ways I'm leveraging these clusters, which is using them as a part of a Gitlab CI/CD pipeline to churn out weekly VM template builds so I never again have to worry about my templates being out of date.
 
-I've learned a ton in the process (and still have a lot more to learn), but today I'll start simply by describing my approach to building a single VM template ready to enter service as a Kubernetes compute node.
+I've learned a ton in the process (and still have a lot more to learn), but today I'll start simply by describing how I'm leveraging Packer to create a single VM template ready to enter service as a Kubernetes compute node.
 
 ## What's Packer, and why?
 [HashiCorp Packer](https://www.packer.io/) is a free open-source tool designed to create consistent, repeatable machine images. It's pretty killer as a part of a CI/CD pipeline to kick off new builds based on a schedule or code commits, but also works great for creating builds on-demand. Packer uses the [HashiCorp Configuration Language (HCL)](https://developer.hashicorp.com/packer/docs/templates/hcl_templates) to describe all of the properties of a VM build in a concise and readable format. 
@@ -45,26 +45,34 @@ You might ask why I would bother with using a powerful tool like Packer if I'm j
 - **It's self-documenting.** The entire VM (and its guest OS) is described completely within the Packer HCL file(s), which I can review to remember which packages were installed, which user account(s) were created, what partition scheme was used, and anything else I might need to know.
 - **It supports change tracking.** A Packer build is just a set of HCL files so it's easy to sync them with a version control system like Git to track (and revert) changes as needed.
 
-Packer is also extremely versatile, and a broad set of [external plugins](https://developer.hashicorp.com/packer/plugins) expand its capabilities to support creating machines for basically any environment. For my needs, I'll be utilizing the [vsphere-iso](https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso) builder which uses the vSphere API to remotely build VMs directly in the environment.
+Packer is also extremely versatile, and a broad set of [external plugins](https://developer.hashicorp.com/packer/plugins) expand its capabilities to support creating machines for basically any environment. For my needs, I'll be utilizing the [vsphere-iso](https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso) builder which uses the vSphere API to remotely build VMs directly on the hypervisors.
 
 Sounds pretty cool, right? I'm not going to go too deep into "how to Packer" in this post, but HashiCorp does provide some [pretty good tutorials](https://developer.hashicorp.com/packer/tutorials) to help you get started.
 
 ## Prerequisites
-Before being able to *use* Packer, you have to install it. You can learn how to do that on any system here:
-[Install Packer](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli)
+### Install Packer
+Before being able to *use* Packer, you have to install it. On Debian/Ubuntu Linux, this process consists of adding the HashiCorp GPG key and software repository, and then simply installing the package:
+```shell
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install packer
+```
 
-Packer will need a user account with sufficient privileges in the vSphere environment to be able to create and manage a VM. I'd recommend using an account dedicated to automation tasks, and assigning it the require privileges as described here:
-[Required vSphere Privileges](https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso#required-vsphere-privileges)
+You can learn how to install Packer on other systems by following [this tutorial from HashiCorp](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli).
 
+### Configure privileges
+Packer will need a user account with sufficient privileges in the vSphere environment to be able to create and manage a VM. I'd recommend using an account dedicated to automation tasks, and assigning it the required privileges listed in [the `vsphere-iso` documentation](https://developer.hashicorp.com/packer/plugins/builders/vsphere/vsphere-iso#required-vsphere-privileges).
 
-## Building my template
-I'll be using Ubuntu 20.04 LTS as the OS for my Kubernetes node template. I'll add in Kubernetes components like `containerd`, `kubectl`, `kubelet`, and `kubeadm`, and apply a few additional tweaks to get it fully ready.
+### Gather installation media
+My Kubernetes node template will use Ubuntu 20.04 LTS as the OS so I'll go ahead and download the [server installer ISO](https://releases.ubuntu.com/20.04.5/) and upload it to a vSphere datastore to make it available to Packer. 
+
+## Template build
+After the OS is installed and minimimally configured, I'll need to add in Kubernetes components like `containerd`, `kubectl`, `kubelet`, and `kubeadm`, and then apply a few additional tweaks to get it fully ready.
 
 You can see the entirety of my Packer configuration [on GitHub](https://github.com/jbowdre/vsphere-k8s/tree/main/packer), but I'll talk through each file as we go along.
 
 ### File/folder layout
 After quite a bit of experimentation, I've settled on a preferred way to organize my Packer build files. I've found that this structure makes the builds modular enough that it's easy to reuse components in other builds, but still consolidated enough to be easily manageable. This layout is, of course, largely subjective - it's just what works well *for me*:
-
 ```
 .
 ├── certs
@@ -160,10 +168,10 @@ locals {
 }
 ```
 
-I'm also using this block and the built-in `templatefile()` function to insert build-specific variables the `cloud-init` template files (more on that in a bit).
+This block also makes use of the built-in [`templatefile()` function](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/functions/file/templatefile) to insert build-specific variables into the `user-data` file for [`cloud-init`](https://cloud-init.io/) (more on that in a bit).
 
 #### `source` block
-The `source` block tells the `vsphere-iso` how to connect to vSphere, what hardware specs to set on the VM, and what to do with the VM once the build has finished (convert it to template, export it to OVF, and so on). 
+The `source` block tells the `vsphere-iso` builder how to connect to vSphere, what hardware specs to set on the VM, and what to do with the VM once the build has finished (convert it to template, export it to OVF, and so on). 
 
 You'll notice that most of this is just mapping user-defined variables (with the `var.` prefix) to properties used by `vsphere-iso`:
 
@@ -301,7 +309,7 @@ build {
 }
 ```
 
-So you can see that the `ubuntu-k8s.pkr.hcl` file primarily focuses on the structure and form of the build, and it's written in such a way that it can be fairly easily adapted for building other types of VMs. I use the variables defined in the `pkrvars.hcl` file to really control the result of the build.
+So you can see that the `ubuntu-k8s.pkr.hcl` file primarily focuses on the structure and form of the build, and it's written in such a way that it can be fairly easily adapted for building other types of VMs. Very few things in this file would have to be changed since so many of the properties are derived from the variables.
 
 You can view the full file [here](https://github.com/jbowdre/vsphere-k8s/blob/main/packer/ubuntu-k8s.pkr.hcl).
 
@@ -323,12 +331,12 @@ Most of these carry descriptions with them so I won't restate them outside of th
 
 variable "vsphere_endpoint" {
   type        = string
-  description = "The fully qualified domain name or IP address of the vCenter Server instance. (e.g. 'sfo-w01-vc01.sfo.rainpole.io')"
+  description = "The fully qualified domain name or IP address of the vCenter Server instance. ('vcenter.lab.local')"
 }
 
 variable "vsphere_username" {
   type        = string
-  description = "The username to login to the vCenter Server instance. (e.g. 'svc-packer-vsphere@rainpole.io')"
+  description = "The username to login to the vCenter Server instance. ('packer')"
   sensitive   = true
 }
 
@@ -348,27 +356,27 @@ variable "vsphere_insecure_connection" {
 
 variable "vsphere_datacenter" {
   type        = string
-  description = "The name of the target vSphere datacenter. (e.g. 'sfo-w01-dc01')"
+  description = "The name of the target vSphere datacenter. ('Lab Datacenter')"
 }
 
 variable "vsphere_cluster" {
   type        = string
-  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-cl01')"
+  description = "The name of the target vSphere cluster. ('cluster-01')"
 }
 
 variable "vsphere_datastore" {
   type        = string
-  description = "The name of the target vSphere datastore. (e.g. 'sfo-w01-cl01-vsan01')"
+  description = "The name of the target vSphere datastore. ('datastore-01')"
 }
 
 variable "vsphere_network" {
   type        = string
-  description = "The name of the target vSphere network segment. (e.g. 'sfo-w01-dhcp')"
+  description = "The name of the target vSphere network. ('network-192.168.1.0')"
 }
 
 variable "vsphere_folder" {
   type        = string
-  description = "The name of the target vSphere cluster. (e.g. 'sfo-w01-fd-templates')"
+  description = "The name of the target vSphere folder. ('_Templates')"
 }
 
 // Virtual Machine Settings
@@ -396,36 +404,31 @@ variable "vm_guest_os_timezone" {
   default     = "UTC"
 }
 
-variable "vm_guest_os_family" {
-  type        = string
-  description = "The guest operating system family. Used for naming. (e.g. 'linux')"
-}
-
 variable "vm_guest_os_type" {
   type        = string
-  description = "The guest operating system type, also know as guestid. (e.g. 'ubuntu64Guest')"
+  description = "The guest operating system type. ('ubuntu64Guest')"
 }
 
 variable "vm_firmware" {
   type        = string
-  description = "The virtual machine firmware. (e.g. 'efi-secure'. 'efi', or 'bios')"
+  description = "The virtual machine firmware. ('efi-secure'. 'efi', or 'bios')"
   default     = "efi-secure"
 }
 
 variable "vm_cdrom_type" {
   type        = string
-  description = "The virtual machine CD-ROM type. (e.g. 'sata', or 'ide')"
+  description = "The virtual machine CD-ROM type. ('sata', or 'ide')"
   default     = "sata"
 }
 
 variable "vm_cpu_count" {
   type        = number
-  description = "The number of virtual CPUs. (e.g. '2')"
+  description = "The number of virtual CPUs. ('2')"
 }
 
 variable "vm_cpu_cores" {
   type        = number
-  description = "The number of virtual CPUs cores per socket. (e.g. '1')"
+  description = "The number of virtual CPUs cores per socket. ('1')"
 }
 
 variable "vm_cpu_hot_add" {
@@ -436,7 +439,7 @@ variable "vm_cpu_hot_add" {
 
 variable "vm_mem_size" {
   type        = number
-  description = "The size for the virtual memory in MB. (e.g. '2048')"
+  description = "The size for the virtual memory in MB. ('2048')"
 }
 
 variable "vm_mem_hot_add" {
@@ -447,13 +450,13 @@ variable "vm_mem_hot_add" {
 
 variable "vm_disk_size" {
   type        = number
-  description = "The size for the virtual disk in MB. (e.g. '61440' = 60GB)"
+  description = "The size for the virtual disk in MB. ('61440' = 60GB)"
   default     = 61440
 }
 
 variable "vm_disk_controller_type" {
   type        = list(string)
-  description = "The virtual disk controller types in sequence. (e.g. 'pvscsi')"
+  description = "The virtual disk controller types in sequence. ('pvscsi')"
   default     = ["pvscsi"]
 }
 
@@ -471,7 +474,7 @@ variable "vm_disk_eagerly_scrub" {
 
 variable "vm_network_card" {
   type        = string
-  description = "The virtual network card type. (e.g. 'vmxnet3' or 'e1000e')"
+  description = "The virtual network card type. ('vmxnet3' or 'e1000e')"
   default     = "vmxnet3"
 }
 
@@ -502,7 +505,7 @@ variable "common_template_conversion" {
 
 variable "common_content_library_name" {
   type        = string
-  description = "The name of the target vSphere content library, if used. (e.g. 'sfo-w01-cl01-lib01')"
+  description = "The name of the target vSphere content library, if used. ('Lab-CL')"
   default     = null
 }
 
@@ -561,27 +564,27 @@ variable "common_ovf_export_path" {
 
 variable "common_iso_datastore" {
   type        = string
-  description = "The name of the source vSphere datastore for ISO images. (e.g. 'sfo-w01-cl01-nfs01')"
+  description = "The name of the source vSphere datastore for ISO images. ('datastore-iso-01')"
 }
 
 variable "iso_url" {
   type        = string
-  description = "The URL source of the ISO image. (e.g. 'https://artifactory.rainpole.io/.../os.iso')"
+  description = "The URL source of the ISO image. ('https://releases.ubuntu.com/20.04.5/ubuntu-20.04.5-live-server-amd64.iso')"
 }
 
 variable "iso_path" {
   type        = string
-  description = "The path on the source vSphere datastore for ISO image. (e.g. 'iso/linux/ubuntu')"
+  description = "The path on the source vSphere datastore for ISO image. ('ISOs/Linux')"
 }
 
 variable "iso_file" {
   type        = string
-  description = "The file name of the ISO image used by the vendor. (e.g. 'ubuntu-<version>-live-server-amd64.iso')"
+  description = "The file name of the ISO image used by the vendor. ('ubuntu-20.04.5-live-server-amd64.iso')"
 }
 
 variable "iso_checksum_type" {
   type        = string
-  description = "The checksum algorithm used by the vendor. (e.g. 'sha256')"
+  description = "The checksum algorithm used by the vendor. ('sha256')"
 }
 
 variable "iso_checksum_value" {
@@ -599,7 +602,7 @@ variable "cd_label" {
 
 variable "vm_boot_order" {
   type        = string
-  description = "The boot order for virtual machines devices. (e.g. 'disk,cdrom')"
+  description = "The boot order for virtual machines devices. ('disk,cdrom')"
   default     = "disk,cdrom"
 }
 
@@ -634,7 +637,7 @@ variable "common_shutdown_timeout" {
 
 variable "build_username" {
   type        = string
-  description = "The username to login to the guest operating system. (e.g. 'rainpole')"
+  description = "The username to login to the guest operating system. ('admin')"
   sensitive   = true
 }
 
