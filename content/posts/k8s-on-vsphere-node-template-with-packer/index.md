@@ -757,7 +757,6 @@ I'll then describe the properties of the VM itself:
 vm_guest_os_language = "en_US"
 vm_guest_os_keyboard = "us"
 vm_guest_os_timezone = "America/Chicago"
-vm_guest_os_family   = "linux"
 vm_guest_os_type = "ubuntu64Guest"
 
 // Virtual Machine Hardware Settings
