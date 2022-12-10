@@ -4,24 +4,29 @@
   weight = -110
 
 [[main]]
+  name = "K8s on vSphere"
+  url = "series/k8s-on-vsphere/"
+  weight = -109
+
+[[main]]
   name = "vRA 8"
   url = "series/vra8/"
-  weight = -109
+  weight = -108
 
 [[main]]
   name = "Projects"
   url = "series/projects/"
-  weight = -108
+  weight = -107
 
 [[main]]
   name = "Scripts"
   url = "series/scripts"
-  weight = -107
+  weight = -106
 
 [[main]]
   name = "Tips"
   url = "series/tips/"
-  weight = -106
+  weight = -105
 
 # Submenus
 [[main]]
