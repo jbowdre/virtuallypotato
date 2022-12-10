@@ -4,7 +4,7 @@ date: 2022-12-10T17:00:00-06:00 # Date of post creation.
 # lastmod: 2022-12-03T10:41:17-08:00 # Date when last modified
 description: "Using HashiCorp Packer to automatically build Kubernetes node templates on vSphere." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
