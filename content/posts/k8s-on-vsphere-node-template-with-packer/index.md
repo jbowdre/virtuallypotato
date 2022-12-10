@@ -1,8 +1,8 @@
 ---
 title: "K8s on vSphere: Building a Node Template With Packer" # Title of the blog post.
-date: 2022-12-03T10:41:17-08:00 # Date of post creation.
+date: 2022-12-10T17:00:00-06:00 # Date of post creation.
 # lastmod: 2022-12-03T10:41:17-08:00 # Date when last modified
-description: "Using HashiCorp Packer to automatically build Kubernetes node templates" # Description used for search engine.
+description: "Using HashiCorp Packer to automatically build Kubernetes node templates on vSphere." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: true # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
@@ -80,8 +80,6 @@ After quite a bit of experimentation, I've settled on a preferred way to organiz
 ├── data
 │   ├── meta-data
 │   └── user-data.pkrtpl.hcl
-├── packer_cache
-│   └── ssh_private_key_packer.pem
 ├── scripts
 │   ├── cleanup-cloud-init.sh
 │   ├── cleanup-subiquity.sh
@@ -101,9 +99,8 @@ After quite a bit of experimentation, I've settled on a preferred way to organiz
 └── variables.pkr.hcl
 ```
 
-- The `certs` folder holds the Base64-encoded PEM-formatted certificate of my [internal Certificate Authority](/ldaps-authentication-tanzu-community-edition/#prequisite) which will be automatically installed in the provisioned VM's trusted certificate store. I could also include additional root or intermediate certificates as needed, just as long as the file names end in `*.cer` (we'll see why later).
-- The `data` folder stores files used for [generating the `cloud-init` configuration](#user-datapkrtplhcl) that will be used for the OS installation and configuration.
-- `packer_cache` keeps the SSH private key that Packer will use for logging in to the provisioned VM post-install.
+- The `certs` folder holds the Base64-encoded PEM-formatted certificate of my [internal Certificate Authority](/ldaps-authentication-tanzu-community-edition/#prequisite) which will be automatically installed in the provisioned VM's trusted certificate store. 
+- The `data` folder stores files for [generating the `cloud-init` configuration](#user-datapkrtplhcl) that will automate the OS installation and configuration.
 - The `scripts` directory holds a [collection of scripts](#post_install_scripts) used for post-install configuration tasks. Sure, I could just use a single large script, but using a bunch of smaller ones helps keep things modular and easy to reuse elsewhere.
 - `variables.pkr.hcl` declares [all of the variables](#variablespkrhcl) which will be used in the Packer build, and sets the default values for some of them.
 - `ubuntu-k8s.auto.pkrvars.hcl` [assigns values](#ubuntu-k8sautopkrvarshcl) to those variables. This is where most of the user-facing options will be configured, such as usernames, passwords, and environment settings. 
@@ -131,24 +128,32 @@ packer {
   }
 }
 ```
-As I mentioned above, I'll be using the official [`vsphere` plugin](https://github.com/hashicorp/packer-plugin-vsphere) to handle the provisioning on my vSphere environment. I'll also make use of the [`sshkey` plugin](https://github.com/ivoronin/packer-plugin-sshkey) to easily handle the SSH keys.
+As I mentioned above, I'll be using the official [`vsphere` plugin](https://github.com/hashicorp/packer-plugin-vsphere) to handle the provisioning on my vSphere environment. I'll also make use of the [`sshkey` plugin](https://github.com/ivoronin/packer-plugin-sshkey) to dynamically generate SSH keys for the build process.
+
+#### `data` block
+This section would be used for loading information from various data sources, but I'm only using it for the `sshkey` plugin (as mentioned above). 
+```text
+// BLOCK: data
+// Defines data sources.
+data "sshkey" "install" {
+  type = "ed25519"
+  name = "packer_key"
+}
+```
+
+This will generate an ECDSA keypair, and the public key will include the identifier `packer_key` to make it easier to manage later on. Using this plugin to generate keys means that I don't have to worry about storing a private key somewhere in the build directory.
 
 #### `locals` block
-Locals are a type of Packer variable which aren't explicitly declared in the `variables.pkr.hcl` file. They only exist within the context of a single build (hence the "local" name). Typical Packer variables are static and don't support string manipulation; locals, however, do support expressions that can be used to change their value on the fly. This makes them very useful when you need to combine variables (like a datastore name, path, filename) into a single string (such as in the highlighted line):
-
-```text {hl_lines=[13]}
+Locals are a type of Packer variable which aren't explicitly declared in the `variables.pkr.hcl` file. They only exist within the context of a single build (hence the "local" name). Typical Packer variables are static and don't support string manipulation; locals, however, do support expressions that can be used to change their value on the fly. This makes them very useful when you need to combine variables into a single string or concatenate lists of SSH public keys (such as in the highlighted lines):
+```text {hl_lines=[10,17]}
 //  BLOCK: locals
-//  Defines the local variables.
-data "sshkey" "install" {
-}
-
+//  Defines local variables.
 locals {
   ssh_public_key        = data.sshkey.install.public_key
   ssh_private_key_file  = data.sshkey.install.private_key_path
   build_tool            = "HashiCorp Packer ${packer.version}"
   build_date            = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
   build_description     = "Kubernetes Ubuntu 20.04 Node template\nBuild date: ${local.build_date}\nBuild tool: ${local.build_tool}"
-  shutdown_command      = "sudo -S -E shutdown -P now"
   iso_paths             = ["[${var.common_iso_datastore}] ${var.iso_path}/${var.iso_file}"]
   iso_checksum          = "${var.iso_checksum_type}:${var.iso_checksum_value}"
   data_source_content   = {
@@ -156,7 +161,7 @@ locals {
     "/user-data"            = templatefile("data/user-data.pkrtpl.hcl", {
       build_username        = var.build_username
       build_password        = bcrypt(var.build_password)
-      build_key             = var.build_key
+      ssh_keys              = concat([local.ssh_public_key], var.ssh_keys)
       vm_guest_os_language  = var.vm_guest_os_language
       vm_guest_os_keyboard  = var.vm_guest_os_keyboard
       vm_guest_os_timezone  = var.vm_guest_os_timezone
@@ -178,7 +183,6 @@ You'll notice that most of this is just mapping user-defined variables (with the
 ```text
 //  BLOCK: source
 //  Defines the builder configuration blocks.
-
 source "vsphere-iso" "ubuntu-k8s" {
 
   // vCenter Server Endpoint Settings and Credentials
@@ -232,13 +236,12 @@ source "vsphere-iso" "ubuntu-k8s" {
   boot_wait         = var.vm_boot_wait
   boot_command      = var.vm_boot_command
   ip_wait_timeout   = var.common_ip_wait_timeout
-  shutdown_command  = local.shutdown_command
+  shutdown_command  = var.vm_shutdown_command
   shutdown_timeout  = var.common_shutdown_timeout
 
   // Communicator Settings and Credentials
   communicator              = "ssh"
   ssh_username              = var.build_username
-  ssh_password              = var.build_password
   ssh_private_key_file      = local.ssh_private_key_file
   ssh_clear_authorized_keys = var.build_remove_keys
   ssh_port                  = var.communicator_port
@@ -282,7 +285,6 @@ This block brings everything together and executes the build. It calls the `sour
 ```text
 //  BLOCK: build
 //  Defines the builders to run, provisioners, and post-processors.
-
 build {
   sources = [
     "source.vsphere-iso.ubuntu-k8s"
@@ -304,9 +306,10 @@ build {
 
   provisioner "shell" {
     execute_command     = "bash {{ .Path }}"
+    expect_disconnect   = true
     scripts             = var.pre_final_scripts
   }
-}
+} 
 ```
 
 So you can see that the `ubuntu-k8s.pkr.hcl` file primarily focuses on the structure and form of the build, and it's written in such a way that it can be fairly easily adapted for building other types of VMs. Very few things in this file would have to be changed since so many of the properties are derived from the variables.
@@ -328,7 +331,6 @@ Most of these carry descriptions with them so I won't restate them outside of th
 //  Defines the input variables.
 
 // vSphere Credentials
-
 variable "vsphere_endpoint" {
   type        = string
   description = "The fully qualified domain name or IP address of the vCenter Server instance. ('vcenter.lab.local')"
@@ -353,7 +355,6 @@ variable "vsphere_insecure_connection" {
 }
 
 // vSphere Settings
-
 variable "vsphere_datacenter" {
   type        = string
   description = "The name of the target vSphere datacenter. ('Lab Datacenter')"
@@ -380,7 +381,6 @@ variable "vsphere_folder" {
 }
 
 // Virtual Machine Settings
-
 variable "vm_name" {
   type        = string
   description = "Name of the new VM to create."
@@ -496,7 +496,6 @@ variable "common_remove_cdrom" {
 }
 
 // Template and Content Library Settings
-
 variable "common_template_conversion" {
   type        = bool
   description = "Convert the virtual machine to template. Must be 'false' for content library."
@@ -528,7 +527,6 @@ variable "common_content_library_skip_export" {
 }
 
 // Snapshot Settings
-
 variable "common_snapshot_creation" {
   type        = bool
   description = "Create a snapshot for Linked Clones."
@@ -542,7 +540,6 @@ variable "common_snapshot_name" {
 }
 
 // OVF Export Settings
-
 variable "common_ovf_export_enabled" {
   type        = bool
   description = "Enable OVF artifact export."
@@ -561,7 +558,6 @@ variable "common_ovf_export_path" {
 }
 
 // Removable Media Settings
-
 variable "common_iso_datastore" {
   type        = string
   description = "The name of the source vSphere datastore for ISO images. ('datastore-iso-01')"
@@ -599,7 +595,6 @@ variable "cd_label" {
 }
 
 // Boot Settings
-
 variable "vm_boot_order" {
   type        = string
   description = "The boot order for virtual machines devices. ('disk,cdrom')"
@@ -634,11 +629,9 @@ variable "common_shutdown_timeout" {
 }
 
 // Communicator Settings and Credentials
-
 variable "build_username" {
   type        = string
   description = "The username to login to the guest operating system. ('admin')"
-  sensitive   = true
 }
 
 variable "build_password" {
@@ -654,10 +647,11 @@ variable "build_password_encrypted" {
   default     = null
 }
 
-variable "build_key" {
-  type        = string
-  description = "The public key to login to the guest operating system."
+variable "ssh_keys" {
+  type        = list(string)
+  description = "List of public keys to be added to ~/.ssh/authorized_keys."
   sensitive   = true
+  default     = []
 }
 
 variable "build_remove_keys" {
@@ -667,7 +661,6 @@ variable "build_remove_keys" {
 }
 
 // Communicator Settings
-
 variable "communicator_port" {
   type        = string
   description = "The port for the communicator protocol."
@@ -691,7 +684,6 @@ variable "communicator_ssl" {
 }
 
 // Provisioner Settings
-
 variable "cloud_init_apt_packages" {
   type        = list(string)
   description = "A list of apt packages to install during the subiquity cloud-init installer."
@@ -717,7 +709,6 @@ variable "pre_final_scripts" {
 }
 
 // Kubernetes Settings
-
 variable "k8s_version" {
   type        = string
   description = "Kubernetes version to be installed. Latest stable is listed at https://dl.k8s.io/release/stable.txt"
@@ -820,16 +811,20 @@ vm_boot_command = [
 ```
 
 Once the installer is booted and running, Packer will wait until the VM is available via SSH and then use these credentials to log in. (How will it be able to log in with those creds? We'll take a look at the `cloud-init` configuration in just a minute...)
+
 ```text
 // Communicator Settings
 communicator_port       = 22
 communicator_timeout    = "20m"
 common_ip_wait_timeout  = "20m"
 common_shutdown_timeout = "15m"
+vm_shutdown_command     = "sudo /usr/sbin/shutdown -P now"
 build_remove_keys       = false
 build_username          = "admin"
 build_password          = "VMware1!"
-build_key               = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOpLvpxilPjpCahAQxs4RQgv+Lb5xObULXtwEoimEBpA builder"
+ssh_keys                = [
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOpLvpxilPjpCahAQxs4RQgv+Lb5xObULXtwEoimEBpA builder"
+]
 ```
 
 Finally, I'll create two lists of scripts that will be run on the VM once the OS install is complete. The `post_install_scripts` will be run immediately after the operating system installation. The `update-packages.sh` script will cause a reboot, and then the set of `pre_final_scripts` will do some cleanup and prepare the VM to be converted to a template. 
@@ -865,7 +860,7 @@ You can find an full example of this file [here](https://github.com/jbowdre/vsph
 ### `user-data.pkrtpl.hcl`
 Okay, so we've covered the Packer framework that creates the VM; now let's take a quick look at the `cloud-init` configuration that will allow the OS installation to proceed unattended. 
 
-See the bits that look `${ like_this }`? Those place-holders will take input from the [`locals` block of `ubuntu-k8s.pkr.hcl`](#locals-block) mentioned above. So that's how all the OS properties will get set, including the hostname, locale, LVM partition layout, username, password, and SSH key.
+See the bits that look `${ like_this }`? Those place-holders will take input from the [`locals` block of `ubuntu-k8s.pkr.hcl`](#locals-block) mentioned above. So that's how all the OS properties will get set, including the hostname, locale, LVM partition layout, username, password, and SSH keys.
 
 ```yaml
 #cloud-config
@@ -1053,9 +1048,11 @@ autoinstall:
         lock-passwd: false
         sudo: ALL=(ALL) NOPASSWD:ALL
         shell: /bin/bash
-%{ if length( build_key ) > 0 ~}
+%{ if length( ssh_keys ) > 0 ~}
         ssh_authorized_keys:
-          - ${ build_key }
+%{ for ssh_key in ssh_keys ~}
+          - ${ ssh_key }
+%{ endfor ~}    
 %{ endif ~}
 ```
 
@@ -1196,7 +1193,7 @@ Next I'll install the Kubernetes components and (crucially) `apt-mark hold` them
 echo ".. install kubernetes version ${KUBEVERSION}"
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update && sudo apt-get install -y kubelet=${KUBEVERSION}-00 kubeadm=${KUBEVERSION}-00 kubectl=${KUBEVERSION}-00
+sudo apt-get update && sudo apt-get install -y kubelet="${KUBEVERSION}"-00 kubeadm="${KUBEVERSION}"-00 kubectl="${KUBEVERSION}"-00
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
@@ -1240,7 +1237,7 @@ sudo sh -c 'rm -f /EMPTY; sync; sleep 1; sync'
 ```
 
 #### `generalize.sh`
-Lastly, let's do a final run of cleaning up logs, temporary files, and unique identifiers that don't need to exist in a template:
+Lastly, let's do a final run of cleaning up logs, temporary files, and unique identifiers that don't need to exist in a template. This script will also remove the SSH key with the `packer_key` identifier since that won't be needed anymore.
 ```shell
 #!/bin/bash -eu
 # Prepare a VM to become a template.
@@ -1273,6 +1270,9 @@ sudo rm -rf /var/tmp/*
 
 echo '>> Clearing host keys...'
 sudo rm -f /etc/ssh/ssh_host_*
+
+echo '>> Removing Packer SSH key...'
+sed -i '/packer_key/d' ~/.ssh/authorized_keys
 
 echo '>> Clearing machine-id...'
 sudo truncate -s 0 /etc/machine-id
