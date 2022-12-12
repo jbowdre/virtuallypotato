@@ -1,5 +1,5 @@
 ---
-title: "K8s on vSphere: Building a Node Template With Packer" # Title of the blog post.
+title: "K8s on vSphere: Building a Kubernetes Node Template With Packer" # Title of the blog post.
 date: 2022-12-10T17:00:00-06:00 # Date of post creation.
 # lastmod: 2022-12-03T10:41:17-08:00 # Date when last modified
 description: "Using HashiCorp Packer to automatically build Kubernetes node templates on vSphere." # Description used for search engine.
@@ -26,13 +26,15 @@ tags:
   - packer
 comment: true # Disable comment if false.
 ---
-I've been leveraging the open-source Tanzu Community Edition Kubernetes distribution for a little while now, both [in my home lab](/tanzu-community-edition-k8s-homelab) and at work, so I was gutted by the news that VMware was [abandoning the project](https://github.com/vmware-tanzu/community-edition). TCE had been a pretty good fit for my needs, and now I needed to search for a replacement. VMware is offering a free version of Tanzu Kubernetes Grid as a replacement, but it comes with a license solely for non-commercial use so I wouldn't be able to use it at work. And I'd really like to use the same products in both environments to make development and testing easier on me.
+I've been leveraging the open-source Tanzu Community Edition Kubernetes distribution for a little while now, both [in my home lab](/tanzu-community-edition-k8s-homelab) and at work, so I was disappointed to learn that VMware was [abandoning the project](https://github.com/vmware-tanzu/community-edition). TCE had been a pretty good fit for my needs, and now I needed to search for a replacement. VMware is offering a free version of Tanzu Kubernetes Grid as a replacement, but it comes with a license solely for non-commercial use so I wouldn't be able to use it at work. And I'd really like to use the same solution in both environments to make development and testing easier on me.
 
 There are a bunch of great projects for running Kubernetes in development/lab environments, and others optimized for much larger enterprise environments, but I struggled to find a product that felt like a good fit for both in the way TCE was. My workloads are few and pretty simple so most enterprise K8s variants (Tanzu included) would feel like overkill, but I do need to ensure everything remains highly-available in the data centers at work.
 
-So I set out to build my own! In the next couple of posts, I'll share the details of how I'm using Terraform to provision production-ready vanilla Kubernetes clusters on vSphere (complete with the vSphere Container Storage Interface plugin!) in a consistent and repeatable way. I also plan to document one of the ways I'm leveraging these clusters, which is using them as a part of a Gitlab CI/CD pipeline to churn out weekly VM template builds so I never again have to worry about my templates being out of date.
+Plus, I thought it would be a fun learning experience to roll my own Kubernetes on vSphere!
 
-I've learned a ton in the process (and still have a lot more to learn), but today I'll start simply by describing how I'm leveraging Packer to create a single VM template ready to enter service as a Kubernetes compute node.
+In the next couple of posts, I'll share the details of how I'm using Terraform to provision production-ready vanilla Kubernetes clusters on vSphere (complete with the vSphere Container Storage Interface plugin!) in a consistent and repeatable way. I also plan to document one of the ways I'm leveraging these clusters, which is using them as a part of a Gitlab CI/CD pipeline to churn out weekly VM template builds so I never again have to worry about my templates being out of date.
+
+I have definitely learned a ton in the process (and still have a lot more to learn), but today I'll start by describing how I'm leveraging Packer to create a single VM template ready to enter service as a Kubernetes compute node.
 
 ## What's Packer, and why?
 [HashiCorp Packer](https://www.packer.io/) is a free open-source tool designed to create consistent, repeatable machine images. It's pretty killer as a part of a CI/CD pipeline to kick off new builds based on a schedule or code commits, but also works great for creating builds on-demand. Packer uses the [HashiCorp Configuration Language (HCL)](https://developer.hashicorp.com/packer/docs/templates/hcl_templates) to describe all of the properties of a VM build in a concise and readable format. 
