@@ -1,11 +1,11 @@
 ---
-title: "Tailscale on VMware Photon" # Title of the blog post.
+title: "Tailscale on VMware Photon OS" # Title of the blog post.
 date: 2022-12-14T10:21:12-06:00 # Date of post creation.
 # lastmod: 2022-12-14T10:21:12-06:00 # Date when last modified
 description: "How to manually install Tailscale on VMware's Photon OS - or any other systemd-based platform without official Tailscale packages." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
-toc: true # Controls if a table of contents should be generated for first-level links automatically.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
+toc: false # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
 # featureImage: "file.png" # Sets featured image on blog post.
