@@ -1,7 +1,7 @@
 ---
 title: "ESXi ARM Edition on the Quartz64 SBC" # Title of the blog post.
 date: 2022-04-23 # Date of post creation.
-lastmod: 2022-07-21
+lastmod: 2022-12-14
 description: "Getting started with the experimental ESXi Arm Edition fling to run a VMware hypervisor on the PINE64 Quartz64 single-board computer, and installing a Tailscale node on Photon OS to facilitate improved remote access to my home network." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -320,10 +320,8 @@ total 8
 
 Dealing with the binaries is straight-forward. I'll drop them into `/usr/bin/` and `/usr/sbin/` (respectively) and set the file permissions:
 ```bash
-sudo cp tailscale /usr/bin/
-sudo chmod 755 /usr/bin/tailscale
-sudo cp tailscaled /usr/sbin/
-sudo chmod 755 /usr/sbin/tailscaled
+sudo install -m 755 tailscale /usr/bin/
+sudo install -m 755 tailscaled /usr/sbin/
 ```
 
 Then I'll descend to the `systemd` folder and see what's up:
@@ -369,14 +367,12 @@ WantedBy=multi-user.target
 
 `tailscaled.defaults` contains the default configuration that will be referenced by the service, and `tailscaled.service` tells me that it expects to find it at `/etc/defaults/tailscaled`. So I'll copy it there and set the perms:
 ```bash
-sudo cp tailscaled.defaults /etc/defaults/tailscaled
-sudo chmod 644 /etc/defaults/tailscaled
+sudo install -m 644 tailscaled.defaults /etc/defaults/tailscaled
 ```
 
 `tailscaled.service` will get dropped in `/usr/lib/systemd/system/`:
 ```bash
-sudo cp tailscaled.service /usr/lib/systemd/system/
-sudo chmod 644 /usr/lib/systemd/system/tailscaled.service
+sudo install -m 644 tailscaled.service /usr/lib/systemd/system/
 ```
 
 Then I'll enable the service and start it:
