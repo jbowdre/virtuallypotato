@@ -1,11 +1,7 @@
 ---
 title: "Tailscale on VMware Photon OS" # Title of the blog post.
 date: 2022-12-14T10:21:12-06:00 # Date of post creation.
-<<<<<<< HEAD
-# lastmod: 2022-12-14T10:21:12-06:00 # Date when last modified
-=======
 lastmod: 2022-12-15T10:21:12-06:00 # Date when last modified
->>>>>>> main
 description: "How to manually install Tailscale on VMware's Photon OS - or any other systemd-based platform without official Tailscale packages." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -15,11 +11,7 @@ usePageBundles: true
 # featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-<<<<<<< HEAD
-# thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
-=======
 thumbnail: "Tailscale-AppIcon.png" # Sets thumbnail image appearing inside card on homepage.
->>>>>>> main
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Tips # Projects, Scripts, vRA8, K8s on vSphere
@@ -47,11 +39,7 @@ cd tailscale_1.34.1_arm64/
 ```shell
 sudo install -m 755 tailscale /usr/bin/
 sudo install -m 755 tailscaled /usr/sbin/
-<<<<<<< HEAD
-sudo install -m 644 systemd/tailscaled_defaults /etc/defaults/tailscaled
-=======
 sudo install -m 644 systemd/tailscaled.defaults /etc/default/tailscaled
->>>>>>> main
 sudo install -m 644 systemd/tailscaled.service /usr/lib/systemd/system/
 ```
 4. Start the service:
