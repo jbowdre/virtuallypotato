@@ -31,7 +31,7 @@ And these go links don't have to be simply static shortcuts; the system is able 
 Sounds great - but how do you actually make golink available on your tailnet? Well, here's what I did to deploy the [golink Docker image](https://github.com/tailscale/golink/pkgs/container/golink) on a [Photon OS VM I set up running on my Quartz64 running ESXi-ARM](/esxi-arm-on-quartz64/#workload-creation).
 
 ## Tailnet prep
-There are two things I'll need to do in the Tailscale admin portal before moving on.
+There are three things I'll need to do in the Tailscale admin portal before moving on.
 ### Create an ACL tag
 I assign ACL tags to devices in my tailnet based on their location and/or purpose, and I'm then able to use those in a policy to restrict access between certain devices. To that end, I'm going to create a new `tag:golink` tag for this purpose. Creating a new tag in Tailscale is really just going to the [Access Controls page of the admin console](https://login.tailscale.com/admin/acls) and editing the policy to specify a `tagOwner` who is permitted to assign the tag:
 ```text {hl_lines=[11]}
@@ -49,12 +49,31 @@ I assign ACL tags to devices in my tailnet based on their location and/or purpos
 	},
 ```
 
+### Configure ACL access
+This step is really only necessary since I've altered the default Tailscale ACL and prevent my nodes from communicating with each other unless specifically permitted. I want to make sure that everything on my tailnet can access golink:
+
+```text 
+"acls": [
+		{
+			// make golink accessible to everything
+			"action": "accept",
+			"users":  ["*"],
+			"ports": [
+				"tag:golink:80",
+			],
+		},
+  ...
+	],
+```
+
 ### Create an auth key
-The second task is to create a new authentication key that the golink container can use to log in to Tailscale since I won't be running `tailscale` interactively. This can easily be done from the [Settings page](https://login.tailscale.com/admin/settings/keys). I'll go ahead and set the key to expire in 1 day (since I'm going to use it in just a moment), make sure that the Epheral option is _disabled_ (since I don't want the new node to lose its authorization once it disconnects), and associate it with my new `tag:golink` tag.
+The last prerequisite task is to create a new authentication key that the golink container can use to log in to Tailscale since I won't be running `tailscale` interactively. This can easily be done from the [Settings page](https://login.tailscale.com/admin/settings/keys). I'll go ahead and set the key to expire in 1 day (since I'm going to use it in just a moment), make sure that the Epheral option is _disabled_ (since I don't want the new node to lose its authorization once it disconnects), and associate it with my new `tag:golink` tag.
 
 ![Creating a new auth key](create_auth_key.png)
 
-Applying that tag does two things for me: it makes it easy to manage access with the ACL policy file, and it automatically sets it so that the node's token won't automatically expire. Once it's auth'd and connected to my tailnet, it'll stay there.
+Applying that tag does two things for me: (1) it makes it easy to manage access with the ACL policy file edited above, and (2) it automatically sets it so that the node's token won't automatically expire. Once it's auth'd and connected to my tailnet, it'll stay there.
+
+After clicking the **Generate key** button, the key will be displayed. This is the only time it will be visible so be sure to copy it somewhere safe!
 
 
 ## Docker setup
@@ -63,7 +82,7 @@ The [golink repo](https://github.com/tailscale/golink) offers this command for r
 docker run -it --rm ghcr.io/tailscale/golink:main
 ```
 
-The doc also indicates that I can pass a Tailscale auth key to the golink service via the `TS_AUTHKEY` environment variable, and that all the configuration will be stored in `/home/nonroot` (which will be owned by uid/gid `65532`). I'll take this knowledge and use it to craft a `docker-compose.yml` to simplify container management.
+The doc also indicates that I can pass the auth key to the golink service via the `TS_AUTHKEY` environment variable, and that all the configuration will be stored in `/home/nonroot` (which will be owned by uid/gid `65532`). I'll take this knowledge and use it to craft a `docker-compose.yml` to simplify container management.
 
 ```shell
 mkdir -p golink/data
@@ -86,4 +105,4 @@ services:
       - './data:/home/nonroot'
 ```
 
-I'll need to create a new authentication key from the [Tailscale admin portal](https://login.tailscale.com/admin/settings/keys).
+
