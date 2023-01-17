@@ -99,10 +99,47 @@ services:
     container_name: golink
     restart: unless-stopped
     image: ghcr.io/tailscale/golink:main
-    environment:
-      - TS_AUTHKEY: MY_TS_AUTHKEY
     volumes:
       - './data:/home/nonroot'
+    environment:
+      - TS_AUTHKEY=MY_TS_AUTHKEY
 ```
+
+I can then start the container with `sudo docker-compose up -d`, and check the Tailscale admin console to see that the new machine was registered successfully:
+![Newly registered machine](registed_machine.png)
+
+And I can point a web browser to `go/` and see the (currently-empty) landing page:
+![Empty go page](empty_go_page.png)
+
+
+## Get go'ing
+Getting started with golink is pretty simple - just enter a shortname and a destination:
+![Creating a new link](create_new_link.png)
+
+So now when I enter `go/vcenter` it will automatically take me to the vCenter in my homelab. That's handy... but we can do better. You see, golink also supports Go template syntax, which allows it to behave a bit like those custom search engines I mentioned earlier. 
+
+I can go to `go/.detail/LINK_NAME` to edit the link, so I hit up `go/.detail/vcenter` and add a bit to the target URL:
+```
+https://vcsa.lab.bowdre.net/ui/{{with .Path}}app/search?query={{.}}&searchType=simple{{end}}
+```
+
+Now if I just enter `go/vcenter` I will go to the vSphere UI, while if I enter something like `go/vcenter/vm_name` I will instead be taken directly to the corresponding search results.
+
+Some of my other golinks:
+
+| Shortlink | Destination URL | Description |
+| --- | --- | --- |
+| `cs` | `https://github.com/search?type=code&q=user:jbowdre+{{with .Path}}+{{.}}{{end}}` | searches my code on Github |
+| `ipam` | `https://ipam.lab.bowdre.net/{{with .Path}}tools/search/{{.}}{{end}}` | searches my phpIPAM instance |
+
+
+## Back up and restore
+You can browse to `go/.export` to see a JSON-formatted listing of all configured shortcuts - or, if you're clever, you could do something like `curl http://go/.export -o links.json` to download a copy. 
+
+To restore, just pass `--snapshot /path/to/links.json` when starting golink. What I usually do is copy the file into the `data` folder that I'm mounting as a Docker volume, and then just run:
+```shell
+sudo docker exec -it golink /golink --sqlitedb /home/nonroot/golink.db --snapshot /home/nonroot/links.json
+```
+
 
 
