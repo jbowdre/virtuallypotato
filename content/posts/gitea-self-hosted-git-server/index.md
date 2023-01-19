@@ -1,7 +1,7 @@
 ---
 title: "Gitea: Ultralight Self-Hosted Git Server" # Title of the blog post.
 date: 2022-07-22 # Date of post creation.
-lastmod: 2022-07-27
+lastmod: 2023-01-19
 description: "Deploying the lightweight Gitea  Git server on Oracle Cloud's free Ampere Compute."
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -217,7 +217,7 @@ services:
       - GITEA__repository__DEFAULT_PRIVATE=private
       - GITEA__repository__DISABLE_HTTP_GIT=true
       - GITEA__server__DOMAIN=git.bowdre.net
-      - GITEA__server__SSH_DOMAIN=git.bowdre.net.beta.tailscale.net
+      - GITEA__server__SSH_DOMAIN=git.tadpole-jazz.ts.net
       - GITEA__server__ROOT_URL=https://git.bowdre.net/
       - GITEA__server__LANDING_PAGE=explore
       - GITEA__service__DISABLE_REGISTRATION=true
@@ -239,7 +239,7 @@ services:
       - db
 
   db:
-    image: postgres:latest
+    image: postgres:14
     container_name: gitea_db
     restart: always
     environment:
@@ -251,6 +251,9 @@ services:
     volumes:
       - ./postgres:/var/lib/postgresql/data
 ```
+{{% notice info "Pin the PostgreSQL version" %}}
+The format of PostgreSQL data changes with new releases, and that means that the data created by different major releases are not compatible. Unless you take steps to upgrade the data format, you'll have problems when a new major release of PostgreSQL arrives. Avoid the headache: pin this to a major version (as I did with `image: postgres:14` above) so you can upgrade on your terms.
+{{% /notice %}}
 
 Let's go through the extra configs in a bit more detail:
 | Variable setting | Purpose |
@@ -264,7 +267,7 @@ Let's go through the extra configs in a bit more detail:
 |`GITEA__repository__DEFAULT_PRIVATE=private` | All repos will default to private unless I explicitly override that |
 |`GITEA__repository__DISABLE_HTTP_GIT=true` | Require that all Git operations occur over SSH |
 |`GITEA__server__DOMAIN=git.bowdre.net` | Domain name of the server |
-|`GITEA__server__SSH_DOMAIN=git.bowdre.net.beta.tailscale.net` | Leverage Tailscale's [MagicDNS](https://tailscale.com/kb/1081/magicdns/) to tell clients how to SSH to the Tailscale internal IP |
+|`GITEA__server__SSH_DOMAIN=git.tadpole-jazz.ts.net` | Leverage Tailscale's [MagicDNS](https://tailscale.com/kb/1081/magicdns/) to tell clients how to SSH to the Tailscale internal IP |
 |`GITEA__server__ROOT_URL=https://git.bowdre.net/` | Public-facing URL |
 |`GITEA__server__LANDING_PAGE=explore` | Defaults to showing the "Explore" page (listing any public repos) instead of the "Home" page (which just tells about the Gitea project) |
 |`GITEA__service__DISABLE_REGISTRATION=true` | New users will not be able to self-register for access; they will have to be manually added by the Administrator account that will be created during the initial setup |
@@ -462,7 +465,7 @@ You might noticed that I unchecked the *Make Repository Private* option for this
 The real point of this whole exercise was to sync my Obsidian vault to a Git server under my control, so it's time to create a place for that content to live. I'll go to the **+** menu again but this time select **New Repository**, and then enter the required information:
 ![New repository](new_repository.png)
 
-Once it's created, the new-but-empty repository gives me instructions on how I can interact with it. Note that the SSH address uses the special `git.bowdre.net.beta.tailscale.net` Tailscale domain name which is only accessible within my tailnet.
+Once it's created, the new-but-empty repository gives me instructions on how I can interact with it. Note that the SSH address uses the special `git.tadpole-jazz.ts.net` Tailscale domain name which is only accessible within my tailnet.
 
 
 ![Emtpy repository](empty_repo.png)
@@ -473,7 +476,7 @@ cd ~/obsidian-vault/
 git init
 git add .
 git commit -m "initial commit"
-git remote add origin git@git.bowdre.net.beta.tailscale.net:john/obsidian-vault.git
+git remote add origin git@git.tadpole-jazz.ts.net:john/obsidian-vault.git
 git push -u origin main
 ```
 
