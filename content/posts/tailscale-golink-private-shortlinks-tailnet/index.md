@@ -4,7 +4,7 @@ date: 2023-02-12
 # lastmod: 2023-01-08T13:51:42-06:00 # Date when last modified
 description: "How to deploy Tailscale's golink service in a Docker container."
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
