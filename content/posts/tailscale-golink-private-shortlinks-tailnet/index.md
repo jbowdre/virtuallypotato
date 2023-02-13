@@ -1,7 +1,7 @@
 ---
 title: "Tailscale golink: Private Shortlinks for your Tailnet" # Title of the blog post.
 date: 2023-02-12
-# lastmod: 2023-01-08T13:51:42-06:00 # Date when last modified
+lastmod: 2023-02-13
 description: "How to deploy Tailscale's golink service in a Docker container."
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -26,7 +26,8 @@ comment: true # Disable comment if false.
 I've shared in the past about how I use [custom search engines in Chrome](/abusing-chromes-custom-search-engines-for-fun-and-profit/) as quick web shortcuts. And I may have mentioned [my love for Tailscale](/tags/tailscale/) a time or two as well. Well I recently learned of a way to combine these two passions: [Tailscale golink](https://github.com/tailscale/golink). The [golink announcement post on the Tailscale blog](https://tailscale.com/blog/golink/) offers a great overview of the service:
 > Using golink, you can create and share simple go/name links for commonly accessed websites, so that anyone in your network can access them no matter the device they’re on — without requiring browser extensions or fiddling with DNS settings. And because golink integrates with Tailscale, links are private to users in your tailnet without any separate user management, logins, or security policies.
 
-And these go links don't have to be simply static shortcuts either; they can also conditionally insert text into the target URL - similar to my custom search engine setup. The Tailscale blog also has some clever suggestions on how to use this capability.
+And these go links don't have to be simply static shortcuts either; they can also conditionally insert text into the target URL. That lets the shortcuts work similarly to my custom search engines in Chrome, but they are available on *any* device in my tailnet rather than just those that run Chrome. The shortcuts even work from command-line utilities like `curl`, provided that you pass a flag like `-L` to follow redirects.
+![Moon weather report](moon_wx.png)
 
 Sounds great - but how do you actually make golink available on your tailnet? Well, here's what I did to deploy the [golink Docker image](https://github.com/tailscale/golink/pkgs/container/golink) on a [Photon OS VM I set up running on my Quartz64 running ESXi-ARM](/esxi-arm-on-quartz64/#workload-creation).
 
@@ -139,7 +140,8 @@ Some of my other golinks:
 | `vpot8` | `https://www.virtuallypotato.com/{{with .Path}}search?query={{.}}{{end}}` | searches this here site |
 | `sho` | `https://www.shodan.io/{{with .Path}}search?query={{.}}{{end}}` | searches Shodan for interesting internet-connected systems |
 | `tools` | `https://neeva.com/spaces/m_Bhx8tPfYQbOmaW1UHz-3a_xg3h2amlogo2GzgD` | shortcut to my [Tech Toolkit space](https://neeva.com/spaces/m_Bhx8tPfYQbOmaW1UHz-3a_xg3h2amlogo2GzgD) on Neeva |
-
+| `randpass` | `https://www.random.org/passwords/?num=1\u0026len=24\u0026format=plain\u0026rnd=new` | generates a random 24-character string suitable for use as a password (`curl`-friendly) |
+| `wx` | `https://wttr.in/{{ .Path }}` | local weather report based on geolocation or weather for a designated city (`curl`-friendly) |
 
 #### Back up and restore
 You can browse to `go/.export` to see a JSON-formatted listing of all configured shortcuts - or, if you're clever, you could do something like `curl http://go/.export -o links.json` to download a copy.
