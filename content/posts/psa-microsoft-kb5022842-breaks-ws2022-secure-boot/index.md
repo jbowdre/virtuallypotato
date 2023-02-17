@@ -38,7 +38,8 @@ $secureBoot2022VMs = foreach($datacenter in (Get-Datacenter)) {
   $datacenter | Get-VM |
     Where {$_.Guest.OsFullName -Match 'Microsoft Windows Server 2022' -And $_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled} |
       Select @{N="Datacenter";E={$datacenter.Name}},
-        Name, @{N="Running OS";E={$_.Guest.OsFullName}},
+        Name,
+        @{N="Running OS";E={$_.Guest.OsFullName}},
         @{N="Secure Boot";E={$_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled}},
         PowerState
 }
