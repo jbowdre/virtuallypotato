@@ -36,8 +36,8 @@ I put together a quick PowerCLI query to help identify impacted VMs in my enviro
 ```powershell
 $secureBoot2022VMs = foreach($datacenter in (Get-Datacenter)) {
   $datacenter | Get-VM |
-    Where {$_.Guest.OsFullName -Match 'Microsoft Windows Server 2022' -And $_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled} |
-      Select @{N="Datacenter";E={$datacenter.Name}},
+    Where-Object {$_.Guest.OsFullName -Match 'Microsoft Windows Server 2022' -And $_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled} |
+      Select-Object @{N="Datacenter";E={$datacenter.Name}},
         Name,
         @{N="Running OS";E={$_.Guest.OsFullName}},
         @{N="Secure Boot";E={$_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled}},
