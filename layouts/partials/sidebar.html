@@ -28,7 +28,7 @@
         {{ markdownify $introDescription }}
       </div>
       <div>
-        <a href="https://vexpert.vmware.com/directory/9430"><img class="sidebar_badge" src="/logos/vexpert.png" alt="VMware vExpert"></a>
+        <a href="https://vexpert.vmware.com/directory/9430"><img src="https://vexpert.vmware.com/directory/9430/vexpert-badge-year.png" class="sidebar_badge" alt="vExpert Badge" title="vExpert Badge" /></a>
       </div>
       {{- if ( ne $s.introURL false ) }}
       {{- $r := T "read_more" }}
@@ -37,11 +37,11 @@
     {{- end }}
 
     {{ if .Site.Params.sidebardisclaimer }}
-    <div class="sidebardisclaimer"> 
-      <h2 class="mt-4">Disclaimer</h2> 
+    <div class="sidebardisclaimer">
+      <h2 class="mt-4">Disclaimer</h2>
       {{ .Site.Params.disclaimerText }}
-    </div> 
-  {{ end }}  
+    </div>
+  {{ end }}
 
     {{- $relatedInSidebar := true }}
     {{- if eq $s.showRelatedInSidebar false }}
