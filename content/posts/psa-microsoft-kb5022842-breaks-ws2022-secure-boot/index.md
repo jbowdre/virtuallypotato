@@ -4,7 +4,7 @@ date: 2023-02-17T12:24:48-06:00 # Date of post creation.
 # lastmod: 2023-02-17T12:24:48-06:00 # Date when last modified
 description: "Quick warning about a problematic patch from Microsoft, and a PowerCLI script to expose the potential impact in your vSphere environment." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
