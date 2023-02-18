@@ -30,15 +30,16 @@ Microsoft released [a patch](https://msrc.microsoft.com/update-guide/releaseNote
 
 So yeah. That's, uh, *not great.*
 
-If you've got any **Windows Server 2022** VMs with **Secure Boot** enabled on **ESXi 6.7/7.x**, you'll want to make sure they *do not* get **KB5022842** until this problem is resolved.
+If you've got any **Windows Server 2022** VMs with **[Secure Boot](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.security.doc/GUID-898217D4-689D-4EB5-866C-888353FE241C.html)** enabled on **ESXi 6.7/7.x**, you'll want to make sure they *do not* get **KB5022842** until this problem is resolved.
 
 I put together a quick PowerCLI query to help identify impacted VMs in my environment:
 ```powershell
 $secureBoot2022VMs = foreach($datacenter in (Get-Datacenter)) {
   $datacenter | Get-VM |
-    Where {$_.Guest.OsFullName -Match 'Microsoft Windows Server 2022' -And $_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled} |
-      Select @{N="Datacenter";E={$datacenter.Name}},
-        Name, @{N="Running OS";E={$_.Guest.OsFullName}},
+    Where-Object {$_.Guest.OsFullName -Match 'Microsoft Windows Server 2022' -And $_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled} |
+      Select-Object @{N="Datacenter";E={$datacenter.Name}},
+        Name,
+        @{N="Running OS";E={$_.Guest.OsFullName}},
         @{N="Secure Boot";E={$_.ExtensionData.Config.BootOptions.EfiSecureBootEnabled}},
         PowerState
 }
