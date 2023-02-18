@@ -1,5 +1,5 @@
 ---
-title: "Manage VMs With HashiCorp Vagrant on a Chromebook" # Title of the blog post.
+title: "Run Virtual Machines on a Chromebook with HashiCorp Vagrant" # Title of the blog post.
 date: 2023-02-18T17:22:02-06:00 # Date of post creation.
 # lastmod: 2023-02-18T17:22:02-06:00 # Date when last modified
 description: "Pairing the powerful Linux Development Environment on modern Chromebooks with HashiCorp Vagrant for managing local virtual machines for development and testing" # Description used for search engine.
