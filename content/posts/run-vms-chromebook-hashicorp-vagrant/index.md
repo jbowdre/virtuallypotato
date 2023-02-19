@@ -22,11 +22,12 @@ tags:
   - infrastructure-as-code
 comment: true # Disable comment if false.
 ---
-I've lately been trying to do more with [Salt](https://saltproject.io/) at work, but I'm still very much a novice with that tool. I thought it would be great to have a nice little lab environment where I could deploy a few lightweight VMs and practice managing them with Salt - without impacting any systems that are actually being used for anything. I thought it might be fun to create and manage the VMs with [HashiCorp Vagrant](https://www.vagrantup.com/), and ultimately provision them with [HashiCorp Terraform](https://www.terraform.io/). That would give me the tools for quickly creating and destroying a full lab environment in short order.
+I've lately been trying to do more with [Salt](https://saltproject.io/) at work, but I'm still very much a novice with that tool. I thought it would be great to have a nice little lab environment where I could deploy a few lightweight VMs and practice managing them with Salt - without impacting any systems that are actually being used for anything. I thought it might be fun to create and manage the VMs with [HashiCorp Vagrant](https://www.vagrantup.com/), which provides a declarative way to define what the VMs should look like. That will make it easy to build up, destroy, and redeploy a development environment in a simple, repeatable way.
 
 Also, because I'm a bit of a sadist, I wanted to do this all on my new [Framework Chromebook](https://frame.work/laptop-chromebook-12-gen-intel). I might as well put my 32GB of RAM to good use, right? It took a bit of fumbling, but this article describes what it took to get a Vagrant VM up and running in the [Linux Development Environment](https://chromeos.dev/en/linux) on my Chromebook (which is currently running ChromeOS v111 beta).
 
-Prereqs:
+### Install the prerequisites
+There are are a few packages which need to be installed before we can move on to the Vagrant-specific stuff. It's quite possible that these are already on your system.... but if they *aren't* already present you'll have a bad problem[^problem].
 ```shell
 sudo apt update
 sudo apt install \
@@ -36,12 +37,13 @@ sudo apt install \
   wget
 ```
 
-Install `libvirt`-related prereqs:
+[^problem]: and [will not go to space today](https://xkcd.com/1133/).
+I'll be configuring Vagrant to use [`libvirt`](https://libvirt.org/) to interface with the [Kernel Virtual Machine (KVM)](https://www.linux-kvm.org/page/Main_Page) virtualization solution (rather than something like VirtualBox that would bring more overhead) so I'll need to install some packages for that as well:
 ```shell
 sudo apt install virt-manager libvirt-dev
 ```
 
-Add self to `libvirt` group:
+And to avoid having to `sudo` each time I interact with `libvirt`, I'll add myself to that group:
 ```shell
 sudo gpasswd -a $USER libvirt ; newgrp libvirt
 ```
