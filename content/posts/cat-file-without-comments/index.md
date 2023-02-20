@@ -4,7 +4,7 @@ date: 2023-02-22 # Date of post creation.
 # lastmod: 2023-02-20T10:32:20-06:00 # Date when last modified
 description: "A quick trick to strip out the comments when viewing the contents of a file." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
