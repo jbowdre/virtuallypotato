@@ -52,6 +52,12 @@ And to avoid having to `sudo` each time I interact with `libvirt` I'll add mysel
 sudo gpasswd -a $USER libvirt ; newgrp libvirt
 ```
 
+And to avoid [this issue](https://github.com/virt-manager/virt-manager/issues/333) I'll make a tweak to the `qemu.conf` file:
+```shell
+echo "remember_owner = 0" | sudo tee -a /etc/libvirt/qemu.conf
+sudo systemctl restart libvirtd
+```
+
 I'm also going to use `rsync` to share a [synced folder](https://developer.hashicorp.com/vagrant/docs/synced-folders/basic_usage) between the host and the VM guest so I'll need to make sure that's installed too:
 ```shell
 sudo apt install rsync
