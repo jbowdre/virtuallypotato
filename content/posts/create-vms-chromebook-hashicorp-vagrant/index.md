@@ -4,14 +4,14 @@ date: 2023-02-20 # Date of post creation.
 # lastmod: 2023-02-18T17:22:02-06:00 # Date when last modified
 description: "Pairing the powerful Linux Development Environment on modern Chromebooks with HashiCorp Vagrant to create and manage local virtual machines for development and testing" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
-draft: true # Sets whether to render this page. Draft of true will not be rendered.
+draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
 # menu: main
 # featureImage: "file.png" # Sets featured image on blog post.
 # featureImageAlt: 'Description of image' # Alternative text for featured image.
 # featureImageCap: 'This is the featured image.' # Caption (optional).
-# thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
+thumbnail: "thumbnail.png" # Sets thumbnail image appearing inside card on homepage.
 # shareImage: "share.png" # Designate a separate image for social media sharing.
 codeLineNumbers: false # Override global value for showing of line numbers within code block.
 series: Projects
