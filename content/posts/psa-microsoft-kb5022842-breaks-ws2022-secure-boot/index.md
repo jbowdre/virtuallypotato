@@ -22,6 +22,10 @@ tags:
   - powercli
 comment: true # Disable comment if false.
 ---
+{{% notice info "Fix available" %}}
+VMware has released a fix for this problem in the form of [ESXi 7.0 Update 3k](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3k-release-notes.html#resolvedissues):
+>  If you already face the issue, after patching the host to ESXi 7.0 Update 3k, just power on the affected Windows Server 2022 VMs. After you patch a host to ESXi 7.0 Update 3k, you can migrate a running Windows Server 2022 VM from a host of version earlier than ESXi 7.0 Update 3k, install KB5022842, and the VM boots properly without any additional steps required.
+{{% /notice %}}
 
 Microsoft released [a patch](https://msrc.microsoft.com/update-guide/releaseNote/2023-Feb) this week for Windows Server 2022 that might cause some [big problems](https://support.microsoft.com/en-gb/topic/february-14-2023-kb5022842-os-build-20348-1547-be155955-29f7-47c4-855c-34bd43895940#known-issues-in-this-update:~:text=Known%20issues%20in%20this%20update) in VMware environments. Per [VMware's KB90947](https://kb.vmware.com/s/article/90947):
 > After installing Windows Server 2022 update KB5022842 (OS Build 20348.1547), guest OS can not boot up when virtual machine(s) configured with secure boot enabled running on vSphere ESXi 6.7 U2/U3 or vSphere ESXi 7.0.x.
