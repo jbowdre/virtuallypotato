@@ -12,7 +12,7 @@ tags:
 - shell
 - containers
 title: Setting up Linux on a new Lenovo Chromebook Duet (bonus arm64 complications!)
-featured: true
+featured: false
 ---
 
 I've [written in the past](/3d-modeling-and-printing-on-chrome-os) about the Linux setup I've been using on my Pixel Slate. My Slate's keyboard stopped working over the weekend, though, and there don't seem to be any replacements (either Google or Brydge) to be found. And then I saw that [Walmart had the 64GB Lenovo Chromebook Duet temporarily marked down](https://twitter.com/johndotbowdre/status/1320733614426988544) to a mere $200 - just slightly more than the Slate's *keyboard* originally cost. So I jumped on that deal, and the little Chromeblet showed up today.
@@ -23,7 +23,7 @@ I'll be putting the Duet through the paces in the coming days to see if/how it c
 
 So journey with me as I get this little guy set up!
 
-### Installing Linux 
+### Installing Linux
 This part is dead simple. Just head into **Settings > Linux (Beta)** and hit the **Turn on** button:
 ![It doesn't take much to get Linux turned on](oLso9Wyzj.png)
 
@@ -54,7 +54,7 @@ Just grab the installer script like so:
 wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 ```
 Review it if you'd like (and you should! *Always* review code before running it!!), and then execute it:
-```shell 
+```shell
 sh install.sh
 ```
 When asked if you'd like to change your default shell to `zsh` now, **say no**. This is because it will prompt for your password, but you probably don't have a password set on your brand-new Linux (Beta) account and that just makes things complicated. We'll clear this up later, but for now just check out that slick new prompt:
@@ -76,9 +76,9 @@ Now close out the terminal and open it again, and you should be met by the power
 ![pwerlevel10k configurator](K1ScSuWcg.png)
 
 This theme is crazy-configurable, but fortunately the configurator wizard does a great job of helping you choose the options that work best for you.
-I pick the Classic prompt style, Unicode character set, Dark prompt color, 24-hour time, Angled separators, Sharp prompt heads, Flat prompt tails, 2-line prompt height, Dotted prompt connection, Right prompt frame, Sparse prompt spacing, Fluent prompt flow, Enabled transient prompt, Verbose instant prompt, and (finally) Yes to apply the changes. 
+I pick the Classic prompt style, Unicode character set, Dark prompt color, 24-hour time, Angled separators, Sharp prompt heads, Flat prompt tails, 2-line prompt height, Dotted prompt connection, Right prompt frame, Sparse prompt spacing, Fluent prompt flow, Enabled transient prompt, Verbose instant prompt, and (finally) Yes to apply the changes.
 ![New P10k prompt](20210804_p10k_prompt.png)
-Looking good! 
+Looking good!
 
 ### Visual Studio Code
 I'll need to do some light development work so VS Code is next on the hit list. You can grab the installer [here](https://code.visualstudio.com/Download#) or just copy/paste the following to stay in the Terminal. Definitely be sure to get the arm64 version!
@@ -101,7 +101,7 @@ Once you connect the phone to Linux, check the phone to approve the debugging co
 
 ### Microsoft PowerShell and VMware PowerCLI
 *[Updated 5/20/2021 with Microsoft's newer instructions]*
-I'm working on setting up a [VMware homelab on an Intel NUC 9](https://twitter.com/johndotbowdre/status/1317558182936563714) so being able to automate things with PowerCLI will be handy. 
+I'm working on setting up a [VMware homelab on an Intel NUC 9](https://twitter.com/johndotbowdre/status/1317558182936563714) so being able to automate things with PowerCLI will be handy.
 
 PowerShell for ARM is still in an early stage so while [it is supported](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7.2#support-for-arm-processors) it must be installed manually. Microsoft has instructions for installing PowerShell from binary archives [here](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7.2#linux), and I grabbed the latest `-linux-arm64.tar.gz` release I could find [here](https://github.com/PowerShell/PowerShell/releases).
 ```shell
@@ -113,7 +113,7 @@ sudo ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 ```
 You can then just run `pwsh`:
 ![Powershell, in Linux, on Chrome OS](QRP4iyLnu.png)
-That was the hard part. To install PowerCLI into your new Powershell environment, just run `Install-Module -Name VMware.PowerCLI` at the `PS >` prompt, and accept the warning about installing a module from an untrusted repository. 
+That was the hard part. To install PowerCLI into your new Powershell environment, just run `Install-Module -Name VMware.PowerCLI` at the `PS >` prompt, and accept the warning about installing a module from an untrusted repository.
 
 I'm planning to use PowerCLI against my homelab without trusted SSL certificates so (note to self) I need to run `Set-PowerCLIConfiguration -InvalidCertificateAction Ignore` before I try to connect.
 ![PowerCLI connected to my vCenter](YaFNJJG_c.png)
@@ -155,7 +155,7 @@ Xzibit would be proud!
 Just like [last time](/3d-modeling-and-printing-on-chrome-os), I'll want to be sure I can do light 3D part design and slicing on this Chromebook. Once again, I can install FreeCAD with `sudo apt install freecad`, and this time I didn't have to implement any workarounds for graphical issues:
 ![FreeCAD](q1inyuUOb.png)
 
-Unfortunately, though, I haven't found a slicer application compiled with support for aarch64/arm64. There's a *much* older version of Cura available in the default Debian repos but it crashes upon launch. Neither Cura nor PrusaSlicer (or the Slic3r upstream) offer arm64 releases. 
+Unfortunately, though, I haven't found a slicer application compiled with support for aarch64/arm64. There's a *much* older version of Cura available in the default Debian repos but it crashes upon launch. Neither Cura nor PrusaSlicer (or the Slic3r upstream) offer arm64 releases.
 
 So while I can use the Duet for designing 3D models, I won't be able to actually prepare those models for printing without using another device. I'll need to keep looking for another solution here. (If you know of an option I've missed, please let me know!)
 
@@ -181,4 +181,4 @@ Cool! Now I just need to learn what I'm doing with Jupyter - but at least I don'
 
 
 ### Wrap-up
-I'm sure I'll be installing a few more utilities in the coming days but this covers most of my immediate must-have Linux needs. I'm eager to see how this little Chromeblet does now that I'm settled in. 
+I'm sure I'll be installing a few more utilities in the coming days but this covers most of my immediate must-have Linux needs. I'm eager to see how this little Chromeblet does now that I'm settled in.

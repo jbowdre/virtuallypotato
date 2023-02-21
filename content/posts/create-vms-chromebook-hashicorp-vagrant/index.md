@@ -3,7 +3,7 @@ title: "Create Virtual Machines on a Chromebook with HashiCorp Vagrant" # Title 
 date: 2023-02-20 # Date of post creation.
 lastmod: 2023-02-21
 description: "Pairing the powerful Linux Development Environment on modern Chromebooks with HashiCorp Vagrant to create and manage local virtual machines for development and testing" # Description used for search engine.
-featured: false # Sets if post is a featured post, making appear on the home page side bar.
+featured: true # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true

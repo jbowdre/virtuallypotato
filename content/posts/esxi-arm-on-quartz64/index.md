@@ -3,7 +3,7 @@ title: "ESXi ARM Edition on the Quartz64 SBC" # Title of the blog post.
 date: 2022-04-23 # Date of post creation.
 lastmod: 2022-12-14
 description: "Getting started with the experimental ESXi Arm Edition fling to run a VMware hypervisor on the PINE64 Quartz64 single-board computer, and installing a Tailscale node on Photon OS to facilitate improved remote access to my home network." # Description used for search engine.
-featured: false # Sets if post is a featured post, making appear on the home page side bar.
+featured: true # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
@@ -127,7 +127,7 @@ I'll need to use these settings for the connection (which are the defaults selec
 | Port | `/dev/ttyUSB0` |
 | Bitrate | `115200` |
 | Data Bit | `8 bit` |
-| Parity | `none` | 
+| Parity | `none` |
 | Stop Bit | `1` |
 | Flow Control | `none` |
 
@@ -138,9 +138,9 @@ I hit **Connect** and then connect the Quartz64's power supply. I watch as it lo
 
 ### Host creation
 #### ESXi install
-Now that I've got everything in order I can start the install. A lot of experimentation on my part confirmed the sad news about the USB ports: of the four USB ports, only the top-right USB2 port works reliably for me. So I connect my ~~USB NIC+hub to that port, and plug in my 256GB drive to the hub~~[^v1.10] 256GB USB drive there. This isn't ideal from a performance aspect, of course, but slow storage is more useful than no storage. 
+Now that I've got everything in order I can start the install. A lot of experimentation on my part confirmed the sad news about the USB ports: of the four USB ports, only the top-right USB2 port works reliably for me. So I connect my ~~USB NIC+hub to that port, and plug in my 256GB drive to the hub~~[^v1.10] 256GB USB drive there. This isn't ideal from a performance aspect, of course, but slow storage is more useful than no storage.
 
-On that note, remember what I mentioned earlier about how the ESXi installer would want to fill up ~128GB worth of whatever drive it targets? The ESXi ARM instructions say that you can get around that by passing the `autoPartitionOSDataSize` advanced option to the installer by pressing `[Shift] + O` in the ESXi bootloader, but the Quartz64-specific instructions say that you can't do that with this board since only the serial console is available... It turns out this is a (happy) lie. 
+On that note, remember what I mentioned earlier about how the ESXi installer would want to fill up ~128GB worth of whatever drive it targets? The ESXi ARM instructions say that you can get around that by passing the `autoPartitionOSDataSize` advanced option to the installer by pressing `[Shift] + O` in the ESXi bootloader, but the Quartz64-specific instructions say that you can't do that with this board since only the serial console is available... It turns out this is a (happy) lie.
 
 I hooked up a monitor to the board's HDMI port and a USB keyboard to a free port on the hub and verified that the keyboard let me maneuver through the BIOS menu. From here, I hit the **Reset** button on the Quartz64 to restart it and let it boot from the connected USB drive. When I got to the ESXi pre-boot countdown screen, I pressed `[Shift] + O` as instructed and added `autoPartitionOSDataSize=8192` to the boot options. This limits the size of the new-for-ESXi7 ESX-OSData VMFS-L volume to 8GB and will give me much more space for the local datastore.
 
@@ -157,7 +157,7 @@ After the installation completed, I rebooted the host and watched for the Direct
 I hit `[F2]` and logged in with the root credentials to get to the System Customization menu:
 ![DCUI System Customization](dcui_system_customization.png)
 
-The host automatically received an IP issued by DHCP but I'd like for it to instead use a static IP. I'll also go ahead and configure the appropriate DNS settings. 
+The host automatically received an IP issued by DHCP but I'd like for it to instead use a static IP. I'll also go ahead and configure the appropriate DNS settings.
 ![Setting the IP address](dcui_ip_address.png)
 ![Configuring DNS settings](dcui_dns.png)
 
@@ -272,7 +272,7 @@ passwd john
 Now I can use SSH to connect to the VM and ditch the web console:
 ```bash
 ❯ ssh pho01.lab.bowdre.net
-Password: 
+Password:
 john@pho01 [ ~ ]$ sudo whoami
 
 We trust you have received the usual lecture from the local System
@@ -403,14 +403,14 @@ Now I can remotely access the VM (and thus my homelab!) from any of my other Tai
 
 [^hassos]: The [Tailscale add-on for Home Assistant](https://github.com/hassio-addons/addon-tailscale) also tries to advertise its subnets by default, but I leave that disabled in the admin portal as well.
 
-[^failover]: Tailscale does offer a [subnet router failover feature](https://tailscale.com/kb/1115/subnet-failover/) but it is only available starting on the [Business ($15/month) plan](https://tailscale.com/pricing/) and not the $48/year Personal Pro plan that I'm using. 
+[^failover]: Tailscale does offer a [subnet router failover feature](https://tailscale.com/kb/1115/subnet-failover/) but it is only available starting on the [Business ($15/month) plan](https://tailscale.com/pricing/) and not the $48/year Personal Pro plan that I'm using.
 
 
 ### Conclusion
-I actually received the Quartz64 waay back on March 2nd, and it's taken me until this week to get all the pieces in place and working the way I wanted. 
+I actually received the Quartz64 waay back on March 2nd, and it's taken me until this week to get all the pieces in place and working the way I wanted.
 {{< tweet user="johndotbowdre" id="1499194756148125701" >}}
 
-As is so often the case, a lot of time and effort would have been saved if I had RTFM'd[^rtfm] before diving in to the deep end. I definitely hadn't anticipated all the limitations that would come with the Quartz64 SBC before ordering mine. Now that it's done, though, I'm pretty pleased with the setup, and I feel like I learned quite a bit along the way. I keep reminding myself that this is still a very new hardware platform. I'm excited to see how things improve with future development efforts. 
+As is so often the case, a lot of time and effort would have been saved if I had RTFM'd[^rtfm] before diving in to the deep end. I definitely hadn't anticipated all the limitations that would come with the Quartz64 SBC before ordering mine. Now that it's done, though, I'm pretty pleased with the setup, and I feel like I learned quite a bit along the way. I keep reminding myself that this is still a very new hardware platform. I'm excited to see how things improve with future development efforts.
 
 [^rtfm]: Read The *Friendly* Manual. Yeah.
 

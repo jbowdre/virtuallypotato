@@ -3,7 +3,7 @@ title: "VMware Tanzu Community Edition Kubernetes Platform in a Homelab" # Title
 date: 2022-01-12 # Date of post creation.
 # lastmod: 2022-01-06T09:42:51-06:00 # Date when last modified
 description: "Gaining familiarity with VMware Tanzu Community Edition by deploying phpIPAM on Kubernetes in my homelab" # Description used for search engine.
-featured: true # Sets if post is a featured post, making appear on the home page side bar.
+featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
 toc: true # Controls if a table of contents should be generated for first-level links automatically.
 usePageBundles: true
@@ -56,7 +56,7 @@ I'll also need to set aside a few static IPs for this project. These will need t
 Moving on to the [Getting Started](https://tanzucommunityedition.io/docs/latest/getting-started/), I'll need to grab some software before I can actually Get Started.
 
 #### Kubernetes control plane image
-I need to download a VMware OVA which can be used for deploying my Kubernetes nodes from the VMWare Customer Connect portal [here](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=TCE-090)[^register]. There are a few different options available. I'll get the Photon release with the highest Kubernetes version currently available, `photon-3-kube-v1.21.2+vmware.1-tkg.2-12816990095845873721.ova`. 
+I need to download a VMware OVA which can be used for deploying my Kubernetes nodes from the VMWare Customer Connect portal [here](https://customerconnect.vmware.com/downloads/get-download?downloadGroup=TCE-090)[^register]. There are a few different options available. I'll get the Photon release with the highest Kubernetes version currently available, `photon-3-kube-v1.21.2+vmware.1-tkg.2-12816990095845873721.ova`.
 
 Once the file is downloaded, I'll log into my vCenter and use the **Deploy OVF Template** action to deploy a new VM using the OVA. I won't bother booting the machine once deployed but will rename it to `k8s-node` to make it easier to identify later on and then convert it to a template.
 ![New k8s-node template](k8s-node_template.png)
@@ -158,7 +158,7 @@ Serving kickstart UI at http://[::]:8080
 *Now* I can point my local browser to my VM and see the UI:
 ![The Tanzu Installer UI](installer_ui.png)
 
-And then I can click the button at the bottom left to save my eyes[^dark_mode] before selecting the option to deploy on vSphere. 
+And then I can click the button at the bottom left to save my eyes[^dark_mode] before selecting the option to deploy on vSphere.
 ![Configuring the IaaS Provider](installer_iaas_provider.png)
 
 I'll plug in the FQDN of my vCenter and provide a username and password to use to connect to it, then hit the **Connect** button. That will prompt me to accept the vCenter's certificate thumbprint, and then I'll be able to select the virtual datacenter that I want to use. Finally, I'll paste in the SSH public key[^gen_key] I'll use for interacting with the cluster.
@@ -421,7 +421,7 @@ yelb-db-694586cd78-wb8tt         1/1     Running   0          10s
 yelb-ui-8f54fd88c-k2dw9          1/1     Running   0          10s
 ```
 
-Once the app is running, I can point my web browser at it to see it in action. But what IP do I use? 
+Once the app is running, I can point my web browser at it to see it in action. But what IP do I use?
 
 ```bash
 ❯ kubectl -n yelb get svc/yelb-ui
@@ -577,7 +577,7 @@ persistentvolumeclaim "vsphere-demo-1" deleted
 ### A real workload - phpIPAM
 Demos are all well and good, but how about a real-world deployment to tie it all together? I've been using a [phpIPAM instance for assigning static IP addresses for my vRealize Automation deployments](/integrating-phpipam-with-vrealize-automation-8/), but have *only* been using it to monitor IP usage within the network ranges to which vRA will provision machines. I recently decided that I'd like to expand phpIPAM's scope so it can keep an eye on *all* the network ranges within the environment. That's not a big ask in [my little self-contained homelab](/vmware-home-lab-on-intel-nuc-9/), but having a single system scanning all the ranges of a large production network probably wouldn't scale too well.
 
-Fortunately the phpIPAM project provides a [remote scanning agent](https://github.com/phpipam/phpipam-agent) which can be used for keeping an eye on networks and reporting back to the main phpIPAM server. With this, I could deploy an agent to each region (or multiple agents to a region!) and divide up the network into chunks that each agent would be responsible for scanning. But that's a pretty lightweight task for a single server to manage, and who wants to deal with configuring multiple instances of the same thing? Not this guy. 
+Fortunately the phpIPAM project provides a [remote scanning agent](https://github.com/phpipam/phpipam-agent) which can be used for keeping an eye on networks and reporting back to the main phpIPAM server. With this, I could deploy an agent to each region (or multiple agents to a region!) and divide up the network into chunks that each agent would be responsible for scanning. But that's a pretty lightweight task for a single server to manage, and who wants to deal with configuring multiple instances of the same thing? Not this guy.
 
 So I set to work exploring some containerization options, and I found [phpipam-docker](https://github.com/phpipam-docker/phpipam-docker). That would easily replicate my existing setup in a trio of containers (one for the web front-end, one for the database back-end, and one with `cron` jobs to run scans at regular intervals)... but doesn't provide a remote scan capability. I also found a [dockerized phpipam-agent](https://github.com/pierrecdn/phpipam-agent), but this one didn't quite meet my needs. It did provide me a base to work off of though so a few days of [tinkering](https://github.com/jbowdre/phpipam-agent-docker) resulted in me publishing my first [Docker image](https://github.com/jbowdre/phpipam-agent-docker/pkgs/container/phpipam-agent). I've still some work to do before this application stack is fully ready for production but it's at a point where I think it's worth doing a test deploy.
 
@@ -716,7 +716,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: http 
+  - name: http
     port: 80
     protocol: TCP
     targetPort: 80
@@ -974,7 +974,7 @@ The scan agent isn't going to do anything until it's assigned to a subnet though
 Now I can create a new subnet within the `Lab` section by clicking the **Subnets** menu, selecting the `Lab` section, and clicking **+ Add subnet**.
 ![Empty subnets menu](subnets_empty.png)
 
-I'll define the new subnet as `192.168.1.0/24`. Once I enable the option to *Check hosts status*, I'll then be able to specify my new `remote-agent` as the scanner for this subnet. 
+I'll define the new subnet as `192.168.1.0/24`. Once I enable the option to *Check hosts status*, I'll then be able to specify my new `remote-agent` as the scanner for this subnet.
 ![Creating a new subnet](creating_new_subnet.png)
 ![A new (but empty) subnet](new_subnet_pre_scan.png)
 
@@ -985,4 +985,4 @@ It shows the scanner associated with the subnet, but no data yet. I'll need to w
 Woah, it actually works!
 
 ### Conclusion
-I still need to do more work to the containerized phpIPAM stack ready for production, but I'm feeling pretty good for having deployed a functional demo of it at this point! And working on this was a nice excuse to get a bit more familiar with Tanzu Community Edition specifically,  Kubernetes in general, and Docker (I learned a ton while assembling the `phpipam-agent` image!). I find I always learn more about a new-to-me technology when I have an actual project to do rather than just going through the motions of a lab exercise. Maybe my notes will be useful to you, too. 
+I still need to do more work to the containerized phpIPAM stack ready for production, but I'm feeling pretty good for having deployed a functional demo of it at this point! And working on this was a nice excuse to get a bit more familiar with Tanzu Community Edition specifically,  Kubernetes in general, and Docker (I learned a ton while assembling the `phpipam-agent` image!). I find I always learn more about a new-to-me technology when I have an actual project to do rather than just going through the motions of a lab exercise. Maybe my notes will be useful to you, too.
