@@ -1,7 +1,7 @@
 ---
 title: "PSA: Microsoft's KB5022842 breaks Windows Server 2022 VMs with Secure Boot" # Title of the blog post.
 date: 2023-02-17T12:24:48-06:00 # Date of post creation.
-# lastmod: 2023-02-17T12:24:48-06:00 # Date when last modified
+lastmod: 2023-02-21
 description: "Quick warning about a problematic patch from Microsoft, and a PowerCLI script to expose the potential impact in your vSphere environment." # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -23,7 +23,7 @@ tags:
 comment: true # Disable comment if false.
 ---
 
-Microsoft released [a patch](https://msrc.microsoft.com/update-guide/releaseNote/2023-Feb) this week for Windows Server 2022 that might cause some big problems in VMware environments. Per [VMware's KB90947](https://kb.vmware.com/s/article/90947):
+Microsoft released [a patch](https://msrc.microsoft.com/update-guide/releaseNote/2023-Feb) this week for Windows Server 2022 that might cause some [big problems](https://support.microsoft.com/en-gb/topic/february-14-2023-kb5022842-os-build-20348-1547-be155955-29f7-47c4-855c-34bd43895940#known-issues-in-this-update:~:text=Known%20issues%20in%20this%20update) in VMware environments. Per [VMware's KB90947](https://kb.vmware.com/s/article/90947):
 > After installing Windows Server 2022 update KB5022842 (OS Build 20348.1547), guest OS can not boot up when virtual machine(s) configured with secure boot enabled running on vSphere ESXi 6.7 U2/U3 or vSphere ESXi 7.0.x.
 >
 > Currently there is no resolution for virtual machines running on vSphere ESXi 6.7 U2/U3 and vSphere ESXi 7.0.x. However the issue doesn't exist with virtual machines running on vSphere ESXi 8.0.x.
