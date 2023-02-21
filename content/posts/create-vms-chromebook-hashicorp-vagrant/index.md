@@ -1,7 +1,7 @@
 ---
 title: "Create Virtual Machines on a Chromebook with HashiCorp Vagrant" # Title of the blog post.
 date: 2023-02-20 # Date of post creation.
-# lastmod: 2023-02-18T17:22:02-06:00 # Date when last modified
+lastmod: 2023-02-21
 description: "Pairing the powerful Linux Development Environment on modern Chromebooks with HashiCorp Vagrant to create and manage local virtual machines for development and testing" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -22,7 +22,7 @@ tags:
   - infrastructure-as-code
 comment: true # Disable comment if false.
 ---
-I've lately been trying to do more with [Salt](https://saltproject.io/) at work, but I'm still very much a novice with that tool. I thought it would be great to have a nice little portable lab environment where I could deploy a few lightweight VMs and practice managing them with Salt - without impacting any systems that are actually being used for anything. Along the way, I figured I'd leverage [HashiCorp Vagrant](https://www.vagrantup.com/) to create and manage the VMs, which would provide a declarative way to define what the VMs should look like. That will make it easy to build up, destroy, and redeploy a development environment in a simple, repeatable way.
+I've lately been trying to do more with [Salt](https://saltproject.io/) at work, but I'm still very much a novice with that tool. I thought it would be great to have a nice little portable lab environment where I could deploy a few lightweight VMs and practice managing them with Salt - without impacting any systems that are actually being used for anything. Along the way, I figured I'd leverage [HashiCorp Vagrant](https://www.vagrantup.com/) to create and manage the VMs, which would provide a declarative way to define what the VMs should look like. The VM (or even groups of VMs) would be specified in a single file, and I'd bypass all the tedious steps of creating the virtual hardware, attaching the installation media, installing the OS, and performing the initial configuration. Vagrant will help me build up, destroy, and redeploy a development environment in a simple and repeatable way.
 
 Also, because I'm a bit of a sadist, I wanted to do this all on my new [Framework Chromebook](https://frame.work/laptop-chromebook-12-gen-intel). I might as well put my 32GB of RAM to good use, right?
 
@@ -203,7 +203,7 @@ cd vagrant-win11
 vagrant init oopsme/windows11-22h2
 ```
 
-And, again, I'll edit the Vagrantfile before starting the VM. This time, though, I'm adding a few configuration options to tell `libvirt` that I'd like more compute resources than the default 1 CPU and 512MB RAM:
+And, again, I'll edit the Vagrantfile before starting the VM. This time, though, I'm adding a few configuration options to tell `libvirt` that I'd like more compute resources than the default 1 CPU and 512MB RAM[^ram]:
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.box = "oopsme/windows11-22h2"
@@ -213,6 +213,8 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+[^ram]: Note here that `libvirt.memory` is specified in MB. Windows 11 boots happily with 4096 MB of RAM.... and somewhat less so with just 4 MB. *Ask me how I know...*
 
 Now it's time to bring it up. This one's going to take A While as it syncs the ~6GB Box first.
 ```shell
