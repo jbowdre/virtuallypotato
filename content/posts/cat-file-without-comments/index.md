@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "oopsme/windows11-22h2"
   config.vm.provider :libvirt do |libvirt|
     libvirt.cpus = 4
-    libvirt.memory = 4
+    libvirt.memory = 4096
   end
 end
 
