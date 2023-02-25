@@ -1,7 +1,7 @@
 ---
 title: "Create Virtual Machines on a Chromebook with HashiCorp Vagrant" # Title of the blog post.
 date: 2023-02-20 # Date of post creation.
-lastmod: 2023-02-21
+lastmod: 2023-02-25
 description: "Pairing the powerful Linux Development Environment on modern Chromebooks with HashiCorp Vagrant to create and manage local virtual machines for development and testing" # Description used for search engine.
 featured: true # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -196,6 +196,10 @@ vagrant destroy
 ### Create a heavy VM, as a treat
 Having proven to myself that Vagrant does work on a Chromebook, let's see how it does with a slightly-heavier VM.... like [Windows 11](https://app.vagrantup.com/oopsme/boxes/windows11-22h2).
 
+{{% notice info "Space Requirement" %}}
+Windows 11 makes for a pretty hefty VM which will require significant storage space. My Chromebook's Linux environment ran out of storage space the first time I attempted to deploy this guy. Fortunately ChromeOS makes it easy to allocate more space to Linux (**Settings > Advanced > Developers > Linux development environment > Disk size**). You'll probably need at least 30GB free to provision this VM.
+{{% /notice %}}
+
 Again, I'll create a new folder to hold the Vagrant configuration and do a `vagrant init`:
 ```shell
 mkdir vagrant-win11
@@ -216,7 +220,7 @@ end
 
 [^ram]: Note here that `libvirt.memory` is specified in MB. Windows 11 boots happily with 4096 MB of RAM.... and somewhat less so with just 4 MB. *Ask me how I know...*
 
-Now it's time to bring it up. This one's going to take A While as it syncs the ~6GB Box first.
+Now it's time to bring it up. This one's going to take A While as it syncs the ~12GB Box first.
 ```shell
 vagrant up
 ```
