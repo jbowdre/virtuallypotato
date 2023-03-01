@@ -15,7 +15,7 @@ By day, I manage a large virtualized environment, with a focus on leveraging clo
 
 By night, I help out on Google's product support forums as a [Product Expert](https://productexperts.withgoogle.com/what-it-is), where I support Pixel phones, earbuds, and watches, as well as Chromebooks (primarily with Linux-related queries). Helping users troubleshoot their issues scratches my problem-solving itch, and it helps me learn more about the Google products I use.
 
-On weekends, I race my daily-driven 2014 Subaru BRZ in local [autocross events](https://www.youtube.com/playlist?list=PLwzr4uKY-x-EwCv-rWNGefdikuW6Oy9O_) or wrench on my 1974 Volkswagen Karmann Ghiaa.
+On weekends, I race my daily-driven 2014 Subaru BRZ in local [autocross events](https://www.youtube.com/playlist?list=PLwzr4uKY-x-EwCv-rWNGefdikuW6Oy9O_) or wrench on my 1974 Volkswagen Karmann Ghia.
 
 And in the free time I have left, I game on my Steam Deck.
 
