@@ -49,10 +49,6 @@
   parent = "Connect"
   name = "CounterSocial"
   url = "https://counter.social/@john_b"
-[[main]]
-  parent = "Connect"
-  name = "Polywork"
-  url = "https://john.bowdre.net/"
 
 [[social]]
   name = "github"
