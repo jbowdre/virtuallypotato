@@ -1,6 +1,4 @@
 ## Metadata
-twitter = "@johndotbowdre"
-largeTwitterCard = true 
 introDescription = "Wrangler of imaginary computers."
 description = "I can generally fumble through a project and make it work. Here I share how I did it: my adventures with VMware vRealize Automation, cloud and automation projects I'm working on, linux and Powershell scripts I've cobbled together, and other tech tips and tricks."
 since = 2018
@@ -14,14 +12,14 @@ footerLogo = "logos/logo_footer.png"
 
 
 ## Site preferences
-numberOfTagsShown = 10 
+numberOfTagsShown = 10
 codeMaxLines = 25
 codeLineNumbers = false
 enableMathNotation = false
 usePageBundles = true
-mainSections = ["posts"] 
-figurePositionShow = false 
-mobileNavigation = "right" 
+mainSections = ["posts"]
+figurePositionShow = false
+mobileNavigation = "right"
 enforceLightMode = false
 enforceDarkMode = true
 titleSeparator = "-"
@@ -42,5 +40,5 @@ utterancesTheme = "dark-blue"
 ## Website author
 [author]
   name = "John Bowdre"
-  photo = "images/bio-photo.jpg" 
+  photo = "images/bio-photo.jpg"
 
