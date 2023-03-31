@@ -1,7 +1,7 @@
 ---
 title: "Snikket Private XMPP Chat on Oracle Cloud Free Tier" # Title of the blog post.
 date: 2021-12-23 # Date of post creation.
-lastmod: 2022-03-17 # Date when last modified
+lastmod: 2023-03-30 # Date when last modified
 description: "Notes on installing a Snikket XMPP chat instance alongside a Matrix instance on an Oracle Cloud free tier server" # Description used for search engine.
 featured: false # Sets if post is a featured post, making appear on the home page side bar.
 draft: false # Sets whether to render this page. Draft of true will not be rendered.
@@ -37,7 +37,7 @@ A few days ago I migrated my original Snikket instance from Google Cloud (GCP) t
 
 [^1]: `John laughed at a message.`
 [^2]: Snikket currently has clients for [Android](https://play.google.com/store/apps/details?id=org.snikket.android) and [iOS](https://apps.apple.com/us/app/snikket/id1545164189) with plans to add a web client in the future.
-[^3]: That said, Snikket is built on the [XMPP messaging standard](https://xmpp.org/) which means it can inter-operate with other XMPP-based chat networks, servers, and clients - though of course the best experience will be had between Snikket servers and clients. 
+[^3]: That said, Snikket is built on the [XMPP messaging standard](https://xmpp.org/) which means it can inter-operate with other XMPP-based chat networks, servers, and clients - though of course the best experience will be had between Snikket servers and clients.
 
 ### Infrastructure setup
 You can refer to my notes from last time for details on how I [created the Ubuntu 20.04 VM](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#instance-creation) and [configured the firewall rules](/federated-matrix-server-synapse-on-oracle-clouds-free-tier/#firewall-configuration) both at the cloud infrastructure level as well as within the host using `iptables`. Snikket does need a few additional [firewall ports](https://github.com/snikket-im/snikket-server/blob/master/docs/advanced/firewall.md) beyond what was needed for my Matrix setup:
@@ -52,7 +52,7 @@ You can refer to my notes from last time for details on how I [created the Ubunt
 | `5269` | TCP | Connections from other servers |
 | `60000-60100`[^4] | UDP | Audio/Video data proxy (TURN data) |
 
-As a gentle reminder, Oracle's `iptables` configuration inserts a `REJECT all` rule at the bottom of each chain. I needed to make sure that each of my `ALLOW` rules get inserted above that point. So I used `iptables -L INPUT --line-numbers` to identify which line held the `REJECT` rule, and then used `iptables -I INPUT [LINE_NUMBER] -m state --state NEW -p [PROTOCOL] --dport [PORT] -j ACCEPT` to insert the new rules above that point. 
+As a gentle reminder, Oracle's `iptables` configuration inserts a `REJECT all` rule at the bottom of each chain. I needed to make sure that each of my `ALLOW` rules get inserted above that point. So I used `iptables -L INPUT --line-numbers` to identify which line held the `REJECT` rule, and then used `iptables -I INPUT [LINE_NUMBER] -m state --state NEW -p [PROTOCOL] --dport [PORT] -j ACCEPT` to insert the new rules above that point.
 ```bash
 sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 9 -m state --state NEW -p tcp --dport 443 -j ACCEPT
@@ -100,7 +100,7 @@ run-parts: executing /usr/share/netfilter-persistent/plugins.d/25-ip6tables save
 I also needed to create three DNS records with my domain registrar:
 ```
 # Domain                TTL   Class   Type      Target
-chat.vpota.to           300   IN      A         132.145.174.39    
+chat.vpota.to           300   IN      A         132.145.174.39
 groups.vpota.to         300   IN      CNAME     chat.vpota.to
 share.vpota.to          300   IN      CNAME     chat.vpota.to
 ```
@@ -165,7 +165,7 @@ A basic config only needs two parameters:
 | `SNIKKET_DOMAIN` | The fully-qualified domain name that clients will connect to |
 | `SNIKKET_ADMIN_EMAIL` | An admin contact for the server |
 
-That's it. 
+That's it.
 
 In my case, I'm going to add two additional parameters to restrict the UDP TURN port range that I set in my firewalls above.
 
@@ -199,7 +199,7 @@ sudo docker exec snikket create-invite --admin --group default
 That command will return a customized invite link which I can copy and paste into my browser.
 ![Snikket invite page](snikket_invite_page.png)
 
-If I've got a mobile device handy, I can go ahead and install the client there to get started; the app will even automatically generate a secure password[^6] so that I (and my users) don't have to worry about it. Otherwise, clicking the **register an account manually** link at the bottom of the screen lets me create a username and password directly. 
+If I've got a mobile device handy, I can go ahead and install the client there to get started; the app will even automatically generate a secure password[^6] so that I (and my users) don't have to worry about it. Otherwise, clicking the **register an account manually** link at the bottom of the screen lets me create a username and password directly.
 
 With shiny new credentials in hand, I can log in at the web portal to manage my account or access the the admin panel.
 
@@ -211,7 +211,7 @@ With shiny new credentials in hand, I can log in at the web portal to manage my 
 Excellent, I've got a private chat server but no one to chat privately with[^7]. Time to fix that, eh? I *could* use that `docker exec snikket create-invite` command line again to create another invite link, but I think I'll do that through the admin panel instead.
 ![Snikket admin panel](snikket_admin_panel.png)
 
-Before I get into the invite process, I'm going to take a brief detour to discuss *circles*. For those of you who didn't make a comfortable (though short-lived) home on Google+[^8], Snikket uses the term circle to refer to social circles within a local community. Each server gets a circle created by default, and new users will be automatically added to that circle. Users within the same circle will appear in each other's contact list and will also be added into a group chat together. 
+Before I get into the invite process, I'm going to take a brief detour to discuss *circles*. For those of you who didn't make a comfortable (though short-lived) home on Google+[^8], Snikket uses the term circle to refer to social circles within a local community. Each server gets a circle created by default, and new users will be automatically added to that circle. Users within the same circle will appear in each other's contact list and will also be added into a group chat together.
 
 It might make sense to use circles to group users based on how they know each other. There could be a circle for family, a circle for people who work(ed) together, a circle for the members of a club, and a circle for The Gang that gets together every couple of weeks for board games.
 
@@ -233,19 +233,6 @@ Whichever type is selected, I also need to select the time period for which the 
 
 [^7]: The ultimate in privacy?
 [^8]: Too soon? Yep. Still too soon.
-
-### Join me?
-Speaking of which, here's that invite link in case anyone wants to check out Snikket from the client side of things (and/or just talk to me about *stuff*[^9]):
-
-{{% notice info "Link removed" %}}
-The invite link has since expired so there's no point sharing it here. If you'd like an account on my server, feel free to hit me up via one of the various options under the **Connect** menu up top and I'll send you a personal invite. Or if you'd like a personal Snikket server but don't want to build and manage it on your own, check out **[Snikket Hosting](https://snikket.org/hosting/)**.
-{{% /notice %}}
-
-If you've already got a Snikket and/or XMPP account, hit me up from your own server:
-
-{{< cloakemail address="john@chat.vpota.to" protocol="xmpp">}}
-
-[^9]: I'm also open to discussing *things*.
 
 ### Advanced configuration
 Okay, so that covers everything that's needed for a standard Snikket installation in OCI. The firewall configuration in particular would have been much simpler in GCP (where I could have used `ufw`) but I still think it's overall pretty straight forward. But what about my case where I wanted to put Snikket on the same server as my Matrix instance? Or the steps I needed to move Snikket from the GCP server onto the OCI server?
@@ -289,7 +276,7 @@ bowdre.net {
 }
 ```
 
-So Caddy will be listening on port `80` for traffic to `http://chat.vpota.to`, `http://groups.chat.vpota.to`, and `http://share.chat.vpota.to`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^10]. 
+So Caddy will be listening on port `80` for traffic to `http://chat.vpota.to`, `http://groups.chat.vpota.to`, and `http://share.chat.vpota.to`, and will proxy that HTTP traffic to the Snikket instance on port `5080`. Snikket will automatically redirect HTTP traffic to HTTPS except in the case of the required ACME challenges so that the certs can get renewed. It will also listen on port `443` for traffic to the same hostnames and will pass that into Snikket on port `5443` *without verifying certs* between the backside of the proxy and the front side of Snikket. This is needed since there isn't an easy way to get Caddy to trust the certificates used internally by Snikket[^10].
 
 And then any traffic to `matrix.bowdre.net` or `bowdre.net` still gets handled as described in that other post.
 
@@ -298,7 +285,7 @@ Did you notice that Snikket will need to get reconfigured to listen on `5080` an
 [^10]: Remember that both Caddy and Snikket are managing their own fully-valid certificates in this scenario, but they don't necessarily know that about each other.
 
 #### Migrating a Snikket instance
-Since Snikket is completely containerized, moving between hosts is a simple matter of transferring the configuration and data. 
+Since Snikket is completely containerized, moving between hosts is a simple matter of transferring the configuration and data.
 
 The Snikket team has actually put together a couple of scripts to assist with [backing up](https://github.com/snikket-im/snikket-selfhosted/blob/main/scripts/backup.sh) and [restoring](https://github.com/snikket-im/snikket-selfhosted/blob/main/scripts/restore.sh) an instance. I just adapted the last line of each to do what I needed:
 
