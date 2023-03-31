@@ -35,12 +35,8 @@
   weight = -100
 [[main]]
   parent = "Connect"
-  name = "Session"
-  url = "/session/"
-[[main]]
-  parent = "Connect"
-  name = "XMPP"
-  url = "/xmpp/"
+  name = "SimpleX Chat"
+  url = "https://go.vpota.to/simplex"
 [[main]]
   parent = "Connect"
   name = "GitHub"

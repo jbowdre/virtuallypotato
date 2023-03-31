@@ -24,5 +24,4 @@ See what I've been up to on:
 - [CounterSocial](https://counter.social/@john_b)
 
 Securely chat with me via:
-- [XMPP](/xmpp/)
-- [Session](/session/)
+- [SimpleX Chat](https://go.vpota.to/simplex)
