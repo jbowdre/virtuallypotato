@@ -11,8 +11,8 @@ You can **[contact me on SimpleX Chat](https://simplex.chat/contact/#/?v=1-2&smp
 ![](/images/simplex-invite.png)
 
 ## About SimpleX Chat
-[SimpleX Chat](https://simplex.chat/) is a secure messaging solution with a strong emphasis on user privacy. It's (naturally) end-to-end encrypted, doesn't require (or collect) *any* information about you in order to sign up, doesn't use any persistent user identifiers (not even a randomly-generated one), isn't associated with any cryptocurrency project, and is fully decentralized.
 ![](/logos/simplex.svg)
+[SimpleX Chat](https://simplex.chat/) is a secure messaging solution with a strong emphasis on user privacy. It's (naturally) end-to-end encrypted, doesn't require (or collect) *any* information about you in order to sign up, doesn't use any persistent user identifiers (not even a randomly-generated one), isn't associated with any cryptocurrency project, and is fully decentralized.
 
 Incoming messages are routed through a pool of servers so that your conversations don't all follow the same path - and no server knows anything about conversations that aren't routed through it. Servers only hold your messages long enough to ensure they get to you, and those messages only exist in the encrypted database on your device once they've been delivered. SimpleX also makes it easy to back up that database and restore it on a new device so you don't lose any messages or contacts.
 
