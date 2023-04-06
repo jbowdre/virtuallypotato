@@ -14,7 +14,7 @@ Incoming messages are routed through a pool of servers so that your conversation
 
 The app is also packed with other features like disappearing messages, encrypted file transfers, encrypted voice messages, encrypted audio and video calls, decentralized private groups, and a cool incognito mode which connects new conversations to a randomly-generated profile instead of your primary one. There's even a [CLI client](https://github.com/simplex-chat/simplex-chat/blob/stable/docs/CLI.md)!
 
-All that is to say... you can **[contact me on SimpleX](https://simplex.chat/contact/#/?v=1-2&smp=smp%3A%2F%2FkYx5LmVD9FMM8hJN4BQqL4WmeUNZn8ipXsX2UkBoiHE%3D%40smp.vpota.to%2FFLy56WLZ79Xda3gW0BjUWDotP6uaparF%23%2F%3Fv%3D1-2%26dh%3DMCowBQYDK2VuAyEAZTkRAbrxefYZbb5Qypb9BXfuN0X0tzSPEv682DkNcn0%253D)**.
+All that is to say... you can **[contact me on SimpleX Chat](https://simplex.chat/contact/#/?v=1-2&smp=smp%3A%2F%2FkYx5LmVD9FMM8hJN4BQqL4WmeUNZn8ipXsX2UkBoiHE%3D%40smp.vpota.to%2FFLy56WLZ79Xda3gW0BjUWDotP6uaparF%23%2F%3Fv%3D1-2%26dh%3DMCowBQYDK2VuAyEAZTkRAbrxefYZbb5Qypb9BXfuN0X0tzSPEv682DkNcn0%253D)**.
 
 ## Private Servers
 One of the really attractive aspects of SimpleX is its decentralized nature. You can easily host your own [simplexmq server](https://github.com/simplex-chat/simplexmq) for routing your messages, and I've done just that. In fact, I've deployed three of them. As one of my closest internet friends, you're welcome to use them as well. Just add these in the SimpleX app at **Settings > Network & servers > SMP servers > + Add server...**. You can enable the option to use them for new connections, and *disable* that option on the default server list if you'd like - or leave them enabled to maximize the decentralized aspect.
