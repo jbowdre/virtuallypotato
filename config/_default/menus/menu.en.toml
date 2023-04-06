@@ -36,7 +36,7 @@
 [[main]]
   parent = "Connect"
   name = "SimpleX Chat"
-  url = "https://go.vpota.to/simplex"
+  url = "simplex"
 [[main]]
   parent = "Connect"
   name = "GitHub"
