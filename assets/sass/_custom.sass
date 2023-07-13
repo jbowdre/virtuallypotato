@@ -1,5 +1,5 @@
 // Offset scrolling to compensate for navbar so anchors work correctly
-html, body 
+html, body
     scroll-padding-top: 4.5rem
 
 // Impose a max height on the site logo so it doesn't scale and look bad
@@ -8,18 +8,13 @@ html, body
         img
             max-height: 2rem
 
-.sidebar
-    &_badge
-      max-height: 8rem 
-                
-
 // Magic for collapsing content, borrowed from https://www.digitalocean.com/community/tutorials/css-collapsible
 .lbl-toggle
     display: block
     font-size: 125%
     cursor: pointer
     transition: all 0.25s ease-out
-              
+
 .lbl-toggle::before
     content: ' '
     display: inline-block
